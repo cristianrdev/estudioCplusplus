@@ -1,0 +1,3 @@
+MSYS2 UCRT64
+compilar con SFML
+g++ pruebaSFML.cpp -o pruebaSFML  -lsfml-graphics -lsfml-window -lsfml-system
