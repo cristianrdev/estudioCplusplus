@@ -1,6 +1,7 @@
 #include "Juego.hpp"
 
 #include <algorithm>
+#include <cmath>
 #include <iomanip>
 #include <optional>
 #include <sstream>
@@ -68,6 +69,7 @@ void Juego::reiniciar()
 {
     enemigos_.clear();
     enemigosAlien_.clear();
+    esbirros_.clear();
     proyectiles_.clear();
     proyectilesEnemigos_.clear();
     proximaOleada_ = 0;
@@ -205,7 +207,7 @@ void Juego::crearOleada(const OleadaEnemigos& oleada)
                 std::max(0.1f, oleada.frecuenciaDisparo));
             enemigos_.push_back(std::move(enemigo));
         }
-        else
+        else if (oleada.tipo == TipoEnemigo::Alien)
         {
             auto enemigo = std::make_unique<EnemigoAlien>();
             if (!enemigo->cargarTexturas())
@@ -219,6 +221,18 @@ void Juego::crearOleada(const OleadaEnemigos& oleada)
                 std::clamp(oleada.danio, 1, 3),
                 std::max(0.1f, oleada.frecuenciaDisparo));
             enemigosAlien_.push_back(std::move(enemigo));
+        }
+        else
+        {
+            auto esbirro = std::make_unique<Esbirro>();
+            if (!esbirro->cargarTextura())
+                continue;
+            esbirro->configurarVelocidad(oleada.movimiento.velocidadVertical);
+            esbirro->activar(
+                posicionX,
+                std::clamp(oleada.danio, 1, 3),
+                std::max(0.1f, oleada.frecuenciaDisparo));
+            esbirros_.push_back(std::move(esbirro));
         }
     }
 }
@@ -264,6 +278,31 @@ void Juego::dispararEnemigos()
             });
         }
     }
+
+    for (auto& esbirro : esbirros_)
+    {
+        if (!esbirro->listoParaDisparar())
+            continue;
+
+        const sf::Vector2f origen = esbirro->obtenerOrigenDisparo();
+        const sf::Vector2f objetivo = nave_.obtenerCentro();
+        const float direccionX = objetivo.x - origen.x;
+        const float direccionY = objetivo.y - origen.y;
+        const float distancia = std::sqrt(direccionX * direccionX + direccionY * direccionY);
+        if (distancia <= 0.f)
+            continue;
+
+        constexpr float velocidad = 6.5f;
+        proyectilesEnemigos_.push_back({
+            origen.x,
+            origen.y,
+            direccionX / distancia * velocidad,
+            direccionY / distancia * velocidad,
+            obtenerConfiguracionProyectil(TipoProyectilEnemigo::PuntoEnergiaAmarillo).danio,
+            TipoProyectilEnemigo::PuntoEnergiaAmarillo,
+            true
+        });
+    }
 }
 
 void Juego::actualizarProyectilesEnemigos()
@@ -291,6 +330,8 @@ void Juego::actualizarEnemigos()
         enemigo->actualizar();
     for (auto& enemigo : enemigosAlien_)
         enemigo->actualizar();
+    for (auto& esbirro : esbirros_)
+        esbirro->actualizar();
 
     detectarColisionesConNave();
 
@@ -306,6 +347,12 @@ void Juego::actualizarEnemigos()
             enemigosAlien_.end(),
             [](const auto& enemigo) { return !enemigo->estaActivo(); }),
         enemigosAlien_.end());
+    esbirros_.erase(
+        std::remove_if(
+            esbirros_.begin(),
+            esbirros_.end(),
+            [](const auto& esbirro) { return !esbirro->estaActivo(); }),
+        esbirros_.end());
 }
 
 void Juego::detectarColisionesConNave()
@@ -337,6 +384,21 @@ void Juego::detectarColisionesConNave()
         {
             enemigo->desactivar();
             vidaNave_ = std::max(0, vidaNave_ - enemigo->obtenerDanio());
+            nave_.recibirDanio();
+            ++impactosNave_;
+            if (vidaNave_ <= 0)
+                iniciarExplosionNave();
+            return;
+        }
+    }
+
+    for (auto& esbirro : esbirros_)
+    {
+        if (esbirro->estaActivo()
+            && limitesNave.findIntersection(esbirro->obtenerLimitesColision()))
+        {
+            esbirro->desactivar();
+            vidaNave_ = std::max(0, vidaNave_ - esbirro->obtenerDanio());
             nave_.recibirDanio();
             ++impactosNave_;
             if (vidaNave_ <= 0)
@@ -431,6 +493,8 @@ void Juego::dibujarEnemigos()
         enemigo->dibujar(window_);
     for (const auto& enemigo : enemigosAlien_)
         enemigo->dibujar(window_);
+    for (const auto& esbirro : esbirros_)
+        esbirro->dibujar(window_);
 }
 
 void Juego::dibujarProyectilEnemigo(const ProyectilEnemigo& proyectil)

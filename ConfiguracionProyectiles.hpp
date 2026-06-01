@@ -5,7 +5,8 @@
 enum class TipoProyectilEnemigo
 {
     LaserCeleste,
-    BolaEnergiaPurpura
+    BolaEnergiaPurpura,
+    PuntoEnergiaAmarillo
 };
 
 struct ConfiguracionProyectilEnemigo

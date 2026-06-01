@@ -87,6 +87,15 @@ sf::Vector2f Nave::obtenerOrigenDisparo() const
     return {x_ + (anchoNave / 2.f) - 4.f, y_ - 20.f};
 }
 
+sf::Vector2f Nave::obtenerCentro() const
+{
+    const sf::FloatRect limites = spriteNave_.getGlobalBounds();
+    return {
+        limites.position.x + limites.size.x / 2.f,
+        limites.position.y + limites.size.y / 2.f
+    };
+}
+
 sf::FloatRect Nave::obtenerLimitesColision() const
 {
     return spriteNave_.getGlobalBounds();
@@ -342,4 +351,85 @@ void EnemigoAlien::actualizarAnimacion()
     frame_ = (frame_ + 1) % 2;
     sprite_.setTexture(frame_ == 0 ? texturaFrame1_ : texturaFrame2_, true);
     relojAnimacion_.restart();
+}
+
+bool Esbirro::cargarTextura()
+{
+    if (!textura_.loadFromFile("assets/esbirro.png"))
+        return false;
+
+    sprite_.setTexture(textura_, true);
+    sprite_.setScale({escala_, escala_});
+    return true;
+}
+
+void Esbirro::activar(float posicionX, int danio, float frecuenciaDisparo)
+{
+    y_ = -sprite_.getGlobalBounds().size.y;
+    activo_ = true;
+    danio_ = danio;
+    frecuenciaDisparo_ = frecuenciaDisparo;
+    relojDisparo_.restart();
+    sprite_.setPosition({posicionX, y_});
+}
+
+void Esbirro::configurarVelocidad(float velocidadVertical)
+{
+    velocidadVertical_ = velocidadVertical;
+}
+
+void Esbirro::actualizar()
+{
+    if (!activo_)
+        return;
+
+    y_ += velocidadVertical_;
+    sprite_.setPosition({sprite_.getPosition().x, y_});
+
+    if (y_ > 1080.f)
+        activo_ = false;
+}
+
+void Esbirro::dibujar(sf::RenderWindow& window) const
+{
+    if (activo_)
+        window.draw(sprite_);
+}
+
+bool Esbirro::estaActivo() const
+{
+    return activo_;
+}
+
+void Esbirro::desactivar()
+{
+    activo_ = false;
+}
+
+int Esbirro::obtenerDanio() const
+{
+    return danio_;
+}
+
+bool Esbirro::listoParaDisparar()
+{
+    if (!activo_ || relojDisparo_.getElapsedTime().asSeconds() < frecuenciaDisparo_)
+        return false;
+
+    relojDisparo_.restart();
+    return true;
+}
+
+sf::Vector2f Esbirro::obtenerOrigenDisparo() const
+{
+    const sf::FloatRect limites = sprite_.getGlobalBounds();
+    return {
+        limites.position.x + limites.size.x / 2.f,
+        limites.position.y + limites.size.y
+    };
+}
+
+sf::FloatRect Esbirro::obtenerLimitesColision() const
+{
+    return sprite_.getGlobalBounds();
 }

@@ -62,6 +62,7 @@ private:
     Nave nave_;
     std::vector<std::unique_ptr<Enemigo>> enemigos_;
     std::vector<std::unique_ptr<EnemigoAlien>> enemigosAlien_;
+    std::vector<std::unique_ptr<Esbirro>> esbirros_;
     std::vector<Proyectil> proyectiles_;
     std::vector<ProyectilEnemigo> proyectilesEnemigos_;
     sf::Clock relojDisparo_;

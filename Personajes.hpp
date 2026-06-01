@@ -8,6 +8,7 @@ public:
     void actualizar();
     void dibujar(sf::RenderWindow& window) const;
     sf::Vector2f obtenerOrigenDisparo() const;
+    sf::Vector2f obtenerCentro() const;
     sf::FloatRect obtenerLimitesColision() const;
     bool esInvulnerable() const;
     void recibirDanio();
@@ -114,4 +115,31 @@ private:
     sf::Texture texturaFrame1_;
     sf::Texture texturaFrame2_;
     sf::Sprite sprite_{texturaFrame1_};
+};
+
+class Esbirro {
+public:
+    bool cargarTextura();
+    void activar(float posicionX, int danio, float frecuenciaDisparo);
+    void configurarVelocidad(float velocidadVertical);
+    void actualizar();
+    void dibujar(sf::RenderWindow& window) const;
+    bool estaActivo() const;
+    void desactivar();
+    int obtenerDanio() const;
+    bool listoParaDisparar();
+    sf::Vector2f obtenerOrigenDisparo() const;
+    sf::FloatRect obtenerLimitesColision() const;
+
+private:
+    float y_ = -100.f;
+    float velocidadVertical_ = 5.2f;
+    float escala_ = 0.1f;
+    bool activo_ = false;
+    int danio_ = 1;
+    float frecuenciaDisparo_ = 1.1f;
+
+    sf::Clock relojDisparo_;
+    sf::Texture textura_;
+    sf::Sprite sprite_{textura_};
 };

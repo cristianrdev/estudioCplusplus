@@ -5,7 +5,8 @@
 enum class TipoEnemigo
 {
     Nave,
-    Alien
+    Alien,
+    Esbirro
 };
 
 struct MovimientoCoseno
