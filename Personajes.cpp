@@ -2,17 +2,17 @@
 
 bool Nave::cargarTexturas()
 {
-    if (!texturaCentro_.loadFromFile("centro.png"))
+    if (!texturaCentro_.loadFromFile("assets/centro.png"))
         return false;
-    if (!texturaIzquierda_.loadFromFile("izquierda.png"))
+    if (!texturaIzquierda_.loadFromFile("assets/izquierda.png"))
         return false;
-    if (!texturaDerecha_.loadFromFile("derecha.png"))
+    if (!texturaDerecha_.loadFromFile("assets/derecha.png"))
         return false;
-    if (!fuegoTex1_.loadFromFile("fuego1.png"))
+    if (!fuegoTex1_.loadFromFile("assets/fuego1.png"))
         return false;
-    if (!fuegoTex2_.loadFromFile("fuego2.png"))
+    if (!fuegoTex2_.loadFromFile("assets/fuego2.png"))
         return false;
-    if (!fuegoTex3_.loadFromFile("fuego3.png"))
+    if (!fuegoTex3_.loadFromFile("assets/fuego3.png"))
         return false;
 
     spriteNave_.setTexture(texturaCentro_, true);
