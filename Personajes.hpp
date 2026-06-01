@@ -153,7 +153,7 @@ private:
 class MiniBossMolusco {
 public:
     bool cargarTexturas();
-    void activar(float posicionX, int danio, int vida);
+    void activar(float posicionX, int danio, int vida, float frecuenciaDisparo);
     void configurarMovimiento(
         float velocidadVertical,
         float alturaEspera,
@@ -165,6 +165,9 @@ public:
     void desactivar();
     int obtenerDanio() const;
     bool recibirDanio(int danio);
+    bool listoParaDisparar();
+    sf::Vector2f obtenerOrigenDisparoIzquierdo() const;
+    sf::Vector2f obtenerOrigenDisparoDerecho() const;
     sf::FloatRect obtenerLimitesColision() const;
     void establecerPausa(bool pausado);
 
@@ -187,10 +190,12 @@ private:
     bool activo_ = false;
     int danio_ = 3;
     int vida_ = 10;
+    float frecuenciaDisparo_ = 1.8f;
     EstadoMovimiento estado_ = EstadoMovimiento::Llegando;
 
     sf::Clock relojAnimacion_;
     sf::Clock relojEspera_;
+    sf::Clock relojDisparo_;
     sf::Texture texturaFrame1_;
     sf::Texture texturaFrame2_;
     sf::Texture texturaFrame3_;

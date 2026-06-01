@@ -501,7 +501,8 @@ void Juego::crearOleada(const OleadaEnemigos& oleada)
             miniBoss->activar(
                 posicionX,
                 std::clamp(oleada.danio, 1, 3),
-                std::max(1, oleada.vida));
+                std::max(1, oleada.vida),
+                std::max(0.1f, oleada.frecuenciaDisparo));
             miniBossesMolusco_.push_back(std::move(miniBoss));
         }
     }
@@ -572,6 +573,31 @@ void Juego::dispararEnemigos()
             TipoProyectilEnemigo::PuntoEnergiaAmarillo,
             true
         });
+    }
+
+    for (auto& miniBoss : miniBossesMolusco_)
+    {
+        if (!miniBoss->listoParaDisparar())
+            continue;
+
+        for (const sf::Vector2f origen : {
+            miniBoss->obtenerOrigenDisparoIzquierdo(),
+            miniBoss->obtenerOrigenDisparoDerecho()})
+        {
+            for (const float velocidadX : {-3.f, 0.f, 3.f})
+            {
+                proyectilesEnemigos_.push_back({
+                    origen.x,
+                    origen.y,
+                    velocidadX,
+                    4.5f,
+                    obtenerConfiguracionProyectil(
+                        TipoProyectilEnemigo::BolaEnergiaPurpura).danio,
+                    TipoProyectilEnemigo::BolaEnergiaPurpura,
+                    true
+                });
+            }
+        }
     }
 }
 

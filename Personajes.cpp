@@ -521,15 +521,21 @@ bool MiniBossMolusco::cargarTexturas()
     return true;
 }
 
-void MiniBossMolusco::activar(float posicionX, int danio, int vida)
+void MiniBossMolusco::activar(
+    float posicionX,
+    int danio,
+    int vida,
+    float frecuenciaDisparo)
 {
     const float mitadAlto = sprite_.getGlobalBounds().size.y / 2.f;
     sprite_.setPosition({posicionX, -mitadAlto});
     danio_ = danio;
     vida_ = vida;
+    frecuenciaDisparo_ = frecuenciaDisparo;
     estado_ = EstadoMovimiento::Llegando;
     activo_ = true;
     relojAnimacion_.restart();
+    relojDisparo_.restart();
 }
 
 void MiniBossMolusco::configurarMovimiento(
@@ -610,6 +616,33 @@ bool MiniBossMolusco::recibirDanio(int danio)
     return vida_ <= 0;
 }
 
+bool MiniBossMolusco::listoParaDisparar()
+{
+    if (!activo_ || relojDisparo_.getElapsedTime().asSeconds() < frecuenciaDisparo_)
+        return false;
+
+    relojDisparo_.restart();
+    return true;
+}
+
+sf::Vector2f MiniBossMolusco::obtenerOrigenDisparoIzquierdo() const
+{
+    const sf::FloatRect limites = sprite_.getGlobalBounds();
+    return {
+        limites.position.x + limites.size.x * 0.2f,
+        limites.position.y + limites.size.y * 0.72f
+    };
+}
+
+sf::Vector2f MiniBossMolusco::obtenerOrigenDisparoDerecho() const
+{
+    const sf::FloatRect limites = sprite_.getGlobalBounds();
+    return {
+        limites.position.x + limites.size.x * 0.8f,
+        limites.position.y + limites.size.y * 0.72f
+    };
+}
+
 sf::FloatRect MiniBossMolusco::obtenerLimitesColision() const
 {
     return sprite_.getGlobalBounds();
@@ -621,11 +654,13 @@ void MiniBossMolusco::establecerPausa(bool pausado)
     {
         relojAnimacion_.stop();
         relojEspera_.stop();
+        relojDisparo_.stop();
     }
     else
     {
         relojAnimacion_.start();
         relojEspera_.start();
+        relojDisparo_.start();
     }
 }
 
