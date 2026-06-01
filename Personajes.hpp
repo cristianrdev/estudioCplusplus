@@ -149,3 +149,50 @@ private:
     sf::Texture textura_;
     sf::Sprite sprite_{textura_};
 };
+
+class MiniBossMolusco {
+public:
+    bool cargarTexturas();
+    void activar(float posicionX, int danio, int vida);
+    void configurarMovimiento(
+        float velocidadVertical,
+        float alturaEspera,
+        float duracionEspera,
+        float velocidadHorizontal);
+    void actualizar();
+    void dibujar(sf::RenderWindow& window) const;
+    bool estaActivo() const;
+    void desactivar();
+    int obtenerDanio() const;
+    bool recibirDanio(int danio);
+    sf::FloatRect obtenerLimitesColision() const;
+    void establecerPausa(bool pausado);
+
+private:
+    enum class EstadoMovimiento
+    {
+        Llegando,
+        Esperando,
+        Saliendo
+    };
+
+    void actualizarAnimacion();
+
+    float velocidadVertical_ = 2.4f;
+    float alturaEspera_ = 810.f;
+    float duracionEspera_ = 10.f;
+    float velocidadHorizontal_ = 3.2f;
+    float escala_ = 0.27f;
+    int frame_ = 0;
+    bool activo_ = false;
+    int danio_ = 3;
+    int vida_ = 10;
+    EstadoMovimiento estado_ = EstadoMovimiento::Llegando;
+
+    sf::Clock relojAnimacion_;
+    sf::Clock relojEspera_;
+    sf::Texture texturaFrame1_;
+    sf::Texture texturaFrame2_;
+    sf::Texture texturaFrame3_;
+    sf::Sprite sprite_{texturaFrame1_};
+};

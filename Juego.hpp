@@ -87,6 +87,7 @@ private:
     std::vector<std::unique_ptr<Enemigo>> enemigos_;
     std::vector<std::unique_ptr<EnemigoAlien>> enemigosAlien_;
     std::vector<std::unique_ptr<Esbirro>> esbirros_;
+    std::vector<std::unique_ptr<MiniBossMolusco>> miniBossesMolusco_;
     std::vector<Proyectil> proyectiles_;
     std::vector<ProyectilEnemigo> proyectilesEnemigos_;
     std::vector<ExplosionEnemigo> explosionesEnemigos_;

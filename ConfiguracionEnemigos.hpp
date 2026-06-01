@@ -6,7 +6,8 @@ enum class TipoEnemigo
 {
     Nave,
     Alien,
-    Esbirro
+    Esbirro,
+    MiniBossMolusco
 };
 
 struct MovimientoCoseno
@@ -14,6 +15,13 @@ struct MovimientoCoseno
     float amplitud;
     float velocidadVertical;
     float velocidadOscilacion;
+};
+
+struct ConfiguracionMiniBoss
+{
+    float alturaEspera = 200.f;
+    float duracionEspera = 10.f;
+    float velocidadHorizontal = 3.f;
 };
 
 struct OleadaEnemigos
@@ -27,6 +35,7 @@ struct OleadaEnemigos
     float posicionXInicial;
     float separacionX;
     MovimientoCoseno movimiento;
+    ConfiguracionMiniBoss miniBoss;
 };
 
 const std::vector<OleadaEnemigos>& obtenerOleadasEnemigos();

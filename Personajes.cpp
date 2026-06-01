@@ -502,3 +502,144 @@ void Esbirro::establecerPausa(bool pausado)
     else
         relojDisparo_.start();
 }
+
+bool MiniBossMolusco::cargarTexturas()
+{
+    if (!texturaFrame1_.loadFromFile("assets/miniboss_molusco_1.png"))
+        return false;
+    if (!texturaFrame2_.loadFromFile("assets/miniboss_molusco_2.png"))
+        return false;
+    if (!texturaFrame3_.loadFromFile("assets/miniboss_molusco_3.png"))
+        return false;
+
+    sprite_.setTexture(texturaFrame1_, true);
+    sprite_.setScale({escala_, escala_});
+    sprite_.setOrigin({
+        texturaFrame1_.getSize().x / 2.f,
+        texturaFrame1_.getSize().y / 2.f
+    });
+    return true;
+}
+
+void MiniBossMolusco::activar(float posicionX, int danio, int vida)
+{
+    const float mitadAlto = sprite_.getGlobalBounds().size.y / 2.f;
+    sprite_.setPosition({posicionX, -mitadAlto});
+    danio_ = danio;
+    vida_ = vida;
+    estado_ = EstadoMovimiento::Llegando;
+    activo_ = true;
+    relojAnimacion_.restart();
+}
+
+void MiniBossMolusco::configurarMovimiento(
+    float velocidadVertical,
+    float alturaEspera,
+    float duracionEspera,
+    float velocidadHorizontal)
+{
+    velocidadVertical_ = velocidadVertical;
+    alturaEspera_ = alturaEspera;
+    duracionEspera_ = duracionEspera;
+    velocidadHorizontal_ = velocidadHorizontal;
+}
+
+void MiniBossMolusco::actualizar()
+{
+    if (!activo_)
+        return;
+
+    actualizarAnimacion();
+
+    if (estado_ == EstadoMovimiento::Llegando)
+    {
+        sprite_.move({0.f, velocidadVertical_});
+        if (sprite_.getPosition().y >= alturaEspera_)
+        {
+            sprite_.setPosition({sprite_.getPosition().x, alturaEspera_});
+            estado_ = EstadoMovimiento::Esperando;
+            relojEspera_.restart();
+        }
+    }
+    else if (estado_ == EstadoMovimiento::Esperando)
+    {
+        float x = sprite_.getPosition().x + velocidadHorizontal_;
+        const float mitadAncho = sprite_.getGlobalBounds().size.x / 2.f;
+        if (x < mitadAncho || x > 1024.f - mitadAncho)
+        {
+            velocidadHorizontal_ = -velocidadHorizontal_;
+            x = sprite_.getPosition().x + velocidadHorizontal_;
+        }
+        sprite_.setPosition({x, sprite_.getPosition().y});
+
+        if (relojEspera_.getElapsedTime().asSeconds() >= duracionEspera_)
+            estado_ = EstadoMovimiento::Saliendo;
+    }
+    else
+    {
+        sprite_.move({0.f, velocidadVertical_});
+        if (sprite_.getGlobalBounds().position.y > 1080.f)
+            activo_ = false;
+    }
+}
+
+void MiniBossMolusco::dibujar(sf::RenderWindow& window) const
+{
+    if (activo_)
+        window.draw(sprite_);
+}
+
+bool MiniBossMolusco::estaActivo() const
+{
+    return activo_;
+}
+
+void MiniBossMolusco::desactivar()
+{
+    activo_ = false;
+}
+
+int MiniBossMolusco::obtenerDanio() const
+{
+    return danio_;
+}
+
+bool MiniBossMolusco::recibirDanio(int danio)
+{
+    vida_ -= danio;
+    return vida_ <= 0;
+}
+
+sf::FloatRect MiniBossMolusco::obtenerLimitesColision() const
+{
+    return sprite_.getGlobalBounds();
+}
+
+void MiniBossMolusco::establecerPausa(bool pausado)
+{
+    if (pausado)
+    {
+        relojAnimacion_.stop();
+        relojEspera_.stop();
+    }
+    else
+    {
+        relojAnimacion_.start();
+        relojEspera_.start();
+    }
+}
+
+void MiniBossMolusco::actualizarAnimacion()
+{
+    if (relojAnimacion_.getElapsedTime().asSeconds() < 0.2f)
+        return;
+
+    frame_ = (frame_ + 1) % 3;
+    if (frame_ == 0)
+        sprite_.setTexture(texturaFrame1_, true);
+    else if (frame_ == 1)
+        sprite_.setTexture(texturaFrame2_, true);
+    else
+        sprite_.setTexture(texturaFrame3_, true);
+    relojAnimacion_.restart();
+}
