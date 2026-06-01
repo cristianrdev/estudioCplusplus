@@ -13,6 +13,8 @@ int Juego::ejecutar()
 {
     if (!nave_.cargarTexturas())
         return -1;
+    if (!enemigo_.cargarTextura())
+        return -1;
 
     while (window_.isOpen())
     {
@@ -36,6 +38,7 @@ void Juego::procesarEventos()
 void Juego::actualizar()
 {
     nave_.actualizar();
+    enemigo_.actualizar();
     disparar();
     actualizarProyectiles();
 }
@@ -74,6 +77,7 @@ void Juego::actualizarProyectiles()
 void Juego::dibujar()
 {
     window_.clear();
+    enemigo_.dibujar(window_);
     nave_.dibujar(window_);
 
     for (const auto& proyectil : proyectiles_)

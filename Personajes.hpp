@@ -34,3 +34,24 @@ private:
     sf::Sprite fuegoIzq_{fuegoTex1_};
     sf::Sprite fuegoDer_{fuegoTex1_};
 };
+
+class Enemigo {
+public:
+    bool cargarTextura();
+    void actualizar();
+    void dibujar(sf::RenderWindow& window) const;
+
+private:
+    void reaparecer();
+
+    float xCentro_ = 512.f;
+    float y_ = -100.f;
+    float fase_ = 0.f;
+    float amplitud_ = 220.f;
+    float velocidadVertical_ = 2.5f;
+    float velocidadOscilacion_ = 0.035f;
+    float escala_ = 0.13f;
+
+    sf::Texture textura_;
+    sf::Sprite sprite_{textura_};
+};

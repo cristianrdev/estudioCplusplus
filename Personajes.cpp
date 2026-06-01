@@ -1,5 +1,7 @@
 #include "Personajes.hpp"
 
+#include <cmath>
+
 bool Nave::cargarTexturas()
 {
     if (!texturaCentro_.loadFromFile("assets/centro.png"))
@@ -109,4 +111,40 @@ void Nave::actualizarPosiciones()
     fuegoDer_.setScale({escalaFuego_, largoFuego_});
     fuegoIzq_.setPosition({x_ + 6.f, y_ + altoNave - 14.f});
     fuegoDer_.setPosition({x_ + anchoNave - 19.f, y_ + altoNave - 14.f});
+}
+
+bool Enemigo::cargarTextura()
+{
+    if (!textura_.loadFromFile("assets/enemigo.png"))
+        return false;
+
+    sprite_.setTexture(textura_, true);
+    sprite_.setScale({escala_, escala_});
+    reaparecer();
+    return true;
+}
+
+void Enemigo::actualizar()
+{
+    fase_ += velocidadOscilacion_;
+    y_ += velocidadVertical_;
+
+    const float ancho = sprite_.getGlobalBounds().size.x;
+    const float x = xCentro_ + amplitud_ * std::cos(fase_) - ancho / 2.f;
+    sprite_.setPosition({x, y_});
+
+    if (y_ > 1080.f)
+        reaparecer();
+}
+
+void Enemigo::dibujar(sf::RenderWindow& window) const
+{
+    window.draw(sprite_);
+}
+
+void Enemigo::reaparecer()
+{
+    y_ = -sprite_.getGlobalBounds().size.y;
+    fase_ = 0.f;
+    actualizar();
 }
