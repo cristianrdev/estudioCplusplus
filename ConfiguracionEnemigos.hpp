@@ -1,5 +1,7 @@
 #pragma once
 
+#include "ComportamientosEnemigos.hpp"
+
 #include <vector>
 
 enum class TipoEnemigo
@@ -8,20 +10,6 @@ enum class TipoEnemigo
     Alien,
     Esbirro,
     MiniBossMolusco
-};
-
-struct MovimientoCoseno
-{
-    float amplitud;
-    float velocidadVertical;
-    float velocidadOscilacion;
-};
-
-struct ConfiguracionMiniBoss
-{
-    float alturaEspera = 200.f;
-    float duracionEspera = 10.f;
-    float velocidadHorizontal = 3.f;
 };
 
 struct OleadaEnemigos
@@ -34,8 +22,7 @@ struct OleadaEnemigos
     float frecuenciaDisparo;
     float posicionXInicial;
     float separacionX;
-    MovimientoCoseno movimiento;
-    ConfiguracionMiniBoss miniBoss;
+    ComportamientoEnemigo comportamiento;
 };
 
 const std::vector<OleadaEnemigos>& obtenerOleadasEnemigos();

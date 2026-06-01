@@ -2,49 +2,48 @@
 
 const std::vector<OleadaEnemigos> &obtenerOleadasEnemigos()
 {
-    // tiempo, tipo, cantidad, danio, vida, frecuencia disparo, x inicial,
-    // separacion x, {amplitud o velocidad diagonal x, descenso, oscilacion},
-    // {altura espera miniboss, segundos espera, velocidad horizontal miniboss}
+    // tiempo, tipo, cantidad, danio, vida, frecuencia disparo,
+    // x inicial, separacion x, comportamiento
     static const std::vector<OleadaEnemigos> oleadas = {
         // tiempo, tipo,        cantidad, danio, vida, frecuencia disparo, x inicial, separacion x,
 
-        {2.f, TipoEnemigo::Esbirro, 2, 1, 1, 0.8f , 300.f, 400.f, {0.f, 4.0f, 0.f}},
-        {2.7f, TipoEnemigo::Esbirro, 2, 1, 1, 0.8f , 300.f, 400.f, {0.f, 4.0f, 0.f}},
-        {3.4f, TipoEnemigo::Esbirro, 2, 1, 1, 0.8f , 300.f, 400.f, {0.f, 4.0f, 0.f}},
+        {2.f, TipoEnemigo::Esbirro, 2, 1, 1, 0.8f, 300.f, 400.f, ComportamientoEnemigo::EsbirroNormal},
+        {2.7f, TipoEnemigo::Esbirro, 2, 1, 1, 0.8f, 300.f, 400.f, ComportamientoEnemigo::EsbirroNormal},
+        {3.4f, TipoEnemigo::Esbirro, 2, 1, 1, 0.8f, 300.f, 400.f, ComportamientoEnemigo::EsbirroNormal},
 
 
         // tiempo,     tipo,       cantidad,  danio, vida, frecuencia disparo, x inicial, separacion x, {amplitud  ,descenso, oscilacion   }
-        {7.f, TipoEnemigo::Alien,   1,        2,     3,         1.8f,           500.f       , 0.f,     {100.f, 2.0f, 0.04f}},
-        // {9.f, TipoEnemigo::Alien,   1,        2,     3,         1.8f,           500.f       , 0.f,     {100.f, 2.0f, 0.04f}},
-        {12.f, TipoEnemigo::Alien,   2,        2,      3,        1.8f,            300.f     , 300.f,    {100.f, 2.0f, 0.04f}},
+        {7.f, TipoEnemigo::Alien, 1, 2, 3, 1.8f, 500.f, 0.f, ComportamientoEnemigo::AlienNormal},
+        // {9.f, TipoEnemigo::Alien, 1, 2, 3, 1.8f, 500.f, 0.f, ComportamientoEnemigo::AlienNormal},
+        {12.f, TipoEnemigo::Alien, 2, 2, 3, 1.8f, 300.f, 300.f, ComportamientoEnemigo::AlienNormal},
 
 
 
-        {18.0f, TipoEnemigo::Esbirro, 1, 1, 1, 0.8f, 500.f, 0.f  , {0.f, 4.0f, 0.f}},  //      *     *
-        {18.3f, TipoEnemigo::Esbirro, 2, 1, 1, 0.8f, 400.f, 200.f, {0.f, 4.0f, 0.f}},  //     *       *
-        {18.6f, TipoEnemigo::Esbirro, 2, 1, 1, 0.8f, 300.f, 400.f, {0.f, 4.0f, 0.f}},  //    *         *
-        {18.9f, TipoEnemigo::Esbirro, 2, 1, 1, 0.8f, 200.f, 600.f, {0.f, 4.0f, 0.f}},  //   *           *
-        {19.2f, TipoEnemigo::Esbirro, 2, 1, 1, 0.8f, 100.f, 800.f, {0.f, 4.0f, 0.f}},  //  *             *
+        {18.0f, TipoEnemigo::Esbirro, 1, 1, 1, 0.8f, 500.f, 0.f, ComportamientoEnemigo::EsbirroNormal},  //      *     *
+        {18.3f, TipoEnemigo::Esbirro, 2, 1, 1, 0.8f, 400.f, 200.f, ComportamientoEnemigo::EsbirroNormal}, //     *       *
+        {18.6f, TipoEnemigo::Esbirro, 2, 1, 1, 0.8f, 300.f, 400.f, ComportamientoEnemigo::EsbirroNormal}, //    *         *
+        {18.9f, TipoEnemigo::Esbirro, 2, 1, 1, 0.8f, 200.f, 600.f, ComportamientoEnemigo::EsbirroNormal}, //   *           *
+        {19.2f, TipoEnemigo::Esbirro, 2, 1, 1, 0.8f, 100.f, 800.f, ComportamientoEnemigo::EsbirroNormal}, //  *             *
 
-        {25.f, TipoEnemigo::Alien,   1,        2,      3,        1.8f,            500.f,       0.f,    {100.f, 2.0f, 0.04f}},
-        {26.f, TipoEnemigo::Esbirro, 2,        1,      1,        1.1f,            300.f,       400.f,  {0.f, 4.0f, 0.f}},
-        {30.f, TipoEnemigo::Alien,   3,        2,      3 ,       1.8f,            300.f,       300.f,    {100.f, 1.8f, 0.025f}},
-
-
-        {40.f, TipoEnemigo::MiniBossMolusco, 1, 3, 60, 1.8f, 512.f, 0.f, {0.f, 2.4f, 0.f}, {200.f, 10.f, 3.2f}},
-        {45.2f, TipoEnemigo::Esbirro, 2, 1, 1, 0.8f, 100.f, 800.f, {0.f, 4.0f, 0.f}},
-        {47.0f, TipoEnemigo::Esbirro, 2, 1, 1, 0.8f, 100.f, 800.f, {0.f, 4.0f, 0.f}},
+        {25.f, TipoEnemigo::Alien, 1, 2, 3, 1.8f, 500.f, 0.f, ComportamientoEnemigo::AlienNormal},
+        {26.f, TipoEnemigo::Esbirro, 2, 1, 1, 1.1f, 300.f, 400.f, ComportamientoEnemigo::EsbirroNormal},
+        {30.f, TipoEnemigo::Alien, 3, 2, 3, 1.8f, 300.f, 300.f, ComportamientoEnemigo::AlienLento},
 
 
-        {59.f,  TipoEnemigo::Esbirro, 2, 1, 1, 0.8f, 100.f, 800.f, {0.f, 4.0f, 0.f}},
+        {40.f, TipoEnemigo::MiniBossMolusco, 1, 3, 60, 1.8f, 512.f, 0.f, ComportamientoEnemigo::MiniBossMolusco},
+        {45.2f, TipoEnemigo::Esbirro, 2, 1, 1, 0.8f, 100.f, 800.f, ComportamientoEnemigo::EsbirroNormal},
+        {47.0f, TipoEnemigo::Esbirro, 2, 1, 1, 0.8f, 100.f, 800.f, ComportamientoEnemigo::EsbirroNormal},
+
+
+        {59.f, TipoEnemigo::Esbirro, 2, 1, 1, 0.8f, 100.f, 800.f, ComportamientoEnemigo::EsbirroNormal},
         
         
-        {61.f, TipoEnemigo::Nave,    4, 1, 3, 1.4f, 180.f, 220.f, {0.f, 3.5f, 0.f}},
+        {61.f, TipoEnemigo::Nave, 4, 1, 3, 1.4f, 180.f, 220.f, ComportamientoEnemigo::NaveDiagonalDerecha},
 
-        // {13.f, TipoEnemigo::Alien, 1, 2, 3, 1.8f, 450.f, 0.f, {280.f, 1.8f, 0.025f}},
-        // {16.f, TipoEnemigo::Esbirro, 4, 1, 1, 1.1f, 140.f, 230.f, {0.f, 5.2f, 0.f}},
-        // {21.f, TipoEnemigo::Alien, 3, 1, 3, 2.2f, 170.f, 280.f, {90.f, 2.2f, 0.04f}},
-        // {27.f, TipoEnemigo::Nave, 1, 3, 2, 1.f, 120.f, 230.f, {-2.8f, 3.f, 0.f}},
+        // {13.f, TipoEnemigo::Alien, 1, 2, 3, 1.8f, 450.f, 0.f, ComportamientoEnemigo::AlienLento},
+        // {16.f, TipoEnemigo::Esbirro, 4, 1, 1, 1.1f, 140.f, 230.f, ComportamientoEnemigo::EsbirroRapido},
+        // {21.f, TipoEnemigo::Alien, 3, 1, 3, 2.2f, 170.f, 280.f, ComportamientoEnemigo::AlienRapido},
+        // {27.f, TipoEnemigo::Nave, 1, 3, 2, 1.f, 120.f, 230.f, ComportamientoEnemigo::NaveDiagonalIzquierda},
     };
 
     return oleadas;

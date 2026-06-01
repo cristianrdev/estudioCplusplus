@@ -401,6 +401,7 @@ void Juego::procesarApariciones()
 
 void Juego::registrarOleadaDebug(const OleadaEnemigos& oleada, float tiempoReal)
 {
+    const auto& comportamiento = obtenerComportamientoEnemigo(oleada.comportamiento);
     const char* tipo = "Esbirro";
     if (oleada.tipo == TipoEnemigo::Nave)
         tipo = "Nave";
@@ -420,12 +421,7 @@ void Juego::registrarOleadaDebug(const OleadaEnemigos& oleada, float tiempoReal)
              << " frecuencia_disparo=" << oleada.frecuenciaDisparo << "s"
              << " x_inicial=" << oleada.posicionXInicial
              << " separacion_x=" << oleada.separacionX
-             << " amplitud=" << oleada.movimiento.amplitud
-             << " velocidad_vertical=" << oleada.movimiento.velocidadVertical
-             << " velocidad_oscilacion=" << oleada.movimiento.velocidadOscilacion
-             << " altura_espera_miniboss=" << oleada.miniBoss.alturaEspera
-             << " espera_miniboss=" << oleada.miniBoss.duracionEspera << "s"
-             << " velocidad_horizontal_miniboss=" << oleada.miniBoss.velocidadHorizontal;
+             << " comportamiento=" << comportamiento.nombre;
 
     ultimasOleadasDebug_.push_back(registro.str());
     if (ultimasOleadasDebug_.size() > 5)
@@ -440,6 +436,8 @@ void Juego::registrarOleadaDebug(const OleadaEnemigos& oleada, float tiempoReal)
 
 void Juego::crearOleada(const OleadaEnemigos& oleada)
 {
+    const auto& comportamiento = obtenerComportamientoEnemigo(oleada.comportamiento);
+
     for (int i = 0; i < oleada.cantidad; ++i)
     {
         const float posicionX = oleada.posicionXInicial + i * oleada.separacionX;
@@ -450,8 +448,8 @@ void Juego::crearOleada(const OleadaEnemigos& oleada)
             if (!enemigo->cargarTextura())
                 continue;
             enemigo->configurarMovimientoDiagonal(
-                oleada.movimiento.amplitud,
-                oleada.movimiento.velocidadVertical);
+                comportamiento.movimiento.amplitudOVelocidadHorizontal,
+                comportamiento.movimiento.velocidadVertical);
             enemigo->activar(
                 posicionX,
                 std::clamp(oleada.danio, 1, 3),
@@ -465,9 +463,9 @@ void Juego::crearOleada(const OleadaEnemigos& oleada)
             if (!enemigo->cargarTexturas())
                 continue;
             enemigo->configurarMovimientoCoseno(
-                oleada.movimiento.amplitud,
-                oleada.movimiento.velocidadVertical,
-                oleada.movimiento.velocidadOscilacion);
+                comportamiento.movimiento.amplitudOVelocidadHorizontal,
+                comportamiento.movimiento.velocidadVertical,
+                comportamiento.movimiento.velocidadOscilacion);
             enemigo->activar(
                 posicionX,
                 std::clamp(oleada.danio, 1, 3),
@@ -480,7 +478,7 @@ void Juego::crearOleada(const OleadaEnemigos& oleada)
             auto esbirro = std::make_unique<Esbirro>();
             if (!esbirro->cargarTextura())
                 continue;
-            esbirro->configurarVelocidad(oleada.movimiento.velocidadVertical);
+            esbirro->configurarVelocidad(comportamiento.movimiento.velocidadVertical);
             esbirro->activar(
                 posicionX,
                 std::clamp(oleada.danio, 1, 3),
@@ -494,10 +492,10 @@ void Juego::crearOleada(const OleadaEnemigos& oleada)
             if (!miniBoss->cargarTexturas())
                 continue;
             miniBoss->configurarMovimiento(
-                oleada.movimiento.velocidadVertical,
-                oleada.miniBoss.alturaEspera,
-                oleada.miniBoss.duracionEspera,
-                oleada.miniBoss.velocidadHorizontal);
+                comportamiento.movimiento.velocidadVertical,
+                comportamiento.miniBoss.alturaEspera,
+                comportamiento.miniBoss.duracionEspera,
+                comportamiento.miniBoss.velocidadHorizontal);
             miniBoss->activar(
                 posicionX,
                 std::clamp(oleada.danio, 1, 3),
