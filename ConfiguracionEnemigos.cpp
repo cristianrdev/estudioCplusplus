@@ -15,8 +15,8 @@ const std::vector<OleadaEnemigos> &obtenerOleadasEnemigos()
 
         // tiempo,     tipo,       cantidad,  danio, vida, frecuencia disparo, x inicial, separacion x, {amplitud  ,descenso, oscilacion   }
         {7.f, TipoEnemigo::Alien,   1,        2,     3,         1.8f,           500.f       , 0.f,     {100.f, 2.0f, 0.04f}},
-        {9.f, TipoEnemigo::Alien,   1,        2,     3,         1.8f,           500.f       , 0.f,     {100.f, 2.0f, 0.04f}},
-        {12.f, TipoEnemigo::Alien,   2,        2,      3,        1.8f,            300.f,       0.f,    {100.f, 2.0f, 0.04f}},
+        // {9.f, TipoEnemigo::Alien,   1,        2,     3,         1.8f,           500.f       , 0.f,     {100.f, 2.0f, 0.04f}},
+        {12.f, TipoEnemigo::Alien,   2,        2,      3,        1.8f,            300.f     , 300.f,    {100.f, 2.0f, 0.04f}},
 
 
 
@@ -26,12 +26,12 @@ const std::vector<OleadaEnemigos> &obtenerOleadasEnemigos()
         {18.9f, TipoEnemigo::Esbirro, 2, 1, 1, 0.8f, 200.f, 600.f, {0.f, 4.0f, 0.f}},  //   *           *
         {19.2f, TipoEnemigo::Esbirro, 2, 1, 1, 0.8f, 100.f, 800.f, {0.f, 4.0f, 0.f}},  //  *             *
 
-        {25.f, TipoEnemigo::Alien,   1,        2,      3,        1.8f,            400.f,       0.f,    {100.f, 2.0f, 0.04f}},
+        {25.f, TipoEnemigo::Alien,   1,        2,      3,        1.8f,            500.f,       0.f,    {100.f, 2.0f, 0.04f}},
         {26.f, TipoEnemigo::Esbirro, 2,        1,      1,        1.1f,            300.f,       400.f,  {0.f, 4.0f, 0.f}},
         {30.f, TipoEnemigo::Alien,   3,        2,      3 ,       1.8f,            300.f,       300.f,    {100.f, 1.8f, 0.025f}},
 
 
-        {40.f, TipoEnemigo::MiniBossMolusco, 1, 3, 50, 1.8f, 512.f, 0.f, {0.f, 2.4f, 0.f}, {200.f, 10.f, 3.2f}},
+        {40.f, TipoEnemigo::MiniBossMolusco, 1, 3, 60, 1.8f, 512.f, 0.f, {0.f, 2.4f, 0.f}, {200.f, 10.f, 3.2f}},
         {45.2f, TipoEnemigo::Esbirro, 2, 1, 1, 0.8f, 100.f, 800.f, {0.f, 4.0f, 0.f}},
         {47.0f, TipoEnemigo::Esbirro, 2, 1, 1, 0.8f, 100.f, 800.f, {0.f, 4.0f, 0.f}},
 
