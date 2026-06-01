@@ -9,6 +9,9 @@ public:
     void dibujar(sf::RenderWindow& window) const;
     sf::Vector2f obtenerOrigenDisparo() const;
     sf::FloatRect obtenerLimitesColision() const;
+    bool esInvulnerable() const;
+    void recibirDanio();
+    void reiniciarEstado();
 
 private:
     void actualizarAnimacionFuego();
@@ -23,6 +26,10 @@ private:
     int frameFuego_ = 0;
 
     sf::Clock relojFuego_;
+    sf::Clock relojInvulnerabilidad_;
+    bool invulnerable_ = false;
+    float duracionInvulnerabilidad_ = 1.f;
+    float intervaloParpadeo_ = 0.08f;
 
     sf::Texture texturaCentro_;
     sf::Texture texturaIzquierda_;
@@ -39,7 +46,7 @@ private:
 class Enemigo {
 public:
     bool cargarTextura();
-    void activar(float posicionX, int danio);
+    void activar(float posicionX, int danio, float frecuenciaDisparo);
     void configurarMovimientoCoseno(
         float amplitud,
         float velocidadVertical,
@@ -49,6 +56,8 @@ public:
     bool estaActivo() const;
     void desactivar();
     int obtenerDanio() const;
+    bool listoParaDisparar();
+    sf::Vector2f obtenerOrigenDisparo() const;
     sf::FloatRect obtenerLimitesColision() const;
 
 private:
@@ -61,6 +70,8 @@ private:
     float escala_ = 0.13f;
     bool activo_ = false;
     int danio_ = 1;
+    float frecuenciaDisparo_ = 1.f;
+    sf::Clock relojDisparo_;
 
     sf::Texture textura_;
     sf::Sprite sprite_{textura_};
@@ -69,7 +80,7 @@ private:
 class EnemigoAlien {
 public:
     bool cargarTexturas();
-    void activar(float posicionX, int danio);
+    void activar(float posicionX, int danio, float frecuenciaDisparo);
     void configurarMovimientoCoseno(
         float amplitud,
         float velocidadVertical,
@@ -79,6 +90,8 @@ public:
     bool estaActivo() const;
     void desactivar();
     int obtenerDanio() const;
+    bool listoParaDisparar();
+    sf::Vector2f obtenerOrigenDisparo() const;
     sf::FloatRect obtenerLimitesColision() const;
 
 private:
@@ -94,8 +107,10 @@ private:
     int frame_ = 0;
     bool activo_ = false;
     int danio_ = 1;
+    float frecuenciaDisparo_ = 1.f;
 
     sf::Clock relojAnimacion_;
+    sf::Clock relojDisparo_;
     sf::Texture texturaFrame1_;
     sf::Texture texturaFrame2_;
     sf::Sprite sprite_{texturaFrame1_};

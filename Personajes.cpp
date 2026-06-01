@@ -26,6 +26,12 @@ bool Nave::cargarTexturas()
 
 void Nave::actualizar()
 {
+    if (invulnerable_
+        && relojInvulnerabilidad_.getElapsedTime().asSeconds() >= duracionInvulnerabilidad_)
+    {
+        invulnerable_ = false;
+    }
+
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up))
     {
         y_ -= velocidad_;
@@ -62,6 +68,14 @@ void Nave::actualizar()
 
 void Nave::dibujar(sf::RenderWindow& window) const
 {
+    if (invulnerable_)
+    {
+        const float segundos = relojInvulnerabilidad_.getElapsedTime().asSeconds();
+        const int faseParpadeo = static_cast<int>(segundos / intervaloParpadeo_);
+        if (faseParpadeo % 2 != 0)
+            return;
+    }
+
     window.draw(fuegoIzq_);
     window.draw(fuegoDer_);
     window.draw(spriteNave_);
@@ -76,6 +90,22 @@ sf::Vector2f Nave::obtenerOrigenDisparo() const
 sf::FloatRect Nave::obtenerLimitesColision() const
 {
     return spriteNave_.getGlobalBounds();
+}
+
+bool Nave::esInvulnerable() const
+{
+    return invulnerable_;
+}
+
+void Nave::recibirDanio()
+{
+    invulnerable_ = true;
+    relojInvulnerabilidad_.restart();
+}
+
+void Nave::reiniciarEstado()
+{
+    invulnerable_ = false;
 }
 
 void Nave::actualizarAnimacionFuego()
@@ -128,13 +158,15 @@ bool Enemigo::cargarTextura()
     return true;
 }
 
-void Enemigo::activar(float posicionX, int danio)
+void Enemigo::activar(float posicionX, int danio, float frecuenciaDisparo)
 {
     posicionXInicial_ = posicionX;
     y_ = -sprite_.getGlobalBounds().size.y;
     fase_ = 0.f;
     activo_ = true;
     danio_ = danio;
+    frecuenciaDisparo_ = frecuenciaDisparo;
+    relojDisparo_.restart();
     sprite_.setPosition({posicionXInicial_, y_});
 }
 
@@ -184,6 +216,24 @@ int Enemigo::obtenerDanio() const
     return danio_;
 }
 
+bool Enemigo::listoParaDisparar()
+{
+    if (!activo_ || relojDisparo_.getElapsedTime().asSeconds() < frecuenciaDisparo_)
+        return false;
+
+    relojDisparo_.restart();
+    return true;
+}
+
+sf::Vector2f Enemigo::obtenerOrigenDisparo() const
+{
+    const sf::FloatRect limites = sprite_.getGlobalBounds();
+    return {
+        limites.position.x + limites.size.x / 2.f,
+        limites.position.y + limites.size.y
+    };
+}
+
 sf::FloatRect Enemigo::obtenerLimitesColision() const
 {
     return sprite_.getGlobalBounds();
@@ -201,13 +251,15 @@ bool EnemigoAlien::cargarTexturas()
     return true;
 }
 
-void EnemigoAlien::activar(float posicionX, int danio)
+void EnemigoAlien::activar(float posicionX, int danio, float frecuenciaDisparo)
 {
     posicionXInicial_ = posicionX;
     y_ = -sprite_.getGlobalBounds().size.y;
     fase_ = 0.f;
     activo_ = true;
     danio_ = danio;
+    frecuenciaDisparo_ = frecuenciaDisparo;
+    relojDisparo_.restart();
     sprite_.setPosition({posicionXInicial_, y_});
 }
 
@@ -257,6 +309,24 @@ void EnemigoAlien::desactivar()
 int EnemigoAlien::obtenerDanio() const
 {
     return danio_;
+}
+
+bool EnemigoAlien::listoParaDisparar()
+{
+    if (!activo_ || relojDisparo_.getElapsedTime().asSeconds() < frecuenciaDisparo_)
+        return false;
+
+    relojDisparo_.restart();
+    return true;
+}
+
+sf::Vector2f EnemigoAlien::obtenerOrigenDisparo() const
+{
+    const sf::FloatRect limites = sprite_.getGlobalBounds();
+    return {
+        limites.position.x + limites.size.x / 2.f,
+        limites.position.y + limites.size.y
+    };
 }
 
 sf::FloatRect EnemigoAlien::obtenerLimitesColision() const
