@@ -8,6 +8,7 @@ public:
     void actualizar();
     void dibujar(sf::RenderWindow& window) const;
     sf::Vector2f obtenerOrigenDisparo() const;
+    sf::FloatRect obtenerLimitesColision() const;
 
 private:
     void actualizarAnimacionFuego();
@@ -38,19 +39,28 @@ private:
 class Enemigo {
 public:
     bool cargarTextura();
+    void activar(float posicionX, int danio);
+    void configurarMovimientoCoseno(
+        float amplitud,
+        float velocidadVertical,
+        float velocidadOscilacion);
     void actualizar();
     void dibujar(sf::RenderWindow& window) const;
+    bool estaActivo() const;
+    void desactivar();
+    int obtenerDanio() const;
+    sf::FloatRect obtenerLimitesColision() const;
 
 private:
-    void reaparecer();
-
-    float xCentro_ = 512.f;
+    float posicionXInicial_ = 0.f;
     float y_ = -100.f;
     float fase_ = 0.f;
     float amplitud_ = 220.f;
     float velocidadVertical_ = 2.5f;
     float velocidadOscilacion_ = 0.035f;
     float escala_ = 0.13f;
+    bool activo_ = false;
+    int danio_ = 1;
 
     sf::Texture textura_;
     sf::Sprite sprite_{textura_};
@@ -59,19 +69,22 @@ private:
 class EnemigoAlien {
 public:
     bool cargarTexturas();
+    void activar(float posicionX, int danio);
     void configurarMovimientoCoseno(
-        float xCentro,
         float amplitud,
         float velocidadVertical,
         float velocidadOscilacion);
     void actualizar();
     void dibujar(sf::RenderWindow& window) const;
+    bool estaActivo() const;
+    void desactivar();
+    int obtenerDanio() const;
+    sf::FloatRect obtenerLimitesColision() const;
 
 private:
     void actualizarAnimacion();
-    void reaparecer();
 
-    float xCentro_ = 512.f;
+    float posicionXInicial_ = 0.f;
     float y_ = -100.f;
     float fase_ = 0.f;
     float amplitud_ = 300.f;
@@ -79,6 +92,8 @@ private:
     float velocidadOscilacion_ = 0.025f;
     float escala_ = 0.12f;
     int frame_ = 0;
+    bool activo_ = false;
+    int danio_ = 1;
 
     sf::Clock relojAnimacion_;
     sf::Texture texturaFrame1_;

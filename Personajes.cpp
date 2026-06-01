@@ -73,6 +73,11 @@ sf::Vector2f Nave::obtenerOrigenDisparo() const
     return {x_ + (anchoNave / 2.f) - 4.f, y_ - 20.f};
 }
 
+sf::FloatRect Nave::obtenerLimitesColision() const
+{
+    return spriteNave_.getGlobalBounds();
+}
+
 void Nave::actualizarAnimacionFuego()
 {
     if (relojFuego_.getElapsedTime().asSeconds() < 0.07f)
@@ -120,34 +125,68 @@ bool Enemigo::cargarTextura()
 
     sprite_.setTexture(textura_, true);
     sprite_.setScale({escala_, escala_});
-    reaparecer();
     return true;
+}
+
+void Enemigo::activar(float posicionX, int danio)
+{
+    posicionXInicial_ = posicionX;
+    y_ = -sprite_.getGlobalBounds().size.y;
+    fase_ = 0.f;
+    activo_ = true;
+    danio_ = danio;
+    sprite_.setPosition({posicionXInicial_, y_});
+}
+
+void Enemigo::configurarMovimientoCoseno(
+    float amplitud,
+    float velocidadVertical,
+    float velocidadOscilacion)
+{
+    amplitud_ = amplitud;
+    velocidadVertical_ = velocidadVertical;
+    velocidadOscilacion_ = velocidadOscilacion;
 }
 
 void Enemigo::actualizar()
 {
+    if (!activo_)
+        return;
+
     fase_ += velocidadOscilacion_;
     y_ += velocidadVertical_;
 
-    const float ancho = sprite_.getGlobalBounds().size.x;
-    const float x = xCentro_ + amplitud_ * std::cos(fase_) - ancho / 2.f;
+    const float x = posicionXInicial_ + amplitud_ * (std::cos(fase_) - 1.f);
     sprite_.setPosition({x, y_});
 
     if (y_ > 1080.f)
-        reaparecer();
+        activo_ = false;
 }
 
 void Enemigo::dibujar(sf::RenderWindow& window) const
 {
-    window.draw(sprite_);
+    if (activo_)
+        window.draw(sprite_);
 }
 
-void Enemigo::reaparecer()
+bool Enemigo::estaActivo() const
 {
-    y_ = -sprite_.getGlobalBounds().size.y;
-    fase_ = 0.f;
-    const float ancho = sprite_.getGlobalBounds().size.x;
-    sprite_.setPosition({xCentro_ + amplitud_ - ancho / 2.f, y_});
+    return activo_;
+}
+
+void Enemigo::desactivar()
+{
+    activo_ = false;
+}
+
+int Enemigo::obtenerDanio() const
+{
+    return danio_;
+}
+
+sf::FloatRect Enemigo::obtenerLimitesColision() const
+{
+    return sprite_.getGlobalBounds();
 }
 
 bool EnemigoAlien::cargarTexturas()
@@ -159,17 +198,24 @@ bool EnemigoAlien::cargarTexturas()
 
     sprite_.setTexture(texturaFrame1_, true);
     sprite_.setScale({escala_, escala_});
-    reaparecer();
     return true;
 }
 
+void EnemigoAlien::activar(float posicionX, int danio)
+{
+    posicionXInicial_ = posicionX;
+    y_ = -sprite_.getGlobalBounds().size.y;
+    fase_ = 0.f;
+    activo_ = true;
+    danio_ = danio;
+    sprite_.setPosition({posicionXInicial_, y_});
+}
+
 void EnemigoAlien::configurarMovimientoCoseno(
-    float xCentro,
     float amplitud,
     float velocidadVertical,
     float velocidadOscilacion)
 {
-    xCentro_ = xCentro;
     amplitud_ = amplitud;
     velocidadVertical_ = velocidadVertical;
     velocidadOscilacion_ = velocidadOscilacion;
@@ -177,22 +223,45 @@ void EnemigoAlien::configurarMovimientoCoseno(
 
 void EnemigoAlien::actualizar()
 {
+    if (!activo_)
+        return;
+
     actualizarAnimacion();
 
     fase_ += velocidadOscilacion_;
     y_ += velocidadVertical_;
 
-    const float ancho = sprite_.getGlobalBounds().size.x;
-    const float x = xCentro_ + amplitud_ * std::cos(fase_) - ancho / 2.f;
+    const float x = posicionXInicial_ + amplitud_ * (std::cos(fase_) - 1.f);
     sprite_.setPosition({x, y_});
 
     if (y_ > 1080.f)
-        reaparecer();
+        activo_ = false;
 }
 
 void EnemigoAlien::dibujar(sf::RenderWindow& window) const
 {
-    window.draw(sprite_);
+    if (activo_)
+        window.draw(sprite_);
+}
+
+bool EnemigoAlien::estaActivo() const
+{
+    return activo_;
+}
+
+void EnemigoAlien::desactivar()
+{
+    activo_ = false;
+}
+
+int EnemigoAlien::obtenerDanio() const
+{
+    return danio_;
+}
+
+sf::FloatRect EnemigoAlien::obtenerLimitesColision() const
+{
+    return sprite_.getGlobalBounds();
 }
 
 void EnemigoAlien::actualizarAnimacion()
@@ -203,12 +272,4 @@ void EnemigoAlien::actualizarAnimacion()
     frame_ = (frame_ + 1) % 2;
     sprite_.setTexture(frame_ == 0 ? texturaFrame1_ : texturaFrame2_, true);
     relojAnimacion_.restart();
-}
-
-void EnemigoAlien::reaparecer()
-{
-    y_ = -sprite_.getGlobalBounds().size.y;
-    fase_ = 0.f;
-    const float ancho = sprite_.getGlobalBounds().size.x;
-    sprite_.setPosition({xCentro_ + amplitud_ - ancho / 2.f, y_});
 }
