@@ -13,6 +13,7 @@ public:
     bool esInvulnerable() const;
     void recibirDanio();
     void reiniciarEstado();
+    void establecerPausa(bool pausado);
 
 private:
     void actualizarAnimacionFuego();
@@ -47,30 +48,29 @@ private:
 class Enemigo {
 public:
     bool cargarTextura();
-    void activar(float posicionX, int danio, float frecuenciaDisparo);
-    void configurarMovimientoCoseno(
-        float amplitud,
-        float velocidadVertical,
-        float velocidadOscilacion);
+    void activar(float posicionX, int danio, int vida, float frecuenciaDisparo);
+    void configurarMovimientoDiagonal(
+        float velocidadHorizontal,
+        float velocidadVertical);
     void actualizar();
     void dibujar(sf::RenderWindow& window) const;
     bool estaActivo() const;
     void desactivar();
     int obtenerDanio() const;
+    bool recibirDanio(int danio);
     bool listoParaDisparar();
     sf::Vector2f obtenerOrigenDisparo() const;
     sf::FloatRect obtenerLimitesColision() const;
+    void establecerPausa(bool pausado);
 
 private:
-    float posicionXInicial_ = 0.f;
     float y_ = -100.f;
-    float fase_ = 0.f;
-    float amplitud_ = 220.f;
+    float velocidadHorizontal_ = 2.2f;
     float velocidadVertical_ = 2.5f;
-    float velocidadOscilacion_ = 0.035f;
     float escala_ = 0.13f;
     bool activo_ = false;
     int danio_ = 1;
+    int vida_ = 2;
     float frecuenciaDisparo_ = 1.f;
     sf::Clock relojDisparo_;
 
@@ -81,7 +81,7 @@ private:
 class EnemigoAlien {
 public:
     bool cargarTexturas();
-    void activar(float posicionX, int danio, float frecuenciaDisparo);
+    void activar(float posicionX, int danio, int vida, float frecuenciaDisparo);
     void configurarMovimientoCoseno(
         float amplitud,
         float velocidadVertical,
@@ -91,9 +91,11 @@ public:
     bool estaActivo() const;
     void desactivar();
     int obtenerDanio() const;
+    bool recibirDanio(int danio);
     bool listoParaDisparar();
     sf::Vector2f obtenerOrigenDisparo() const;
     sf::FloatRect obtenerLimitesColision() const;
+    void establecerPausa(bool pausado);
 
 private:
     void actualizarAnimacion();
@@ -108,6 +110,7 @@ private:
     int frame_ = 0;
     bool activo_ = false;
     int danio_ = 1;
+    int vida_ = 3;
     float frecuenciaDisparo_ = 1.f;
 
     sf::Clock relojAnimacion_;
@@ -120,16 +123,18 @@ private:
 class Esbirro {
 public:
     bool cargarTextura();
-    void activar(float posicionX, int danio, float frecuenciaDisparo);
+    void activar(float posicionX, int danio, int vida, float frecuenciaDisparo);
     void configurarVelocidad(float velocidadVertical);
     void actualizar();
     void dibujar(sf::RenderWindow& window) const;
     bool estaActivo() const;
     void desactivar();
     int obtenerDanio() const;
+    bool recibirDanio(int danio);
     bool listoParaDisparar();
     sf::Vector2f obtenerOrigenDisparo() const;
     sf::FloatRect obtenerLimitesColision() const;
+    void establecerPausa(bool pausado);
 
 private:
     float y_ = -100.f;
@@ -137,6 +142,7 @@ private:
     float escala_ = 0.1f;
     bool activo_ = false;
     int danio_ = 1;
+    int vida_ = 1;
     float frecuenciaDisparo_ = 1.1f;
 
     sf::Clock relojDisparo_;

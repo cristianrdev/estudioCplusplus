@@ -117,6 +117,20 @@ void Nave::reiniciarEstado()
     invulnerable_ = false;
 }
 
+void Nave::establecerPausa(bool pausado)
+{
+    if (pausado)
+    {
+        relojFuego_.stop();
+        relojInvulnerabilidad_.stop();
+    }
+    else
+    {
+        relojFuego_.start();
+        relojInvulnerabilidad_.start();
+    }
+}
+
 void Nave::actualizarAnimacionFuego()
 {
     if (relojFuego_.getElapsedTime().asSeconds() < 0.07f)
@@ -164,29 +178,31 @@ bool Enemigo::cargarTextura()
 
     sprite_.setTexture(textura_, true);
     sprite_.setScale({escala_, escala_});
+    sprite_.setOrigin({
+        textura_.getSize().x / 2.f,
+        textura_.getSize().y / 2.f
+    });
+    sprite_.setRotation(sf::degrees(180.f));
     return true;
 }
 
-void Enemigo::activar(float posicionX, int danio, float frecuenciaDisparo)
+void Enemigo::activar(float posicionX, int danio, int vida, float frecuenciaDisparo)
 {
-    posicionXInicial_ = posicionX;
     y_ = -sprite_.getGlobalBounds().size.y;
-    fase_ = 0.f;
     activo_ = true;
     danio_ = danio;
+    vida_ = vida;
     frecuenciaDisparo_ = frecuenciaDisparo;
     relojDisparo_.restart();
-    sprite_.setPosition({posicionXInicial_, y_});
+    sprite_.setPosition({posicionX, y_});
 }
 
-void Enemigo::configurarMovimientoCoseno(
-    float amplitud,
-    float velocidadVertical,
-    float velocidadOscilacion)
+void Enemigo::configurarMovimientoDiagonal(
+    float velocidadHorizontal,
+    float velocidadVertical)
 {
-    amplitud_ = amplitud;
+    velocidadHorizontal_ = velocidadHorizontal;
     velocidadVertical_ = velocidadVertical;
-    velocidadOscilacion_ = velocidadOscilacion;
 }
 
 void Enemigo::actualizar()
@@ -194,14 +210,17 @@ void Enemigo::actualizar()
     if (!activo_)
         return;
 
-    fase_ += velocidadOscilacion_;
     y_ += velocidadVertical_;
-
-    const float x = posicionXInicial_ + amplitud_ * (std::cos(fase_) - 1.f);
+    const float x = sprite_.getPosition().x + velocidadHorizontal_;
     sprite_.setPosition({x, y_});
 
-    if (y_ > 1080.f)
+    const sf::FloatRect limites = sprite_.getGlobalBounds();
+    if (limites.position.x + limites.size.x < 0.f
+        || limites.position.x > 1024.f
+        || limites.position.y > 1080.f)
+    {
         activo_ = false;
+    }
 }
 
 void Enemigo::dibujar(sf::RenderWindow& window) const
@@ -223,6 +242,12 @@ void Enemigo::desactivar()
 int Enemigo::obtenerDanio() const
 {
     return danio_;
+}
+
+bool Enemigo::recibirDanio(int danio)
+{
+    vida_ -= danio;
+    return vida_ <= 0;
 }
 
 bool Enemigo::listoParaDisparar()
@@ -248,6 +273,14 @@ sf::FloatRect Enemigo::obtenerLimitesColision() const
     return sprite_.getGlobalBounds();
 }
 
+void Enemigo::establecerPausa(bool pausado)
+{
+    if (pausado)
+        relojDisparo_.stop();
+    else
+        relojDisparo_.start();
+}
+
 bool EnemigoAlien::cargarTexturas()
 {
     if (!texturaFrame1_.loadFromFile("assets/enemigo_alien.png"))
@@ -260,13 +293,14 @@ bool EnemigoAlien::cargarTexturas()
     return true;
 }
 
-void EnemigoAlien::activar(float posicionX, int danio, float frecuenciaDisparo)
+void EnemigoAlien::activar(float posicionX, int danio, int vida, float frecuenciaDisparo)
 {
     posicionXInicial_ = posicionX;
     y_ = -sprite_.getGlobalBounds().size.y;
     fase_ = 0.f;
     activo_ = true;
     danio_ = danio;
+    vida_ = vida;
     frecuenciaDisparo_ = frecuenciaDisparo;
     relojDisparo_.restart();
     sprite_.setPosition({posicionXInicial_, y_});
@@ -320,6 +354,12 @@ int EnemigoAlien::obtenerDanio() const
     return danio_;
 }
 
+bool EnemigoAlien::recibirDanio(int danio)
+{
+    vida_ -= danio;
+    return vida_ <= 0;
+}
+
 bool EnemigoAlien::listoParaDisparar()
 {
     if (!activo_ || relojDisparo_.getElapsedTime().asSeconds() < frecuenciaDisparo_)
@@ -343,6 +383,20 @@ sf::FloatRect EnemigoAlien::obtenerLimitesColision() const
     return sprite_.getGlobalBounds();
 }
 
+void EnemigoAlien::establecerPausa(bool pausado)
+{
+    if (pausado)
+    {
+        relojAnimacion_.stop();
+        relojDisparo_.stop();
+    }
+    else
+    {
+        relojAnimacion_.start();
+        relojDisparo_.start();
+    }
+}
+
 void EnemigoAlien::actualizarAnimacion()
 {
     if (relojAnimacion_.getElapsedTime().asSeconds() < 0.18f)
@@ -363,11 +417,12 @@ bool Esbirro::cargarTextura()
     return true;
 }
 
-void Esbirro::activar(float posicionX, int danio, float frecuenciaDisparo)
+void Esbirro::activar(float posicionX, int danio, int vida, float frecuenciaDisparo)
 {
     y_ = -sprite_.getGlobalBounds().size.y;
     activo_ = true;
     danio_ = danio;
+    vida_ = vida;
     frecuenciaDisparo_ = frecuenciaDisparo;
     relojDisparo_.restart();
     sprite_.setPosition({posicionX, y_});
@@ -411,6 +466,12 @@ int Esbirro::obtenerDanio() const
     return danio_;
 }
 
+bool Esbirro::recibirDanio(int danio)
+{
+    vida_ -= danio;
+    return vida_ <= 0;
+}
+
 bool Esbirro::listoParaDisparar()
 {
     if (!activo_ || relojDisparo_.getElapsedTime().asSeconds() < frecuenciaDisparo_)
@@ -432,4 +493,12 @@ sf::Vector2f Esbirro::obtenerOrigenDisparo() const
 sf::FloatRect Esbirro::obtenerLimitesColision() const
 {
     return sprite_.getGlobalBounds();
+}
+
+void Esbirro::establecerPausa(bool pausado)
+{
+    if (pausado)
+        relojDisparo_.stop();
+    else
+        relojDisparo_.start();
 }

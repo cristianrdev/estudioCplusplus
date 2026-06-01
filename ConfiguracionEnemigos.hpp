@@ -22,6 +22,7 @@ struct OleadaEnemigos
     TipoEnemigo tipo;
     int cantidad;
     int danio;
+    int vida;
     float frecuenciaDisparo;
     float posicionXInicial;
     float separacionX;

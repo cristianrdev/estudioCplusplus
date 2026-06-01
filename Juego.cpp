@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cmath>
 #include <iomanip>
+#include <iostream>
 #include <optional>
 #include <sstream>
 
@@ -16,6 +17,8 @@ int Juego::ejecutar()
 {
     if (!nave_.cargarTexturas())
         return -1;
+    if (!texturaLaserJugador_.loadFromFile("assets/laser_jugador.png"))
+        return -1;
     for (const auto& configuracion : obtenerConfiguracionesProyectiles())
     {
         if (!texturasProyectilesEnemigos_[configuracion.tipo].loadFromFile(
@@ -26,6 +29,14 @@ int Juego::ejecutar()
     }
     if (!texturaGameOver_.loadFromFile("assets/game_over.png"))
         return -1;
+    for (const auto& [tipo, ruta] : std::initializer_list<std::pair<TipoEnemigo, const char*>>{
+        {TipoEnemigo::Nave, "assets/explosion_enemigo_nave.png"},
+        {TipoEnemigo::Alien, "assets/explosion_enemigo_alien.png"},
+        {TipoEnemigo::Esbirro, "assets/explosion_esbirro.png"}})
+    {
+        if (!texturasExplosionesEnemigos_[tipo].loadFromFile(ruta))
+            return -1;
+    }
     for (const char* ruta : {
         "assets/explosion_nave_1.png",
         "assets/explosion_nave_2.png",
@@ -35,6 +46,15 @@ int Juego::ejecutar()
         if (!textura.loadFromFile(ruta))
             return -1;
         texturasExplosionNave_.push_back(std::move(textura));
+    }
+    for (const char* ruta : {
+        "assets/impacto_laser_1.png",
+        "assets/impacto_laser_2.png"})
+    {
+        sf::Texture textura;
+        if (!textura.loadFromFile(ruta))
+            return -1;
+        texturasImpactoLaser_.push_back(std::move(textura));
     }
     if (!fuenteDebug_.openFromFile("C:/Windows/Fonts/consola.ttf"))
         return -1;
@@ -60,9 +80,43 @@ void Juego::procesarEventos()
     {
         if (event->is<sf::Event::Closed>())
             window_.close();
+        else if (!gameOver_
+            && event->is<sf::Event::KeyPressed>()
+            && event->getIf<sf::Event::KeyPressed>()->code == sf::Keyboard::Key::P)
+        {
+            alternarPausa();
+        }
         else if (gameOver_ && event->is<sf::Event::KeyPressed>())
             reiniciar();
     }
+}
+
+void Juego::alternarPausa()
+{
+    pausado_ = !pausado_;
+
+    if (pausado_)
+    {
+        relojDisparo_.stop();
+        relojInicio_.stop();
+        relojExplosionNave_.stop();
+        relojEsperaGameOver_.stop();
+    }
+    else
+    {
+        relojDisparo_.start();
+        relojInicio_.start();
+        relojExplosionNave_.start();
+        relojEsperaGameOver_.start();
+    }
+
+    nave_.establecerPausa(pausado_);
+    for (auto& enemigo : enemigos_)
+        enemigo->establecerPausa(pausado_);
+    for (auto& enemigo : enemigosAlien_)
+        enemigo->establecerPausa(pausado_);
+    for (auto& esbirro : esbirros_)
+        esbirro->establecerPausa(pausado_);
 }
 
 void Juego::reiniciar()
@@ -72,6 +126,9 @@ void Juego::reiniciar()
     esbirros_.clear();
     proyectiles_.clear();
     proyectilesEnemigos_.clear();
+    explosionesEnemigos_.clear();
+    impactosLaser_.clear();
+    ultimasOleadasDebug_.clear();
     proximaOleada_ = 0;
     impactosNave_ = 0;
     vidaNave_ = 3;
@@ -79,6 +136,7 @@ void Juego::reiniciar()
     gameOver_ = false;
     naveExplotando_ = false;
     esperandoGameOver_ = false;
+    pausado_ = false;
     nave_.reiniciarEstado();
     relojDisparo_.restart();
     relojInicio_.restart();
@@ -116,6 +174,8 @@ void Juego::actualizarExplosionNave()
 
 void Juego::actualizar()
 {
+    if (pausado_)
+        return;
     if (gameOver_)
         return;
     if (esperandoGameOver_)
@@ -140,6 +200,131 @@ void Juego::actualizar()
     actualizarProyectilesEnemigos();
     disparar();
     actualizarProyectiles();
+    detectarColisionesProyectilesJugador();
+    actualizarExplosionesEnemigos();
+    actualizarImpactosLaser();
+}
+
+void Juego::detectarColisionesProyectilesJugador()
+{
+    for (auto& proyectil : proyectiles_)
+    {
+        if (!proyectil.activo)
+            continue;
+
+        const sf::FloatRect limitesProyectil = obtenerLimitesProyectilJugador(proyectil);
+
+        for (auto& enemigo : enemigos_)
+        {
+            if (enemigo->estaActivo())
+            {
+                const auto interseccion = limitesProyectil.findIntersection(
+                    enemigo->obtenerLimitesColision());
+                if (!interseccion)
+                    continue;
+                crearImpactoLaser(*interseccion);
+                proyectil.activo = false;
+                if (enemigo->recibirDanio(1))
+                {
+                    crearExplosionEnemigo(TipoEnemigo::Nave, enemigo->obtenerLimitesColision());
+                    enemigo->desactivar();
+                }
+                break;
+            }
+        }
+        if (!proyectil.activo)
+            continue;
+
+        for (auto& enemigo : enemigosAlien_)
+        {
+            if (enemigo->estaActivo())
+            {
+                const auto interseccion = limitesProyectil.findIntersection(
+                    enemigo->obtenerLimitesColision());
+                if (!interseccion)
+                    continue;
+                crearImpactoLaser(*interseccion);
+                proyectil.activo = false;
+                if (enemigo->recibirDanio(1))
+                {
+                    crearExplosionEnemigo(TipoEnemigo::Alien, enemigo->obtenerLimitesColision());
+                    enemigo->desactivar();
+                }
+                break;
+            }
+        }
+        if (!proyectil.activo)
+            continue;
+
+        for (auto& esbirro : esbirros_)
+        {
+            if (esbirro->estaActivo())
+            {
+                const auto interseccion = limitesProyectil.findIntersection(
+                    esbirro->obtenerLimitesColision());
+                if (!interseccion)
+                    continue;
+                crearImpactoLaser(*interseccion);
+                proyectil.activo = false;
+                if (esbirro->recibirDanio(1))
+                {
+                    crearExplosionEnemigo(TipoEnemigo::Esbirro, esbirro->obtenerLimitesColision());
+                    esbirro->desactivar();
+                }
+                break;
+            }
+        }
+    }
+}
+
+void Juego::crearImpactoLaser(const sf::FloatRect& interseccion)
+{
+    impactosLaser_.push_back({
+        {
+            interseccion.position.x + interseccion.size.x / 2.f,
+            interseccion.position.y + interseccion.size.y / 2.f
+        },
+        relojInicio_.getElapsedTime().asSeconds()
+    });
+}
+
+void Juego::crearExplosionEnemigo(TipoEnemigo tipo, const sf::FloatRect& limites)
+{
+    explosionesEnemigos_.push_back({
+        {
+            limites.position.x + limites.size.x / 2.f,
+            limites.position.y + limites.size.y / 2.f
+        },
+        tipo,
+        relojInicio_.getElapsedTime().asSeconds()
+    });
+}
+
+void Juego::actualizarExplosionesEnemigos()
+{
+    const float tiempoActual = relojInicio_.getElapsedTime().asSeconds();
+    explosionesEnemigos_.erase(
+        std::remove_if(
+            explosionesEnemigos_.begin(),
+            explosionesEnemigos_.end(),
+            [tiempoActual, this](const ExplosionEnemigo& explosion) {
+                return tiempoActual - explosion.tiempoInicio >= duracionExplosionEnemigo_;
+            }),
+        explosionesEnemigos_.end());
+}
+
+void Juego::actualizarImpactosLaser()
+{
+    const float tiempoActual = relojInicio_.getElapsedTime().asSeconds();
+    const float duracion = duracionFrameImpactoLaser_ * texturasImpactoLaser_.size();
+    impactosLaser_.erase(
+        std::remove_if(
+            impactosLaser_.begin(),
+            impactosLaser_.end(),
+            [tiempoActual, duracion](const ImpactoLaser& impacto) {
+                return tiempoActual - impacto.tiempoInicio >= duracion;
+            }),
+        impactosLaser_.end());
 }
 
 void Juego::disparar()
@@ -181,9 +366,44 @@ void Juego::procesarApariciones()
     while (proximaOleada_ < oleadas.size()
         && oleadas[proximaOleada_].tiempoSegundos <= segundos)
     {
+        registrarOleadaDebug(oleadas[proximaOleada_], segundos);
         crearOleada(oleadas[proximaOleada_]);
         ++proximaOleada_;
     }
+}
+
+void Juego::registrarOleadaDebug(const OleadaEnemigos& oleada, float tiempoReal)
+{
+    const char* tipo = "Esbirro";
+    if (oleada.tipo == TipoEnemigo::Nave)
+        tipo = "Nave";
+    else if (oleada.tipo == TipoEnemigo::Alien)
+        tipo = "Alien";
+
+    std::ostringstream registro;
+    registro << std::fixed << std::setprecision(2)
+             << "t_real=" << tiempoReal << "s"
+             << " t_programado=" << oleada.tiempoSegundos << "s"
+             << " tipo=" << tipo
+             << " cantidad=" << oleada.cantidad
+             << " danio=" << oleada.danio
+             << " vida=" << oleada.vida
+             << " frecuencia_disparo=" << oleada.frecuenciaDisparo << "s"
+             << " x_inicial=" << oleada.posicionXInicial
+             << " separacion_x=" << oleada.separacionX
+             << " amplitud=" << oleada.movimiento.amplitud
+             << " velocidad_vertical=" << oleada.movimiento.velocidadVertical
+             << " velocidad_oscilacion=" << oleada.movimiento.velocidadOscilacion;
+
+    ultimasOleadasDebug_.push_back(registro.str());
+    if (ultimasOleadasDebug_.size() > 5)
+        ultimasOleadasDebug_.erase(ultimasOleadasDebug_.begin());
+
+    std::cout << "\n[DEBUG] Ultimas oleadas generadas (" << ultimasOleadasDebug_.size()
+              << "/5):\n";
+    for (const auto& linea : ultimasOleadasDebug_)
+        std::cout << "  " << linea << '\n';
+    std::cout << std::flush;
 }
 
 void Juego::crearOleada(const OleadaEnemigos& oleada)
@@ -197,13 +417,13 @@ void Juego::crearOleada(const OleadaEnemigos& oleada)
             auto enemigo = std::make_unique<Enemigo>();
             if (!enemigo->cargarTextura())
                 continue;
-            enemigo->configurarMovimientoCoseno(
+            enemigo->configurarMovimientoDiagonal(
                 oleada.movimiento.amplitud,
-                oleada.movimiento.velocidadVertical,
-                oleada.movimiento.velocidadOscilacion);
+                oleada.movimiento.velocidadVertical);
             enemigo->activar(
                 posicionX,
                 std::clamp(oleada.danio, 1, 3),
+                std::max(1, oleada.vida),
                 std::max(0.1f, oleada.frecuenciaDisparo));
             enemigos_.push_back(std::move(enemigo));
         }
@@ -219,6 +439,7 @@ void Juego::crearOleada(const OleadaEnemigos& oleada)
             enemigo->activar(
                 posicionX,
                 std::clamp(oleada.danio, 1, 3),
+                std::max(1, oleada.vida),
                 std::max(0.1f, oleada.frecuenciaDisparo));
             enemigosAlien_.push_back(std::move(enemigo));
         }
@@ -231,6 +452,7 @@ void Juego::crearOleada(const OleadaEnemigos& oleada)
             esbirro->activar(
                 posicionX,
                 std::clamp(oleada.danio, 1, 3),
+                std::max(1, oleada.vida),
                 std::max(0.1f, oleada.frecuenciaDisparo));
             esbirros_.push_back(std::move(esbirro));
         }
@@ -439,12 +661,63 @@ void Juego::dibujar()
     }
 
     dibujarProyectilesEnemigos();
+    dibujarExplosionesEnemigos();
+    dibujarImpactosLaser();
     dibujarDebug();
     if (naveExplotando_)
         dibujarExplosionNave();
     if (gameOver_)
         dibujarGameOver();
     window_.display();
+}
+
+void Juego::dibujarImpactosLaser()
+{
+    const float tiempoActual = relojInicio_.getElapsedTime().asSeconds();
+
+    for (const auto& impacto : impactosLaser_)
+    {
+        const int frame = static_cast<int>(
+            (tiempoActual - impacto.tiempoInicio) / duracionFrameImpactoLaser_);
+        if (frame < 0 || frame >= static_cast<int>(texturasImpactoLaser_.size()))
+            continue;
+
+        sf::Sprite sprite(texturasImpactoLaser_[frame]);
+        sprite.setScale({escalaImpactoLaser_, escalaImpactoLaser_});
+
+        const sf::FloatRect limites = sprite.getGlobalBounds();
+        sprite.setPosition({
+            impacto.centro.x - limites.size.x / 2.f,
+            impacto.centro.y - limites.size.y / 2.f
+        });
+        window_.draw(sprite);
+    }
+}
+
+void Juego::dibujarExplosionesEnemigos()
+{
+    const float tiempoActual = relojInicio_.getElapsedTime().asSeconds();
+
+    for (const auto& explosion : explosionesEnemigos_)
+    {
+        const float progreso = (tiempoActual - explosion.tiempoInicio)
+            / duracionExplosionEnemigo_;
+        const float escalaBase = explosion.tipo == TipoEnemigo::Alien
+            ? 0.1f
+            : explosion.tipo == TipoEnemigo::Nave ? 0.075f : 0.055f;
+        const float escala = escalaBase * (0.65f + progreso * 0.7f);
+
+        sf::Sprite sprite(texturasExplosionesEnemigos_.at(explosion.tipo));
+        sprite.setScale({escala, escala});
+        sprite.setColor(sf::Color(255, 255, 255, static_cast<std::uint8_t>(255.f * (1.f - progreso))));
+
+        const sf::FloatRect limites = sprite.getGlobalBounds();
+        sprite.setPosition({
+            explosion.centro.x - limites.size.x / 2.f,
+            explosion.centro.y - limites.size.y / 2.f
+        });
+        window_.draw(sprite);
+    }
 }
 
 void Juego::dibujarExplosionNave()
@@ -533,25 +806,24 @@ void Juego::dibujarDebug()
           << "\nImpactos: " << impactosNave_;
     if (vidaNave_ <= 0)
         texto << "\nGAME OVER";
+    else if (pausado_)
+        texto << "\nPAUSA";
     textoDebug_.setString(texto.str());
     window_.draw(textoDebug_);
 }
 
 void Juego::dibujarProyectil(const Proyectil& proyectil)
 {
-    sf::RectangleShape laserRojo({8.f, 30.f});
-    laserRojo.setPosition({proyectil.x, proyectil.y});
-    laserRojo.setFillColor(sf::Color::Red);
+    sf::Sprite sprite(texturaLaserJugador_);
+    sprite.setScale({escalaLaserJugador_, escalaLaserJugador_});
+    sprite.setPosition({proyectil.x, proyectil.y});
+    window_.draw(sprite);
+}
 
-    sf::RectangleShape laserBlanco({4.f, 30.f});
-    laserBlanco.setPosition({proyectil.x + 2.f, proyectil.y});
-    laserBlanco.setFillColor(sf::Color::White);
-
-    sf::RectangleShape punta({8.f, 4.f});
-    punta.setPosition({proyectil.x, proyectil.y - 4.f});
-    punta.setFillColor(sf::Color::Yellow);
-
-    window_.draw(laserRojo);
-    window_.draw(laserBlanco);
-    window_.draw(punta);
+sf::FloatRect Juego::obtenerLimitesProyectilJugador(const Proyectil& proyectil) const
+{
+    sf::Sprite sprite(texturaLaserJugador_);
+    sprite.setScale({escalaLaserJugador_, escalaLaserJugador_});
+    sprite.setPosition({proyectil.x, proyectil.y});
+    return sprite.getGlobalBounds();
 }
