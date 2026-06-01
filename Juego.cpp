@@ -15,6 +15,10 @@ int Juego::ejecutar()
         return -1;
     if (!enemigo_.cargarTextura())
         return -1;
+    if (!enemigoAlien_.cargarTexturas())
+        return -1;
+
+    enemigoAlien_.configurarMovimientoCoseno(512.f, 300.f, 1.8f, 0.025f);
 
     while (window_.isOpen())
     {
@@ -39,6 +43,7 @@ void Juego::actualizar()
 {
     nave_.actualizar();
     enemigo_.actualizar();
+    enemigoAlien_.actualizar();
     disparar();
     actualizarProyectiles();
 }
@@ -78,6 +83,7 @@ void Juego::dibujar()
 {
     window_.clear();
     enemigo_.dibujar(window_);
+    enemigoAlien_.dibujar(window_);
     nave_.dibujar(window_);
 
     for (const auto& proyectil : proyectiles_)

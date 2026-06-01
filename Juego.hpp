@@ -28,6 +28,7 @@ private:
     sf::RenderWindow window_;
     Nave nave_;
     Enemigo enemigo_;
+    EnemigoAlien enemigoAlien_;
     std::vector<Proyectil> proyectiles_;
     sf::Clock relojDisparo_;
 

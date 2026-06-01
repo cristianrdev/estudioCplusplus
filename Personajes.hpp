@@ -55,3 +55,33 @@ private:
     sf::Texture textura_;
     sf::Sprite sprite_{textura_};
 };
+
+class EnemigoAlien {
+public:
+    bool cargarTexturas();
+    void configurarMovimientoCoseno(
+        float xCentro,
+        float amplitud,
+        float velocidadVertical,
+        float velocidadOscilacion);
+    void actualizar();
+    void dibujar(sf::RenderWindow& window) const;
+
+private:
+    void actualizarAnimacion();
+    void reaparecer();
+
+    float xCentro_ = 512.f;
+    float y_ = -100.f;
+    float fase_ = 0.f;
+    float amplitud_ = 300.f;
+    float velocidadVertical_ = 1.8f;
+    float velocidadOscilacion_ = 0.025f;
+    float escala_ = 0.12f;
+    int frame_ = 0;
+
+    sf::Clock relojAnimacion_;
+    sf::Texture texturaFrame1_;
+    sf::Texture texturaFrame2_;
+    sf::Sprite sprite_{texturaFrame1_};
+};

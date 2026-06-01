@@ -146,5 +146,69 @@ void Enemigo::reaparecer()
 {
     y_ = -sprite_.getGlobalBounds().size.y;
     fase_ = 0.f;
-    actualizar();
+    const float ancho = sprite_.getGlobalBounds().size.x;
+    sprite_.setPosition({xCentro_ + amplitud_ - ancho / 2.f, y_});
+}
+
+bool EnemigoAlien::cargarTexturas()
+{
+    if (!texturaFrame1_.loadFromFile("assets/enemigo_alien.png"))
+        return false;
+    if (!texturaFrame2_.loadFromFile("assets/enemigo_alien_2.png"))
+        return false;
+
+    sprite_.setTexture(texturaFrame1_, true);
+    sprite_.setScale({escala_, escala_});
+    reaparecer();
+    return true;
+}
+
+void EnemigoAlien::configurarMovimientoCoseno(
+    float xCentro,
+    float amplitud,
+    float velocidadVertical,
+    float velocidadOscilacion)
+{
+    xCentro_ = xCentro;
+    amplitud_ = amplitud;
+    velocidadVertical_ = velocidadVertical;
+    velocidadOscilacion_ = velocidadOscilacion;
+}
+
+void EnemigoAlien::actualizar()
+{
+    actualizarAnimacion();
+
+    fase_ += velocidadOscilacion_;
+    y_ += velocidadVertical_;
+
+    const float ancho = sprite_.getGlobalBounds().size.x;
+    const float x = xCentro_ + amplitud_ * std::cos(fase_) - ancho / 2.f;
+    sprite_.setPosition({x, y_});
+
+    if (y_ > 1080.f)
+        reaparecer();
+}
+
+void EnemigoAlien::dibujar(sf::RenderWindow& window) const
+{
+    window.draw(sprite_);
+}
+
+void EnemigoAlien::actualizarAnimacion()
+{
+    if (relojAnimacion_.getElapsedTime().asSeconds() < 0.18f)
+        return;
+
+    frame_ = (frame_ + 1) % 2;
+    sprite_.setTexture(frame_ == 0 ? texturaFrame1_ : texturaFrame2_, true);
+    relojAnimacion_.restart();
+}
+
+void EnemigoAlien::reaparecer()
+{
+    y_ = -sprite_.getGlobalBounds().size.y;
+    fase_ = 0.f;
+    const float ancho = sprite_.getGlobalBounds().size.x;
+    sprite_.setPosition({xCentro_ + amplitud_ - ancho / 2.f, y_});
 }
