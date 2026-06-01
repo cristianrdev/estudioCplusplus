@@ -25,6 +25,16 @@ int Juego::ejecutar()
     }
     if (!texturaGameOver_.loadFromFile("assets/game_over.png"))
         return -1;
+    for (const char* ruta : {
+        "assets/explosion_nave_1.png",
+        "assets/explosion_nave_2.png",
+        "assets/explosion_nave_3.png"})
+    {
+        sf::Texture textura;
+        if (!textura.loadFromFile(ruta))
+            return -1;
+        texturasExplosionNave_.push_back(std::move(textura));
+    }
     if (!fuenteDebug_.openFromFile("C:/Windows/Fonts/consola.ttf"))
         return -1;
 
@@ -63,16 +73,63 @@ void Juego::reiniciar()
     proximaOleada_ = 0;
     impactosNave_ = 0;
     vidaNave_ = 3;
+    frameExplosionNave_ = 0;
     gameOver_ = false;
+    naveExplotando_ = false;
+    esperandoGameOver_ = false;
     nave_.reiniciarEstado();
     relojDisparo_.restart();
     relojInicio_.restart();
+}
+
+void Juego::iniciarExplosionNave()
+{
+    const sf::FloatRect limites = nave_.obtenerLimitesColision();
+    centroExplosionNave_ = {
+        limites.position.x + limites.size.x / 2.f,
+        limites.position.y + limites.size.y / 2.f
+    };
+    frameExplosionNave_ = 0;
+    naveExplotando_ = true;
+    relojExplosionNave_.restart();
+}
+
+void Juego::actualizarExplosionNave()
+{
+    if (!naveExplotando_)
+        return;
+    if (relojExplosionNave_.getElapsedTime().asSeconds() < duracionFrameExplosionNave_)
+        return;
+
+    ++frameExplosionNave_;
+    relojExplosionNave_.restart();
+
+    if (frameExplosionNave_ >= static_cast<int>(texturasExplosionNave_.size()))
+    {
+        naveExplotando_ = false;
+        esperandoGameOver_ = true;
+        relojEsperaGameOver_.restart();
+    }
 }
 
 void Juego::actualizar()
 {
     if (gameOver_)
         return;
+    if (esperandoGameOver_)
+    {
+        if (relojEsperaGameOver_.getElapsedTime().asSeconds() >= esperaAntesGameOver_)
+        {
+            esperandoGameOver_ = false;
+            gameOver_ = true;
+        }
+        return;
+    }
+    if (naveExplotando_)
+    {
+        actualizarExplosionNave();
+        return;
+    }
 
     nave_.actualizar();
     procesarApariciones();
@@ -267,7 +324,8 @@ void Juego::detectarColisionesConNave()
             vidaNave_ = std::max(0, vidaNave_ - enemigo->obtenerDanio());
             nave_.recibirDanio();
             ++impactosNave_;
-            gameOver_ = vidaNave_ <= 0;
+            if (vidaNave_ <= 0)
+                iniciarExplosionNave();
             return;
         }
     }
@@ -281,7 +339,8 @@ void Juego::detectarColisionesConNave()
             vidaNave_ = std::max(0, vidaNave_ - enemigo->obtenerDanio());
             nave_.recibirDanio();
             ++impactosNave_;
-            gameOver_ = vidaNave_ <= 0;
+            if (vidaNave_ <= 0)
+                iniciarExplosionNave();
             return;
         }
     }
@@ -297,7 +356,8 @@ void Juego::detectarColisionesConNave()
             vidaNave_ = std::max(0, vidaNave_ - proyectil.danio);
             nave_.recibirDanio();
             ++impactosNave_;
-            gameOver_ = vidaNave_ <= 0;
+            if (vidaNave_ <= 0)
+                iniciarExplosionNave();
             return;
         }
     }
@@ -307,7 +367,8 @@ void Juego::dibujar()
 {
     window_.clear();
     dibujarEnemigos();
-    nave_.dibujar(window_);
+    if (!naveExplotando_ && !esperandoGameOver_ && !gameOver_)
+        nave_.dibujar(window_);
 
     for (const auto& proyectil : proyectiles_)
     {
@@ -317,9 +378,28 @@ void Juego::dibujar()
 
     dibujarProyectilesEnemigos();
     dibujarDebug();
+    if (naveExplotando_)
+        dibujarExplosionNave();
     if (gameOver_)
         dibujarGameOver();
     window_.display();
+}
+
+void Juego::dibujarExplosionNave()
+{
+    if (frameExplosionNave_ >= static_cast<int>(texturasExplosionNave_.size()))
+        return;
+
+    sf::Sprite sprite(texturasExplosionNave_[frameExplosionNave_]);
+    sprite.setScale({escalaExplosionNave_, escalaExplosionNave_});
+
+    const sf::FloatRect limites = sprite.getGlobalBounds();
+    sprite.setPosition({
+        centroExplosionNave_.x - limites.size.x / 2.f,
+        centroExplosionNave_.y - limites.size.y / 2.f
+    });
+
+    window_.draw(sprite);
 }
 
 void Juego::dibujarGameOver()
