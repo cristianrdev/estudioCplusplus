@@ -21,9 +21,16 @@ Juego::Juego()
 namespace
 {
 constexpr float tamanioTileTerreno = 128.f;
+constexpr int pixelesTileTerreno = 252;
+constexpr int margenTileTerreno = 2;
+constexpr int pasoTileTerreno = pixelesTileTerreno + margenTileTerreno * 2;
+constexpr float escalaTileTerreno = tamanioTileTerreno / pixelesTileTerreno;
 constexpr int columnasTilemapTerreno = 8;
 constexpr int filasSectorRocoso = 16;
-constexpr int columnasAtlasTerreno = 16;
+constexpr int columnasAtlasTerreno = 8;
+constexpr int tilesBaseTerreno = 1;
+constexpr int primerTileEntradaTerreno = 1;
+constexpr int primerTileSalidaTerreno = 9;
 
 std::uint32_t siguienteAleatorio(std::uint32_t& estado)
 {
@@ -464,11 +471,17 @@ void Juego::crearAparicionFondo(const AparicionFondo& aparicion)
         {
             for (int columna = 0; columna < columnasTilemapTerreno; ++columna)
             {
+                int indiceBase = (fila + columna * 3) % tilesBaseTerreno;
+                if (fila == 0)
+                    indiceBase = primerTileEntradaTerreno + columna;
+                else if (fila == filasSectorRocoso - 1)
+                    indiceBase = primerTileSalidaTerreno + columna;
+
                 tilesTerrenoFondo_.push_back({
                     desplazamientoX + columna * tamanioTileTerreno,
                     posicionY - (sector * filasSectorRocoso + fila) * tamanioTileTerreno,
                     aparicion.velocidadY,
-                    fila * columnasTilemapTerreno + columna,
+                    indiceBase,
                     true
                 });
             }
@@ -1434,6 +1447,7 @@ void Juego::dibujarTerrenoFondo()
 
         sf::Sprite sprite(texturaAtlasTerrenoFondo_);
         sprite.setTextureRect(obtenerRectanguloTileTerrenoFondo(tile.indiceBase));
+        sprite.setScale({escalaTileTerreno, escalaTileTerreno});
         sprite.setPosition({std::round(tile.x), std::round(tile.y)});
         window_.draw(sprite);
     }
@@ -1778,12 +1792,12 @@ sf::IntRect Juego::obtenerRectanguloTileTerrenoFondo(int indice) const
 {
     return {
         {
-            indice % columnasAtlasTerreno * static_cast<int>(tamanioTileTerreno),
-            indice / columnasAtlasTerreno * static_cast<int>(tamanioTileTerreno)
+            indice % columnasAtlasTerreno * pasoTileTerreno + margenTileTerreno,
+            indice / columnasAtlasTerreno * pasoTileTerreno + margenTileTerreno
         },
         {
-            static_cast<int>(tamanioTileTerreno),
-            static_cast<int>(tamanioTileTerreno)
+            pixelesTileTerreno,
+            pixelesTileTerreno
         }
     };
 }
