@@ -37,7 +37,11 @@ float aleatorioEntre(std::uint32_t& estado, float minimo, float maximo)
 }
 
 Juego::Juego()
-    : window_(sf::VideoMode({anchoVentana1080p, altoVentana1080p}), "Nave Shooter"),
+    : window_(
+          sf::VideoMode({anchoVentana1080p, altoVentana1080p}),
+          "Nave Shooter",
+          sf::Style::None,
+          sf::State::Fullscreen),
       vistaJuego_(sf::FloatRect({0.f, 0.f}, {anchoLogicoJuego, altoLogicoJuego}))
 {
     window_.setFramerateLimit(60);
@@ -147,7 +151,6 @@ int Juego::ejecutar()
 
     textoDebug_.setCharacterSize(22);
     textoDebug_.setFillColor(sf::Color::White);
-    textoDebug_.setPosition({12.f, recorteSuperiorPantallaJugable_ + 10.f});
     relojInicio_.restart();
     relojFrame_.restart();
     inicializarEstrellasFondo();
@@ -179,7 +182,11 @@ void Juego::cambiarResolucion(unsigned int ancho, unsigned int alto)
         return;
 
     resolucionVentana_ = {ancho, alto};
-    window_.create(sf::VideoMode(resolucionVentana_), "Nave Shooter");
+    window_.create(
+        sf::VideoMode(resolucionVentana_),
+        "Nave Shooter",
+        sf::Style::None,
+        sf::State::Fullscreen);
     window_.setFramerateLimit(60);
     configurarVista();
 }
@@ -218,7 +225,6 @@ void Juego::configurarVista()
         }
     });
     window_.setView(vistaJuego_);
-    textoDebug_.setPosition({12.f, recorteSuperiorPantallaJugable_ + 10.f});
 }
 
 void Juego::registrarRendimientoFrame(float duracionMs)
@@ -1773,6 +1779,16 @@ const sf::Texture& Juego::obtenerTexturaProyectilEnemigo(TipoProyectilEnemigo ti
 
 void Juego::dibujarDebug()
 {
+    const sf::View vistaAnterior = window_.getView();
+    window_.setView(window_.getDefaultView());
+
+    const sf::FloatRect viewport = vistaJuego_.getViewport();
+    const sf::Vector2u tamanioVentana = window_.getSize();
+    textoDebug_.setPosition({
+        12.f,
+        std::round(viewport.position.y * tamanioVentana.y) + 10.f
+    });
+
     std::ostringstream texto;
     texto << std::fixed << std::setprecision(2)
           << "Tiempo: " << relojInicio_.getElapsedTime().asSeconds() << " s"
@@ -1789,6 +1805,8 @@ void Juego::dibujarDebug()
         texto << "\nPAUSA";
     textoDebug_.setString(texto.str());
     window_.draw(textoDebug_);
+
+    window_.setView(vistaAnterior);
 }
 
 void Juego::dibujarMarcoJugable()
