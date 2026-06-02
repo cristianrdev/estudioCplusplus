@@ -12,7 +12,6 @@
 #include <cstdint>
 #include <map>
 #include <memory>
-#include <string>
 #include <vector>
 
 struct Proyectil
@@ -111,6 +110,7 @@ public:
 
 private:
     void procesarEventos();
+    void registrarRendimientoFrame(float duracionMs);
     void alternarPausa();
     void reiniciar();
     void iniciarExplosionNave();
@@ -141,7 +141,6 @@ private:
     void crearImpactoLaser(const sf::FloatRect& interseccion);
     void crearFogonazoCanon(const sf::Vector2f& origen, bool laserAzul);
     void procesarApariciones();
-    void registrarOleadaDebug(const OleadaEnemigos& oleada, float tiempoReal);
     void crearOleada(const OleadaEnemigos& oleada);
     void actualizarEnemigos();
     void dispararEnemigos();
@@ -191,9 +190,9 @@ private:
     std::vector<ExplosionEnemigo> explosionesEnemigos_;
     std::vector<ImpactoLaser> impactosLaser_;
     std::vector<FogonazoCanon> fogonazosCanones_;
-    std::vector<std::string> ultimasOleadasDebug_;
     sf::Clock relojDisparo_;
     sf::Clock relojInicio_;
+    sf::Clock relojFrame_;
     sf::Font fuenteDebug_;
     sf::Text textoDebug_{fuenteDebug_};
     std::map<TipoProyectilEnemigo, sf::Texture> texturasProyectilesEnemigos_;
@@ -206,6 +205,15 @@ private:
     sf::Texture texturaAtlasRocasFondo_;
     sf::Texture texturaAtlasTerrenoFondo_;
     sf::Texture texturaGameOver_;
+    sf::Texture texturaEnemigo_;
+    sf::Texture texturaEnemigoAlienFrame1_;
+    sf::Texture texturaEnemigoAlienFrame2_;
+    sf::Texture texturaEsbirro_;
+    sf::Texture texturaMoluscoGiratorio_;
+    sf::Texture texturaMiniBossMoluscoFrame1_;
+    sf::Texture texturaMiniBossMoluscoFrame2_;
+    sf::Texture texturaMiniBossMoluscoFrame3_;
+    sf::Texture texturaPescadoGigante_;
     sf::Vector2f tamanioLaserJugador_;
     sf::Vector2f tamanioLaserJugadorAzul_;
     std::vector<sf::Texture> texturasExplosionNave_;
@@ -219,12 +227,18 @@ private:
     int impactosNave_ = 0;
     int vidaNave_ = 3;
     int frameExplosionNave_ = 0;
+    int framesMuestraFps_ = 0;
     bool gameOver_ = false;
     bool naveExplotando_ = false;
     bool esperandoGameOver_ = false;
     bool pausado_ = false;
     bool laserDobleActivo_ = false;
     sf::Vector2f centroExplosionNave_;
+    float fps_ = 0.f;
+    float acumuladoMuestraFps_ = 0.f;
+    float peorFrameMuestraMs_ = 0.f;
+    float peorFrameVisibleMs_ = 0.f;
+    float tiempoUltimoLogRendimiento_ = -10.f;
 
     float cadenciaDisparo_ = 0.12f;
     float velocidadLaser_ = 8.f;
@@ -242,4 +256,5 @@ private:
     float escalaExplosionNave_ = 0.22f;
     float duracionFrameExplosionNave_ = 0.16f;
     float esperaAntesGameOver_ = 2.f;
+    float umbralFrameLentoMs_ = 35.f;
 };

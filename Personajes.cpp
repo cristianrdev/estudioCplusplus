@@ -203,19 +203,15 @@ void Nave::actualizarPosiciones()
     fuegoDer_.setPosition({x_ + anchoNave - 19.f, y_ + altoNave - 14.f});
 }
 
-bool Enemigo::cargarTextura()
+Enemigo::Enemigo(const sf::Texture& textura)
+    : sprite_(textura)
 {
-    if (!textura_.loadFromFile("assets/enemigo_contorno.png"))
-        return false;
-
-    sprite_.setTexture(textura_, true);
     sprite_.setScale({escala_, escala_});
     sprite_.setOrigin({
-        textura_.getSize().x / 2.f,
-        textura_.getSize().y / 2.f
+        textura.getSize().x / 2.f,
+        textura.getSize().y / 2.f
     });
     sprite_.setRotation(sf::degrees(180.f));
-    return true;
 }
 
 void Enemigo::activar(float posicionX, int danio, int vida, float frecuenciaDisparo)
@@ -316,16 +312,14 @@ void Enemigo::establecerPausa(bool pausado)
         relojDisparo_.start();
 }
 
-bool EnemigoAlien::cargarTexturas()
+EnemigoAlien::EnemigoAlien(
+    const sf::Texture& texturaFrame1,
+    const sf::Texture& texturaFrame2)
+    : texturaFrame1_(texturaFrame1),
+      texturaFrame2_(texturaFrame2),
+      sprite_(texturaFrame1_)
 {
-    if (!texturaFrame1_.loadFromFile("assets/enemigo_alien_contorno.png"))
-        return false;
-    if (!texturaFrame2_.loadFromFile("assets/enemigo_alien_2_contorno.png"))
-        return false;
-
-    sprite_.setTexture(texturaFrame1_, true);
     sprite_.setScale({escala_, escala_});
-    return true;
 }
 
 void EnemigoAlien::activar(float posicionX, int danio, int vida, float frecuenciaDisparo)
@@ -445,14 +439,10 @@ void EnemigoAlien::actualizarAnimacion()
     relojAnimacion_.restart();
 }
 
-bool Esbirro::cargarTextura()
+Esbirro::Esbirro(const sf::Texture& textura)
+    : sprite_(textura)
 {
-    if (!textura_.loadFromFile("assets/esbirro_contorno.png"))
-        return false;
-
-    sprite_.setTexture(textura_, true);
     sprite_.setScale({escala_, escala_});
-    return true;
 }
 
 void Esbirro::activar(float posicionX, int danio, int vida, float frecuenciaDisparo)
@@ -544,18 +534,14 @@ void Esbirro::establecerPausa(bool pausado)
         relojDisparo_.start();
 }
 
-bool MoluscoGiratorio::cargarTextura()
+MoluscoGiratorio::MoluscoGiratorio(const sf::Texture& textura)
+    : sprite_(textura)
 {
-    if (!textura_.loadFromFile("assets/molusco_giratorio_contorno.png"))
-        return false;
-
-    sprite_.setTexture(textura_, true);
     sprite_.setScale({escala_, escala_});
     sprite_.setOrigin({
-        textura_.getSize().x / 2.f,
-        textura_.getSize().y / 2.f
+        textura.getSize().x / 2.f,
+        textura.getSize().y / 2.f
     });
-    return true;
 }
 
 void MoluscoGiratorio::activar(
@@ -676,22 +662,20 @@ void MoluscoGiratorio::establecerPausa(bool pausado)
         relojDisparo_.start();
 }
 
-bool MiniBossMolusco::cargarTexturas()
+MiniBossMolusco::MiniBossMolusco(
+    const sf::Texture& texturaFrame1,
+    const sf::Texture& texturaFrame2,
+    const sf::Texture& texturaFrame3)
+    : texturaFrame1_(texturaFrame1),
+      texturaFrame2_(texturaFrame2),
+      texturaFrame3_(texturaFrame3),
+      sprite_(texturaFrame1_)
 {
-    if (!texturaFrame1_.loadFromFile("assets/miniboss_molusco_1_contorno.png"))
-        return false;
-    if (!texturaFrame2_.loadFromFile("assets/miniboss_molusco_2_contorno.png"))
-        return false;
-    if (!texturaFrame3_.loadFromFile("assets/miniboss_molusco_3_contorno.png"))
-        return false;
-
-    sprite_.setTexture(texturaFrame1_, true);
     sprite_.setScale({escala_, escala_});
     sprite_.setOrigin({
         texturaFrame1_.getSize().x / 2.f,
         texturaFrame1_.getSize().y / 2.f
     });
-    return true;
 }
 
 void MiniBossMolusco::activar(
@@ -855,18 +839,14 @@ void MiniBossMolusco::actualizarAnimacion()
     relojAnimacion_.restart();
 }
 
-bool PescadoGigante::cargarTextura()
+PescadoGigante::PescadoGigante(const sf::Texture& textura)
+    : sprite_(textura)
 {
-    if (!textura_.loadFromFile("assets/pescado_gigante.png"))
-        return false;
-
-    sprite_.setTexture(textura_, true);
     sprite_.setScale({escala_, escala_});
     sprite_.setOrigin({
-        textura_.getSize().x / 2.f,
-        textura_.getSize().y / 2.f
+        textura.getSize().x / 2.f,
+        textura.getSize().y / 2.f
     });
-    return true;
 }
 
 void PescadoGigante::activar(float posicionX, int danio, int vida, float frecuenciaDisparo)

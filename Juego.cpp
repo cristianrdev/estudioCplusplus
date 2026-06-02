@@ -38,6 +38,24 @@ int Juego::ejecutar()
 {
     if (!nave_.cargarTexturas())
         return -1;
+    if (!texturaEnemigo_.loadFromFile("assets/enemigo_contorno.png"))
+        return -1;
+    if (!texturaEnemigoAlienFrame1_.loadFromFile("assets/enemigo_alien_contorno.png"))
+        return -1;
+    if (!texturaEnemigoAlienFrame2_.loadFromFile("assets/enemigo_alien_2_contorno.png"))
+        return -1;
+    if (!texturaEsbirro_.loadFromFile("assets/esbirro_contorno.png"))
+        return -1;
+    if (!texturaMoluscoGiratorio_.loadFromFile("assets/molusco_giratorio_contorno.png"))
+        return -1;
+    if (!texturaMiniBossMoluscoFrame1_.loadFromFile("assets/miniboss_molusco_1_contorno.png"))
+        return -1;
+    if (!texturaMiniBossMoluscoFrame2_.loadFromFile("assets/miniboss_molusco_2_contorno.png"))
+        return -1;
+    if (!texturaMiniBossMoluscoFrame3_.loadFromFile("assets/miniboss_molusco_3_contorno.png"))
+        return -1;
+    if (!texturaPescadoGigante_.loadFromFile("assets/pescado_gigante.png"))
+        return -1;
     if (!texturaLaserJugador_.loadFromFile("assets/laser_jugador.png"))
         return -1;
     if (!texturaLaserJugadorAzul_.loadFromFile("assets/laser_jugador_azul.png"))
@@ -107,16 +125,68 @@ int Juego::ejecutar()
     textoDebug_.setFillColor(sf::Color::White);
     textoDebug_.setPosition({12.f, 10.f});
     relojInicio_.restart();
+    relojFrame_.restart();
     inicializarEstrellasFondo();
 
     while (window_.isOpen())
     {
+        const float duracionFrameMs = relojFrame_.restart().asSeconds() * 1000.f;
+        registrarRendimientoFrame(duracionFrameMs);
         procesarEventos();
         actualizar();
         dibujar();
     }
 
     return 0;
+}
+
+void Juego::registrarRendimientoFrame(float duracionMs)
+{
+    if (duracionMs <= 0.f)
+        return;
+
+    acumuladoMuestraFps_ += duracionMs;
+    peorFrameMuestraMs_ = std::max(peorFrameMuestraMs_, duracionMs);
+    ++framesMuestraFps_;
+
+    if (acumuladoMuestraFps_ >= 500.f)
+    {
+        fps_ = framesMuestraFps_ * 1000.f / acumuladoMuestraFps_;
+        peorFrameVisibleMs_ = peorFrameMuestraMs_;
+        acumuladoMuestraFps_ = 0.f;
+        peorFrameMuestraMs_ = 0.f;
+        framesMuestraFps_ = 0;
+    }
+
+    const float tiempoJuego = relojInicio_.getElapsedTime().asSeconds();
+    if (duracionMs < umbralFrameLentoMs_
+        || tiempoJuego - tiempoUltimoLogRendimiento_ < 0.25f)
+    {
+        return;
+    }
+
+    tiempoUltimoLogRendimiento_ = tiempoJuego;
+    const std::size_t enemigosActivos = enemigos_.size()
+        + enemigosAlien_.size()
+        + esbirros_.size()
+        + moluscosGiratorios_.size()
+        + miniBossesMolusco_.size()
+        + pescadosGigantes_.size();
+
+    std::cout << std::fixed << std::setprecision(2)
+              << "\n[PERF] frame_lento"
+              << " t=" << tiempoJuego << "s"
+              << " frame=" << duracionMs << "ms"
+              << " fps_hud=" << fps_
+              << " enemigos=" << enemigosActivos
+              << " proyectiles_jugador=" << proyectiles_.size()
+              << " proyectiles_enemigos=" << proyectilesEnemigos_.size()
+              << " fogonazos=" << fogonazosCanones_.size()
+              << " impactos=" << impactosLaser_.size()
+              << " fondos=" << tilesTerrenoFondo_.size()
+              << " rocas=" << elementosFondo_.size()
+              << '\n'
+              << std::flush;
 }
 
 void Juego::procesarEventos()
@@ -188,7 +258,6 @@ void Juego::reiniciar()
     explosionesEnemigos_.clear();
     impactosLaser_.clear();
     fogonazosCanones_.clear();
-    ultimasOleadasDebug_.clear();
     proximaOleada_ = 0;
     proximaAparicionItem_ = 0;
     proximaAparicionElementoFondo_ = 0;
@@ -204,6 +273,13 @@ void Juego::reiniciar()
     nave_.reiniciarEstado();
     relojDisparo_.restart();
     relojInicio_.restart();
+    relojFrame_.restart();
+    fps_ = 0.f;
+    acumuladoMuestraFps_ = 0.f;
+    peorFrameMuestraMs_ = 0.f;
+    peorFrameVisibleMs_ = 0.f;
+    framesMuestraFps_ = 0;
+    tiempoUltimoLogRendimiento_ = -10.f;
     inicializarEstrellasFondo();
 }
 
@@ -823,49 +899,9 @@ void Juego::procesarApariciones()
     while (proximaOleada_ < oleadas.size()
         && oleadas[proximaOleada_].tiempoSegundos <= segundos)
     {
-        registrarOleadaDebug(oleadas[proximaOleada_], segundos);
         crearOleada(oleadas[proximaOleada_]);
         ++proximaOleada_;
     }
-}
-
-void Juego::registrarOleadaDebug(const OleadaEnemigos& oleada, float tiempoReal)
-{
-    const auto& comportamiento = obtenerComportamientoEnemigo(oleada.comportamiento);
-    const char* tipo = "Esbirro";
-    if (oleada.tipo == TipoEnemigo::Nave)
-        tipo = "Nave";
-    else if (oleada.tipo == TipoEnemigo::Alien)
-        tipo = "Alien";
-    else if (oleada.tipo == TipoEnemigo::MiniBossMolusco)
-        tipo = "MiniBossMolusco";
-    else if (oleada.tipo == TipoEnemigo::MoluscoGiratorio)
-        tipo = "MoluscoGiratorio";
-    else if (oleada.tipo == TipoEnemigo::PescadoGigante)
-        tipo = "PescadoGigante";
-
-    std::ostringstream registro;
-    registro << std::fixed << std::setprecision(2)
-             << "t_real=" << tiempoReal << "s"
-             << " t_programado=" << oleada.tiempoSegundos << "s"
-             << " tipo=" << tipo
-             << " cantidad=" << oleada.cantidad
-             << " danio=" << oleada.danio
-             << " vida=" << oleada.vida
-             << " frecuencia_disparo=" << oleada.frecuenciaDisparo << "s"
-             << " x_inicial=" << oleada.posicionXInicial
-             << " separacion_x=" << oleada.separacionX
-             << " comportamiento=" << comportamiento.nombre;
-
-    ultimasOleadasDebug_.push_back(registro.str());
-    if (ultimasOleadasDebug_.size() > 5)
-        ultimasOleadasDebug_.erase(ultimasOleadasDebug_.begin());
-
-    std::cout << "\n[DEBUG] Ultimas oleadas generadas (" << ultimasOleadasDebug_.size()
-              << "/5):\n";
-    for (const auto& linea : ultimasOleadasDebug_)
-        std::cout << "  " << linea << '\n';
-    std::cout << std::flush;
 }
 
 void Juego::crearOleada(const OleadaEnemigos& oleada)
@@ -878,9 +914,7 @@ void Juego::crearOleada(const OleadaEnemigos& oleada)
 
         if (oleada.tipo == TipoEnemigo::Nave)
         {
-            auto enemigo = std::make_unique<Enemigo>();
-            if (!enemigo->cargarTextura())
-                continue;
+            auto enemigo = std::make_unique<Enemigo>(texturaEnemigo_);
             enemigo->configurarMovimientoDiagonal(
                 comportamiento.movimiento.amplitudOVelocidadHorizontal,
                 comportamiento.movimiento.velocidadVertical);
@@ -893,9 +927,9 @@ void Juego::crearOleada(const OleadaEnemigos& oleada)
         }
         else if (oleada.tipo == TipoEnemigo::Alien)
         {
-            auto enemigo = std::make_unique<EnemigoAlien>();
-            if (!enemigo->cargarTexturas())
-                continue;
+            auto enemigo = std::make_unique<EnemigoAlien>(
+                texturaEnemigoAlienFrame1_,
+                texturaEnemigoAlienFrame2_);
             enemigo->configurarMovimientoCoseno(
                 comportamiento.movimiento.amplitudOVelocidadHorizontal,
                 comportamiento.movimiento.velocidadVertical,
@@ -909,9 +943,7 @@ void Juego::crearOleada(const OleadaEnemigos& oleada)
         }
         else if (oleada.tipo == TipoEnemigo::Esbirro)
         {
-            auto esbirro = std::make_unique<Esbirro>();
-            if (!esbirro->cargarTextura())
-                continue;
+            auto esbirro = std::make_unique<Esbirro>(texturaEsbirro_);
             esbirro->configurarVelocidad(comportamiento.movimiento.velocidadVertical);
             esbirro->activar(
                 posicionX,
@@ -922,9 +954,7 @@ void Juego::crearOleada(const OleadaEnemigos& oleada)
         }
         else if (oleada.tipo == TipoEnemigo::MoluscoGiratorio)
         {
-            auto molusco = std::make_unique<MoluscoGiratorio>();
-            if (!molusco->cargarTextura())
-                continue;
+            auto molusco = std::make_unique<MoluscoGiratorio>(texturaMoluscoGiratorio_);
             molusco->configurarMovimiento(
                 comportamiento.movimiento.amplitudOVelocidadHorizontal,
                 comportamiento.movimiento.velocidadVertical);
@@ -937,9 +967,7 @@ void Juego::crearOleada(const OleadaEnemigos& oleada)
         }
         else if (oleada.tipo == TipoEnemigo::PescadoGigante)
         {
-            auto pescado = std::make_unique<PescadoGigante>();
-            if (!pescado->cargarTextura())
-                continue;
+            auto pescado = std::make_unique<PescadoGigante>(texturaPescadoGigante_);
             pescado->configurarVelocidad(comportamiento.movimiento.velocidadVertical);
             pescado->activar(
                 posicionX,
@@ -950,9 +978,10 @@ void Juego::crearOleada(const OleadaEnemigos& oleada)
         }
         else
         {
-            auto miniBoss = std::make_unique<MiniBossMolusco>();
-            if (!miniBoss->cargarTexturas())
-                continue;
+            auto miniBoss = std::make_unique<MiniBossMolusco>(
+                texturaMiniBossMoluscoFrame1_,
+                texturaMiniBossMoluscoFrame2_,
+                texturaMiniBossMoluscoFrame3_);
             miniBoss->configurarMovimiento(
                 comportamiento.movimiento.velocidadVertical,
                 comportamiento.miniBoss.alturaEspera,
@@ -1632,6 +1661,8 @@ void Juego::dibujarDebug()
     std::ostringstream texto;
     texto << std::fixed << std::setprecision(2)
           << "Tiempo: " << relojInicio_.getElapsedTime().asSeconds() << " s"
+          << "\nFPS: " << fps_
+          << "\nPeor frame: " << peorFrameVisibleMs_ << " ms"
           << "\nVida: " << vidaNave_ << "/3"
           << "\nImpactos: " << impactosNave_
           << "\nLaser: " << (laserDobleActivo_ ? "doble azul" : "normal");

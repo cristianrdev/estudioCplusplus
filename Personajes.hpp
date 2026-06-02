@@ -50,7 +50,7 @@ private:
 
 class Enemigo {
 public:
-    bool cargarTextura();
+    explicit Enemigo(const sf::Texture& textura);
     void activar(float posicionX, int danio, int vida, float frecuenciaDisparo);
     void configurarMovimientoDiagonal(
         float velocidadHorizontal,
@@ -77,13 +77,12 @@ private:
     float frecuenciaDisparo_ = 1.f;
     sf::Clock relojDisparo_;
 
-    sf::Texture textura_;
-    sf::Sprite sprite_{textura_};
+    sf::Sprite sprite_;
 };
 
 class EnemigoAlien {
 public:
-    bool cargarTexturas();
+    EnemigoAlien(const sf::Texture& texturaFrame1, const sf::Texture& texturaFrame2);
     void activar(float posicionX, int danio, int vida, float frecuenciaDisparo);
     void configurarMovimientoCoseno(
         float amplitud,
@@ -118,14 +117,14 @@ private:
 
     sf::Clock relojAnimacion_;
     sf::Clock relojDisparo_;
-    sf::Texture texturaFrame1_;
-    sf::Texture texturaFrame2_;
-    sf::Sprite sprite_{texturaFrame1_};
+    const sf::Texture& texturaFrame1_;
+    const sf::Texture& texturaFrame2_;
+    sf::Sprite sprite_;
 };
 
 class Esbirro {
 public:
-    bool cargarTextura();
+    explicit Esbirro(const sf::Texture& textura);
     void activar(float posicionX, int danio, int vida, float frecuenciaDisparo);
     void configurarVelocidad(float velocidadVertical);
     void actualizar();
@@ -149,13 +148,12 @@ private:
     float frecuenciaDisparo_ = 1.1f;
 
     sf::Clock relojDisparo_;
-    sf::Texture textura_;
-    sf::Sprite sprite_{textura_};
+    sf::Sprite sprite_;
 };
 
 class MoluscoGiratorio {
 public:
-    bool cargarTextura();
+    explicit MoluscoGiratorio(const sf::Texture& textura);
     void activar(float posicionX, int danio, int vida, float frecuenciaDisparo);
     void configurarMovimiento(float velocidadHorizontal, float velocidadVertical);
     void actualizar();
@@ -187,13 +185,15 @@ private:
     FaseMovimiento faseMovimiento_ = FaseMovimiento::DiagonalAbajo;
 
     sf::Clock relojDisparo_;
-    sf::Texture textura_;
-    sf::Sprite sprite_{textura_};
+    sf::Sprite sprite_;
 };
 
 class MiniBossMolusco {
 public:
-    bool cargarTexturas();
+    MiniBossMolusco(
+        const sf::Texture& texturaFrame1,
+        const sf::Texture& texturaFrame2,
+        const sf::Texture& texturaFrame3);
     void activar(float posicionX, int danio, int vida, float frecuenciaDisparo);
     void configurarMovimiento(
         float velocidadVertical,
@@ -237,15 +237,15 @@ private:
     sf::Clock relojAnimacion_;
     sf::Clock relojEspera_;
     sf::Clock relojDisparo_;
-    sf::Texture texturaFrame1_;
-    sf::Texture texturaFrame2_;
-    sf::Texture texturaFrame3_;
-    sf::Sprite sprite_{texturaFrame1_};
+    const sf::Texture& texturaFrame1_;
+    const sf::Texture& texturaFrame2_;
+    const sf::Texture& texturaFrame3_;
+    sf::Sprite sprite_;
 };
 
 class PescadoGigante {
 public:
-    bool cargarTextura();
+    explicit PescadoGigante(const sf::Texture& textura);
     void activar(float posicionX, int danio, int vida, float frecuenciaDisparo);
     void configurarVelocidad(float velocidadVertical);
     void actualizar();
@@ -270,6 +270,5 @@ private:
     float frecuenciaDisparo_ = 1.6f;
 
     sf::Clock relojDisparo_;
-    sf::Texture textura_;
-    sf::Sprite sprite_{textura_};
+    sf::Sprite sprite_;
 };
