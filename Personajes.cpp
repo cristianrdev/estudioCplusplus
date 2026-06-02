@@ -503,6 +503,135 @@ void Esbirro::establecerPausa(bool pausado)
         relojDisparo_.start();
 }
 
+bool MoluscoGiratorio::cargarTextura()
+{
+    if (!textura_.loadFromFile("assets/miniboss_molusco_1.png"))
+        return false;
+
+    sprite_.setTexture(textura_, true);
+    sprite_.setScale({escala_, escala_});
+    sprite_.setOrigin({
+        textura_.getSize().x / 2.f,
+        textura_.getSize().y / 2.f
+    });
+    return true;
+}
+
+void MoluscoGiratorio::activar(
+    float posicionX,
+    int danio,
+    int vida,
+    float frecuenciaDisparo)
+{
+    const float mitadAlto = sprite_.getGlobalBounds().size.y / 2.f;
+    sprite_.setPosition({posicionX, -mitadAlto});
+    sprite_.setRotation(sf::degrees(0.f));
+    danio_ = danio;
+    vida_ = vida;
+    frecuenciaDisparo_ = frecuenciaDisparo;
+    faseMovimiento_ = FaseMovimiento::DiagonalAbajo;
+    activo_ = true;
+    relojDisparo_.restart();
+}
+
+void MoluscoGiratorio::configurarMovimiento(
+    float velocidadHorizontal,
+    float velocidadVertical)
+{
+    velocidadHorizontal_ = velocidadHorizontal;
+    velocidadVertical_ = velocidadVertical;
+}
+
+void MoluscoGiratorio::actualizar()
+{
+    if (!activo_)
+        return;
+
+    sprite_.rotate(sf::degrees(4.f));
+
+    if (faseMovimiento_ == FaseMovimiento::DiagonalAbajo)
+    {
+        sprite_.move({velocidadHorizontal_, velocidadVertical_});
+        if (sprite_.getPosition().y >= 1080.f / 6.f)
+            faseMovimiento_ = FaseMovimiento::RectoAbajo;
+    }
+    else if (faseMovimiento_ == FaseMovimiento::RectoAbajo)
+    {
+        sprite_.move({0.f, velocidadVertical_});
+        if (sprite_.getPosition().y >= 1080.f * 0.75f)
+            faseMovimiento_ = FaseMovimiento::DiagonalArriba;
+    }
+    else
+    {
+        sprite_.move({velocidadHorizontal_, -velocidadVertical_});
+    }
+
+    const sf::FloatRect limites = sprite_.getGlobalBounds();
+    if (limites.position.x > 1024.f
+        || limites.position.y + limites.size.y < 0.f)
+    {
+        activo_ = false;
+    }
+}
+
+void MoluscoGiratorio::dibujar(sf::RenderWindow& window) const
+{
+    if (activo_)
+        window.draw(sprite_);
+}
+
+bool MoluscoGiratorio::estaActivo() const
+{
+    return activo_;
+}
+
+void MoluscoGiratorio::desactivar()
+{
+    activo_ = false;
+}
+
+int MoluscoGiratorio::obtenerDanio() const
+{
+    return danio_;
+}
+
+bool MoluscoGiratorio::recibirDanio(int danio)
+{
+    vida_ -= danio;
+    return vida_ <= 0;
+}
+
+bool MoluscoGiratorio::listoParaDisparar()
+{
+    if (!activo_ || relojDisparo_.getElapsedTime().asSeconds() < frecuenciaDisparo_)
+        return false;
+
+    relojDisparo_.restart();
+    return true;
+}
+
+sf::Vector2f MoluscoGiratorio::obtenerOrigenDisparo() const
+{
+    const sf::FloatRect limites = sprite_.getGlobalBounds();
+    return {
+        limites.position.x + limites.size.x / 2.f,
+        limites.position.y + limites.size.y
+    };
+}
+
+sf::FloatRect MoluscoGiratorio::obtenerLimitesColision() const
+{
+    return sprite_.getGlobalBounds();
+}
+
+void MoluscoGiratorio::establecerPausa(bool pausado)
+{
+    if (pausado)
+        relojDisparo_.stop();
+    else
+        relojDisparo_.start();
+}
+
 bool MiniBossMolusco::cargarTexturas()
 {
     if (!texturaFrame1_.loadFromFile("assets/miniboss_molusco_1.png"))

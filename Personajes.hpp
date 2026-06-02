@@ -150,6 +150,44 @@ private:
     sf::Sprite sprite_{textura_};
 };
 
+class MoluscoGiratorio {
+public:
+    bool cargarTextura();
+    void activar(float posicionX, int danio, int vida, float frecuenciaDisparo);
+    void configurarMovimiento(float velocidadHorizontal, float velocidadVertical);
+    void actualizar();
+    void dibujar(sf::RenderWindow& window) const;
+    bool estaActivo() const;
+    void desactivar();
+    int obtenerDanio() const;
+    bool recibirDanio(int danio);
+    bool listoParaDisparar();
+    sf::Vector2f obtenerOrigenDisparo() const;
+    sf::FloatRect obtenerLimitesColision() const;
+    void establecerPausa(bool pausado);
+
+private:
+    enum class FaseMovimiento
+    {
+        DiagonalAbajo,
+        RectoAbajo,
+        DiagonalArriba
+    };
+
+    float velocidadHorizontal_ = 3.2f;
+    float velocidadVertical_ = 4.f;
+    float escala_ = 0.04f;
+    bool activo_ = false;
+    int danio_ = 1;
+    int vida_ = 1;
+    float frecuenciaDisparo_ = 1.1f;
+    FaseMovimiento faseMovimiento_ = FaseMovimiento::DiagonalAbajo;
+
+    sf::Clock relojDisparo_;
+    sf::Texture textura_;
+    sf::Sprite sprite_{textura_};
+};
+
 class MiniBossMolusco {
 public:
     bool cargarTexturas();

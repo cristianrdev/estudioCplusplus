@@ -9,6 +9,7 @@ enum class ComportamientoEnemigo
     AlienRapido,
     NaveDiagonalDerecha,
     NaveDiagonalIzquierda,
+    MoluscoGiratorio,
     MiniBossMolusco
 };
 

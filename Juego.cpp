@@ -33,6 +33,7 @@ int Juego::ejecutar()
         {TipoEnemigo::Nave, "assets/explosion_enemigo_nave.png"},
         {TipoEnemigo::Alien, "assets/explosion_enemigo_alien.png"},
         {TipoEnemigo::Esbirro, "assets/explosion_esbirro.png"},
+        {TipoEnemigo::MoluscoGiratorio, "assets/explosion_esbirro.png"},
         {TipoEnemigo::MiniBossMolusco, "assets/explosion_enemigo_alien.png"}})
     {
         if (!texturasExplosionesEnemigos_[tipo].loadFromFile(ruta))
@@ -118,6 +119,8 @@ void Juego::alternarPausa()
         enemigo->establecerPausa(pausado_);
     for (auto& esbirro : esbirros_)
         esbirro->establecerPausa(pausado_);
+    for (auto& molusco : moluscosGiratorios_)
+        molusco->establecerPausa(pausado_);
     for (auto& miniBoss : miniBossesMolusco_)
         miniBoss->establecerPausa(pausado_);
 }
@@ -127,6 +130,7 @@ void Juego::reiniciar()
     enemigos_.clear();
     enemigosAlien_.clear();
     esbirros_.clear();
+    moluscosGiratorios_.clear();
     miniBossesMolusco_.clear();
     proyectiles_.clear();
     proyectilesEnemigos_.clear();
@@ -281,6 +285,29 @@ void Juego::detectarColisionesProyectilesJugador()
         if (!proyectil.activo)
             continue;
 
+        for (auto& molusco : moluscosGiratorios_)
+        {
+            if (molusco->estaActivo())
+            {
+                const auto interseccion = limitesProyectil.findIntersection(
+                    molusco->obtenerLimitesColision());
+                if (!interseccion)
+                    continue;
+                crearImpactoLaser(*interseccion);
+                proyectil.activo = false;
+                if (molusco->recibirDanio(1))
+                {
+                    crearExplosionEnemigo(
+                        TipoEnemigo::MoluscoGiratorio,
+                        molusco->obtenerLimitesColision());
+                    molusco->desactivar();
+                }
+                break;
+            }
+        }
+        if (!proyectil.activo)
+            continue;
+
         for (auto& miniBoss : miniBossesMolusco_)
         {
             if (miniBoss->estaActivo())
@@ -409,6 +436,8 @@ void Juego::registrarOleadaDebug(const OleadaEnemigos& oleada, float tiempoReal)
         tipo = "Alien";
     else if (oleada.tipo == TipoEnemigo::MiniBossMolusco)
         tipo = "MiniBossMolusco";
+    else if (oleada.tipo == TipoEnemigo::MoluscoGiratorio)
+        tipo = "MoluscoGiratorio";
 
     std::ostringstream registro;
     registro << std::fixed << std::setprecision(2)
@@ -485,6 +514,21 @@ void Juego::crearOleada(const OleadaEnemigos& oleada)
                 std::max(1, oleada.vida),
                 std::max(0.1f, oleada.frecuenciaDisparo));
             esbirros_.push_back(std::move(esbirro));
+        }
+        else if (oleada.tipo == TipoEnemigo::MoluscoGiratorio)
+        {
+            auto molusco = std::make_unique<MoluscoGiratorio>();
+            if (!molusco->cargarTextura())
+                continue;
+            molusco->configurarMovimiento(
+                comportamiento.movimiento.amplitudOVelocidadHorizontal,
+                comportamiento.movimiento.velocidadVertical);
+            molusco->activar(
+                posicionX,
+                std::clamp(oleada.danio, 1, 3),
+                std::max(1, oleada.vida),
+                std::max(0.1f, oleada.frecuenciaDisparo));
+            moluscosGiratorios_.push_back(std::move(molusco));
         }
         else
         {
@@ -597,6 +641,31 @@ void Juego::dispararEnemigos()
             }
         }
     }
+
+    for (auto& molusco : moluscosGiratorios_)
+    {
+        if (!molusco->listoParaDisparar())
+            continue;
+
+        const sf::Vector2f origen = molusco->obtenerOrigenDisparo();
+        const sf::Vector2f objetivo = nave_.obtenerCentro();
+        const float direccionX = objetivo.x - origen.x;
+        const float direccionY = objetivo.y - origen.y;
+        const float distancia = std::sqrt(direccionX * direccionX + direccionY * direccionY);
+        if (distancia <= 0.f)
+            continue;
+
+        constexpr float velocidad = 6.5f;
+        proyectilesEnemigos_.push_back({
+            origen.x,
+            origen.y,
+            direccionX / distancia * velocidad,
+            direccionY / distancia * velocidad,
+            obtenerConfiguracionProyectil(TipoProyectilEnemigo::PuntoEnergiaAmarillo).danio,
+            TipoProyectilEnemigo::PuntoEnergiaAmarillo,
+            true
+        });
+    }
 }
 
 void Juego::actualizarProyectilesEnemigos()
@@ -626,6 +695,8 @@ void Juego::actualizarEnemigos()
         enemigo->actualizar();
     for (auto& esbirro : esbirros_)
         esbirro->actualizar();
+    for (auto& molusco : moluscosGiratorios_)
+        molusco->actualizar();
     for (auto& miniBoss : miniBossesMolusco_)
         miniBoss->actualizar();
 
@@ -649,6 +720,12 @@ void Juego::actualizarEnemigos()
             esbirros_.end(),
             [](const auto& esbirro) { return !esbirro->estaActivo(); }),
         esbirros_.end());
+    moluscosGiratorios_.erase(
+        std::remove_if(
+            moluscosGiratorios_.begin(),
+            moluscosGiratorios_.end(),
+            [](const auto& molusco) { return !molusco->estaActivo(); }),
+        moluscosGiratorios_.end());
     miniBossesMolusco_.erase(
         std::remove_if(
             miniBossesMolusco_.begin(),
@@ -715,6 +792,21 @@ void Juego::detectarColisionesConNave()
             && limitesNave.findIntersection(miniBoss->obtenerLimitesColision()))
         {
             vidaNave_ = std::max(0, vidaNave_ - miniBoss->obtenerDanio());
+            nave_.recibirDanio();
+            ++impactosNave_;
+            if (vidaNave_ <= 0)
+                iniciarExplosionNave();
+            return;
+        }
+    }
+
+    for (auto& molusco : moluscosGiratorios_)
+    {
+        if (molusco->estaActivo()
+            && limitesNave.findIntersection(molusco->obtenerLimitesColision()))
+        {
+            molusco->desactivar();
+            vidaNave_ = std::max(0, vidaNave_ - molusco->obtenerDanio());
             nave_.recibirDanio();
             ++impactosNave_;
             if (vidaNave_ <= 0)
@@ -864,6 +956,8 @@ void Juego::dibujarEnemigos()
         enemigo->dibujar(window_);
     for (const auto& esbirro : esbirros_)
         esbirro->dibujar(window_);
+    for (const auto& molusco : moluscosGiratorios_)
+        molusco->dibujar(window_);
     for (const auto& miniBoss : miniBossesMolusco_)
         miniBoss->dibujar(window_);
 }

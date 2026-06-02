@@ -9,6 +9,7 @@ enum class TipoEnemigo
     Nave,
     Alien,
     Esbirro,
+    MoluscoGiratorio,
     MiniBossMolusco
 };
 

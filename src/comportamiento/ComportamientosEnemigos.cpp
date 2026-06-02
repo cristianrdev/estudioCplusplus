@@ -15,6 +15,7 @@ const ConfiguracionComportamientoEnemigo& obtenerComportamientoEnemigo(
         {"AlienRapido", {140.f, 2.6f, 0.055f}, {}},
         {"NaveDiagonalDerecha", {2.2f, 3.5f, 0.f}, {}},
         {"NaveDiagonalIzquierda", {-2.8f, 3.f, 0.f}, {}},
+        {"MoluscoGiratorio", {2.24f, 2.8f, 0.f}, {}},
         {"MiniBossMolusco", {0.f, 2.4f, 0.f}, {200.f, 10.f, 3.2f}},
     };
 

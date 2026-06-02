@@ -5,11 +5,16 @@ const std::vector<OleadaEnemigos> &obtenerOleadasEnemigos()
     // tiempo, tipo, cantidad, danio, vida, frecuencia disparo,
     // x inicial, separacion x, comportamiento
     static const std::vector<OleadaEnemigos> oleadas = {
+        {1.0f, TipoEnemigo::MoluscoGiratorio, 1, 1, 1, 0.5f, 180.f, 0.f, ComportamientoEnemigo::MoluscoGiratorio},
+        {1.3f, TipoEnemigo::MoluscoGiratorio, 1, 1, 1, 0.5f, 180.f, 0.f, ComportamientoEnemigo::MoluscoGiratorio},
+        {1.6f, TipoEnemigo::MoluscoGiratorio, 1, 1, 1, 0.5f, 180.f, 0.f, ComportamientoEnemigo::MoluscoGiratorio},
+        {1.9f, TipoEnemigo::MoluscoGiratorio, 1, 1, 1, 0.5f, 180.f, 0.f, ComportamientoEnemigo::MoluscoGiratorio},
+        {2.2f, TipoEnemigo::MoluscoGiratorio, 1, 1, 1, 0.5f, 180.f, 0.f, ComportamientoEnemigo::MoluscoGiratorio},
         // tiempo, tipo,        cantidad, danio, vida, frecuencia disparo, x inicial, separacion x,
 
-        {2.f, TipoEnemigo::Esbirro, 2, 1, 1, 0.8f, 300.f, 400.f, ComportamientoEnemigo::EsbirroNormal},
-        {2.7f, TipoEnemigo::Esbirro, 2, 1, 1, 0.8f, 300.f, 400.f, ComportamientoEnemigo::EsbirroNormal},
-        {3.4f, TipoEnemigo::Esbirro, 2, 1, 1, 0.8f, 300.f, 400.f, ComportamientoEnemigo::EsbirroNormal},
+        // {2.f, TipoEnemigo::Esbirro, 2, 1, 1, 0.8f, 300.f, 400.f, ComportamientoEnemigo::EsbirroNormal},
+        // {2.7f, TipoEnemigo::Esbirro, 2, 1, 1, 0.8f, 300.f, 400.f, ComportamientoEnemigo::EsbirroNormal},
+        // {3.4f, TipoEnemigo::Esbirro, 2, 1, 1, 0.8f, 300.f, 400.f, ComportamientoEnemigo::EsbirroNormal},
 
 
         // tiempo,     tipo,       cantidad,  danio, vida, frecuencia disparo, x inicial, separacion x, {amplitud  ,descenso, oscilacion   }
@@ -39,6 +44,7 @@ const std::vector<OleadaEnemigos> &obtenerOleadasEnemigos()
         
         
         {61.f, TipoEnemigo::Nave, 4, 1, 3, 1.4f, 180.f, 220.f, ComportamientoEnemigo::NaveDiagonalDerecha},
+        
 
         // {13.f, TipoEnemigo::Alien, 1, 2, 3, 1.8f, 450.f, 0.f, ComportamientoEnemigo::AlienLento},
         // {16.f, TipoEnemigo::Esbirro, 4, 1, 1, 1.1f, 140.f, 230.f, ComportamientoEnemigo::EsbirroRapido},
