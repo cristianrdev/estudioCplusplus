@@ -343,9 +343,17 @@ void Juego::actualizar()
     if (pausado_)
         return;
     if (gameOver_)
+    {
+        actualizarExplosionesEnemigos();
+        actualizarImpactosLaser();
+        actualizarFogonazosCanones();
         return;
+    }
     if (esperandoGameOver_)
     {
+        actualizarExplosionesEnemigos();
+        actualizarImpactosLaser();
+        actualizarFogonazosCanones();
         if (relojEsperaGameOver_.getElapsedTime().asSeconds() >= esperaAntesGameOver_)
         {
             esperandoGameOver_ = false;
@@ -355,6 +363,9 @@ void Juego::actualizar()
     }
     if (naveExplotando_)
     {
+        actualizarExplosionesEnemigos();
+        actualizarImpactosLaser();
+        actualizarFogonazosCanones();
         actualizarExplosionNave();
         return;
     }
@@ -1554,8 +1565,11 @@ void Juego::dibujarExplosionesEnemigos()
 
     for (const auto& explosion : explosionesEnemigos_)
     {
-        const float progreso = (tiempoActual - explosion.tiempoInicio)
-            / duracionExplosionEnemigo_;
+        const float edad = tiempoActual - explosion.tiempoInicio;
+        if (edad >= duracionExplosionEnemigo_)
+            continue;
+
+        const float progreso = std::clamp(edad / duracionExplosionEnemigo_, 0.f, 1.f);
         const float escalaBase = explosion.tipo == TipoEnemigo::Alien
             ? 0.1f
             : explosion.tipo == TipoEnemigo::MiniBossMolusco
