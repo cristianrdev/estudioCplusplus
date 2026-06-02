@@ -87,6 +87,18 @@ sf::Vector2f Nave::obtenerOrigenDisparo() const
     return {x_ + (anchoNave / 2.f) - 4.f, y_ - 20.f};
 }
 
+sf::Vector2f Nave::obtenerOrigenDisparoIzquierdo() const
+{
+    const sf::FloatRect limites = spriteNave_.getGlobalBounds();
+    return {limites.position.x + limites.size.x * 0.15f, y_ - 20.f};
+}
+
+sf::Vector2f Nave::obtenerOrigenDisparoDerecho() const
+{
+    const sf::FloatRect limites = spriteNave_.getGlobalBounds();
+    return {limites.position.x + limites.size.x * 0.85f, y_ - 20.f};
+}
+
 sf::Vector2f Nave::obtenerCentro() const
 {
     const sf::FloatRect limites = spriteNave_.getGlobalBounds();

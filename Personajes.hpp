@@ -8,6 +8,8 @@ public:
     void actualizar();
     void dibujar(sf::RenderWindow& window) const;
     sf::Vector2f obtenerOrigenDisparo() const;
+    sf::Vector2f obtenerOrigenDisparoIzquierdo() const;
+    sf::Vector2f obtenerOrigenDisparoDerecho() const;
     sf::Vector2f obtenerCentro() const;
     sf::FloatRect obtenerLimitesColision() const;
     bool esInvulnerable() const;

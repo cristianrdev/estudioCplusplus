@@ -19,6 +19,14 @@ int Juego::ejecutar()
         return -1;
     if (!texturaLaserJugador_.loadFromFile("assets/laser_jugador.png"))
         return -1;
+    if (!texturaLaserJugadorAzul_.loadFromFile("assets/laser_jugador_azul.png"))
+        return -1;
+    if (!texturaCapsulaItemFrame1_.loadFromFile("assets/capsula_item_1.png"))
+        return -1;
+    if (!texturaCapsulaItemFrame2_.loadFromFile("assets/capsula_item_2.png"))
+        return -1;
+    if (!texturaPowerUpP_.loadFromFile("assets/power_up_p.png"))
+        return -1;
     for (const auto& configuracion : obtenerConfiguracionesProyectiles())
     {
         if (!texturasProyectilesEnemigos_[configuracion.tipo].loadFromFile(
@@ -134,10 +142,13 @@ void Juego::reiniciar()
     miniBossesMolusco_.clear();
     proyectiles_.clear();
     proyectilesEnemigos_.clear();
+    capsulasItems_.clear();
+    powerUps_.clear();
     explosionesEnemigos_.clear();
     impactosLaser_.clear();
     ultimasOleadasDebug_.clear();
     proximaOleada_ = 0;
+    proximaAparicionItem_ = 0;
     impactosNave_ = 0;
     vidaNave_ = 3;
     frameExplosionNave_ = 0;
@@ -145,6 +156,7 @@ void Juego::reiniciar()
     naveExplotando_ = false;
     esperandoGameOver_ = false;
     pausado_ = false;
+    laserDobleActivo_ = false;
     nave_.reiniciarEstado();
     relojDisparo_.restart();
     relojInicio_.restart();
@@ -203,12 +215,17 @@ void Juego::actualizar()
 
     nave_.actualizar();
     procesarApariciones();
+    procesarAparicionesItems();
     actualizarEnemigos();
+    actualizarCapsulasItems();
+    actualizarPowerUps();
     dispararEnemigos();
     actualizarProyectilesEnemigos();
     disparar();
     actualizarProyectiles();
+    detectarColisionesProyectilesCapsulas();
     detectarColisionesProyectilesJugador();
+    detectarColisionesPowerUps();
     actualizarExplosionesEnemigos();
     actualizarImpactosLaser();
 }
@@ -232,7 +249,7 @@ void Juego::detectarColisionesProyectilesJugador()
                     continue;
                 crearImpactoLaser(*interseccion);
                 proyectil.activo = false;
-                if (enemigo->recibirDanio(1))
+                if (enemigo->recibirDanio(proyectil.danio))
                 {
                     crearExplosionEnemigo(TipoEnemigo::Nave, enemigo->obtenerLimitesColision());
                     enemigo->desactivar();
@@ -253,7 +270,7 @@ void Juego::detectarColisionesProyectilesJugador()
                     continue;
                 crearImpactoLaser(*interseccion);
                 proyectil.activo = false;
-                if (enemigo->recibirDanio(1))
+                if (enemigo->recibirDanio(proyectil.danio))
                 {
                     crearExplosionEnemigo(TipoEnemigo::Alien, enemigo->obtenerLimitesColision());
                     enemigo->desactivar();
@@ -274,7 +291,7 @@ void Juego::detectarColisionesProyectilesJugador()
                     continue;
                 crearImpactoLaser(*interseccion);
                 proyectil.activo = false;
-                if (esbirro->recibirDanio(1))
+                if (esbirro->recibirDanio(proyectil.danio))
                 {
                     crearExplosionEnemigo(TipoEnemigo::Esbirro, esbirro->obtenerLimitesColision());
                     esbirro->desactivar();
@@ -295,7 +312,7 @@ void Juego::detectarColisionesProyectilesJugador()
                     continue;
                 crearImpactoLaser(*interseccion);
                 proyectil.activo = false;
-                if (molusco->recibirDanio(1))
+                if (molusco->recibirDanio(proyectil.danio))
                 {
                     crearExplosionEnemigo(
                         TipoEnemigo::MoluscoGiratorio,
@@ -318,7 +335,7 @@ void Juego::detectarColisionesProyectilesJugador()
                     continue;
                 crearImpactoLaser(*interseccion);
                 proyectil.activo = false;
-                if (miniBoss->recibirDanio(1))
+                if (miniBoss->recibirDanio(proyectil.danio))
                 {
                     crearExplosionEnemigo(
                         TipoEnemigo::MiniBossMolusco,
@@ -388,8 +405,20 @@ void Juego::disparar()
     if (relojDisparo_.getElapsedTime().asSeconds() < cadenciaDisparo_)
         return;
 
-    const sf::Vector2f origen = nave_.obtenerOrigenDisparo();
-    proyectiles_.push_back({origen.x, origen.y, true});
+    if (laserDobleActivo_)
+    {
+        for (const sf::Vector2f origen : {
+            nave_.obtenerOrigenDisparoIzquierdo(),
+            nave_.obtenerOrigenDisparoDerecho()})
+        {
+            proyectiles_.push_back({origen.x, origen.y, 2, true, true});
+        }
+    }
+    else
+    {
+        const sf::Vector2f origen = nave_.obtenerOrigenDisparo();
+        proyectiles_.push_back({origen.x, origen.y, 1, false, true});
+    }
     relojDisparo_.restart();
 }
 
@@ -410,6 +439,133 @@ void Juego::actualizarProyectiles()
             proyectiles_.end(),
             [](const Proyectil& proyectil) { return !proyectil.activo; }),
         proyectiles_.end());
+}
+
+void Juego::procesarAparicionesItems()
+{
+    const auto& apariciones = obtenerAparicionesItems();
+    const float segundos = relojInicio_.getElapsedTime().asSeconds();
+
+    while (proximaAparicionItem_ < apariciones.size()
+        && apariciones[proximaAparicionItem_].tiempoSegundos <= segundos)
+    {
+        crearAparicionItem(apariciones[proximaAparicionItem_]);
+        ++proximaAparicionItem_;
+    }
+}
+
+void Juego::crearAparicionItem(const AparicionItem& aparicion)
+{
+    for (int i = 0; i < aparicion.cantidad; ++i)
+    {
+        capsulasItems_.push_back({
+            aparicion.posicionXInicial + i * aparicion.separacionX,
+            -80.f,
+            aparicion.velocidadY,
+            std::max(1, aparicion.vida),
+            aparicion.tipo,
+            true
+        });
+    }
+}
+
+void Juego::actualizarCapsulasItems()
+{
+    for (auto& capsula : capsulasItems_)
+    {
+        if (!capsula.activo)
+            continue;
+
+        capsula.y += capsula.velocidadY;
+        if (capsula.y > 1160.f)
+            capsula.activo = false;
+    }
+
+    capsulasItems_.erase(
+        std::remove_if(
+            capsulasItems_.begin(),
+            capsulasItems_.end(),
+            [](const CapsulaItem& capsula) { return !capsula.activo; }),
+        capsulasItems_.end());
+}
+
+void Juego::actualizarPowerUps()
+{
+    for (auto& powerUp : powerUps_)
+    {
+        if (!powerUp.activo)
+            continue;
+
+        powerUp.y += powerUp.velocidadY;
+        if (powerUp.y > 1160.f)
+            powerUp.activo = false;
+    }
+
+    powerUps_.erase(
+        std::remove_if(
+            powerUps_.begin(),
+            powerUps_.end(),
+            [](const PowerUp& powerUp) { return !powerUp.activo; }),
+        powerUps_.end());
+}
+
+void Juego::detectarColisionesProyectilesCapsulas()
+{
+    for (auto& proyectil : proyectiles_)
+    {
+        if (!proyectil.activo)
+            continue;
+
+        const sf::FloatRect limitesProyectil = obtenerLimitesProyectilJugador(proyectil);
+        for (auto& capsula : capsulasItems_)
+        {
+            if (!capsula.activo)
+                continue;
+
+            const auto interseccion = limitesProyectil.findIntersection(
+                obtenerLimitesCapsulaItem(capsula));
+            if (!interseccion)
+                continue;
+
+            crearImpactoLaser(*interseccion);
+            proyectil.activo = false;
+            capsula.vida -= proyectil.danio;
+            if (capsula.vida <= 0)
+            {
+                crearPowerUp(capsula);
+                capsula.activo = false;
+            }
+            break;
+        }
+    }
+}
+
+void Juego::crearPowerUp(const CapsulaItem& capsula)
+{
+    powerUps_.push_back({
+        capsula.x,
+        capsula.y,
+        velocidadPowerUp_,
+        capsula.tipo,
+        true
+    });
+}
+
+void Juego::detectarColisionesPowerUps()
+{
+    const sf::FloatRect limitesNave = nave_.obtenerLimitesColision();
+    for (auto& powerUp : powerUps_)
+    {
+        if (!powerUp.activo
+            || !limitesNave.findIntersection(obtenerLimitesPowerUp(powerUp)))
+        {
+            continue;
+        }
+
+        if (powerUp.tipo == TipoItem::CapsulaLaserDoble)
+            laserDobleActivo_ = true;
+        powerUp.activo = false;
+    }
 }
 
 void Juego::procesarApariciones()
@@ -836,6 +992,8 @@ void Juego::detectarColisionesConNave()
 void Juego::dibujar()
 {
     window_.clear();
+    dibujarCapsulasItems();
+    dibujarPowerUps();
     dibujarEnemigos();
     if (!naveExplotando_ && !esperandoGameOver_ && !gameOver_)
         nave_.dibujar(window_);
@@ -855,6 +1013,42 @@ void Juego::dibujar()
     if (gameOver_)
         dibujarGameOver();
     window_.display();
+}
+
+void Juego::dibujarCapsulasItems()
+{
+    for (const auto& capsula : capsulasItems_)
+    {
+        if (!capsula.activo)
+            continue;
+
+        sf::Sprite sprite(obtenerTexturaCapsulaItem());
+        sprite.setScale({escalaCapsulaItem_, escalaCapsulaItem_});
+        const sf::FloatRect limites = sprite.getGlobalBounds();
+        sprite.setPosition({
+            capsula.x - limites.size.x / 2.f,
+            capsula.y - limites.size.y / 2.f
+        });
+        window_.draw(sprite);
+    }
+}
+
+void Juego::dibujarPowerUps()
+{
+    for (const auto& powerUp : powerUps_)
+    {
+        if (!powerUp.activo)
+            continue;
+
+        sf::Sprite sprite(texturaPowerUpP_);
+        sprite.setScale({escalaPowerUp_, escalaPowerUp_});
+        const sf::FloatRect limites = sprite.getGlobalBounds();
+        sprite.setPosition({
+            powerUp.x - limites.size.x / 2.f,
+            powerUp.y - limites.size.y / 2.f
+        });
+        window_.draw(sprite);
+    }
 }
 
 void Juego::dibujarImpactosLaser()
@@ -995,7 +1189,8 @@ void Juego::dibujarDebug()
     texto << std::fixed << std::setprecision(2)
           << "Tiempo: " << relojInicio_.getElapsedTime().asSeconds() << " s"
           << "\nVida: " << vidaNave_ << "/3"
-          << "\nImpactos: " << impactosNave_;
+          << "\nImpactos: " << impactosNave_
+          << "\nLaser: " << (laserDobleActivo_ ? "doble azul" : "normal");
     if (vidaNave_ <= 0)
         texto << "\nGAME OVER";
     else if (pausado_)
@@ -1006,16 +1201,58 @@ void Juego::dibujarDebug()
 
 void Juego::dibujarProyectil(const Proyectil& proyectil)
 {
-    sf::Sprite sprite(texturaLaserJugador_);
-    sprite.setScale({escalaLaserJugador_, escalaLaserJugador_});
+    sf::Sprite sprite(obtenerTexturaProyectilJugador(proyectil));
+    const float escala = proyectil.laserAzul
+        ? escalaLaserJugadorAzul_
+        : escalaLaserJugador_;
+    sprite.setScale({escala, escala});
     sprite.setPosition({proyectil.x, proyectil.y});
     window_.draw(sprite);
 }
 
 sf::FloatRect Juego::obtenerLimitesProyectilJugador(const Proyectil& proyectil) const
 {
-    sf::Sprite sprite(texturaLaserJugador_);
-    sprite.setScale({escalaLaserJugador_, escalaLaserJugador_});
+    sf::Sprite sprite(obtenerTexturaProyectilJugador(proyectil));
+    const float escala = proyectil.laserAzul
+        ? escalaLaserJugadorAzul_
+        : escalaLaserJugador_;
+    sprite.setScale({escala, escala});
     sprite.setPosition({proyectil.x, proyectil.y});
+    return sprite.getGlobalBounds();
+}
+
+const sf::Texture& Juego::obtenerTexturaProyectilJugador(const Proyectil& proyectil) const
+{
+    return proyectil.laserAzul ? texturaLaserJugadorAzul_ : texturaLaserJugador_;
+}
+
+const sf::Texture& Juego::obtenerTexturaCapsulaItem() const
+{
+    const int frame = static_cast<int>(
+        relojInicio_.getElapsedTime().asSeconds() / 0.18f) % 2;
+    return frame == 0 ? texturaCapsulaItemFrame1_ : texturaCapsulaItemFrame2_;
+}
+
+sf::FloatRect Juego::obtenerLimitesCapsulaItem(const CapsulaItem& capsula) const
+{
+    sf::Sprite sprite(obtenerTexturaCapsulaItem());
+    sprite.setScale({escalaCapsulaItem_, escalaCapsulaItem_});
+    const sf::FloatRect limites = sprite.getGlobalBounds();
+    sprite.setPosition({
+        capsula.x - limites.size.x / 2.f,
+        capsula.y - limites.size.y / 2.f
+    });
+    return sprite.getGlobalBounds();
+}
+
+sf::FloatRect Juego::obtenerLimitesPowerUp(const PowerUp& powerUp) const
+{
+    sf::Sprite sprite(texturaPowerUpP_);
+    sprite.setScale({escalaPowerUp_, escalaPowerUp_});
+    const sf::FloatRect limites = sprite.getGlobalBounds();
+    sprite.setPosition({
+        powerUp.x - limites.size.x / 2.f,
+        powerUp.y - limites.size.y / 2.f
+    });
     return sprite.getGlobalBounds();
 }
