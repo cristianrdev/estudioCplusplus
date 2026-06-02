@@ -29,6 +29,8 @@ int Juego::ejecutar()
         return -1;
     if (!texturaAtlasRocasFondo_.loadFromFile("assets/atlas_rocas_fondo.png"))
         return -1;
+    if (!texturaAtlasTerrenoFondo_.loadFromFile("assets/atlas_terreno_rocoso.png"))
+        return -1;
     for (const auto& configuracion : obtenerConfiguracionesProyectiles())
     {
         if (!texturasProyectilesEnemigos_[configuracion.tipo].loadFromFile(
@@ -75,6 +77,7 @@ int Juego::ejecutar()
     textoDebug_.setFillColor(sf::Color::White);
     textoDebug_.setPosition({12.f, 10.f});
     relojInicio_.restart();
+    inicializarTerrenoFondo();
 
     while (window_.isOpen())
     {
@@ -147,6 +150,7 @@ void Juego::reiniciar()
     capsulasItems_.clear();
     powerUps_.clear();
     elementosFondo_.clear();
+    tilesTerrenoFondo_.clear();
     explosionesEnemigos_.clear();
     impactosLaser_.clear();
     ultimasOleadasDebug_.clear();
@@ -164,6 +168,7 @@ void Juego::reiniciar()
     nave_.reiniciarEstado();
     relojDisparo_.restart();
     relojInicio_.restart();
+    inicializarTerrenoFondo();
 }
 
 void Juego::iniciarExplosionNave()
@@ -218,6 +223,7 @@ void Juego::actualizar()
     }
 
     nave_.actualizar();
+    actualizarTerrenoFondo();
     procesarAparicionesElementosFondo();
     procesarApariciones();
     procesarAparicionesItems();
@@ -234,6 +240,35 @@ void Juego::actualizar()
     detectarColisionesPowerUps();
     actualizarExplosionesEnemigos();
     actualizarImpactosLaser();
+}
+
+void Juego::inicializarTerrenoFondo()
+{
+    constexpr int cantidadTiles = 20;
+    constexpr float altoTile = 256.f;
+
+    tilesTerrenoFondo_.clear();
+    for (int indice = 0; indice < cantidadTiles; ++indice)
+    {
+        tilesTerrenoFondo_.push_back({
+            indice,
+            -(indice + 1) * altoTile,
+            true
+        });
+    }
+}
+
+void Juego::actualizarTerrenoFondo()
+{
+    for (auto& tile : tilesTerrenoFondo_)
+    {
+        if (!tile.activo)
+            continue;
+
+        tile.y += velocidadTerrenoFondo_;
+        if (tile.y > 1080.f)
+            tile.activo = false;
+    }
 }
 
 void Juego::procesarAparicionesElementosFondo()
@@ -1045,6 +1080,7 @@ void Juego::detectarColisionesConNave()
 void Juego::dibujar()
 {
     window_.clear();
+    dibujarTerrenoFondo();
     dibujarElementosFondo();
     dibujarCapsulasItems();
     dibujarPowerUps();
@@ -1067,6 +1103,20 @@ void Juego::dibujar()
     if (gameOver_)
         dibujarGameOver();
     window_.display();
+}
+
+void Juego::dibujarTerrenoFondo()
+{
+    for (const auto& tile : tilesTerrenoFondo_)
+    {
+        if (!tile.activo)
+            continue;
+
+        sf::Sprite sprite(texturaAtlasTerrenoFondo_);
+        sprite.setTextureRect(obtenerRectanguloTileTerrenoFondo(tile.indiceTile));
+        sprite.setPosition({0.f, tile.y});
+        window_.draw(sprite);
+    }
 }
 
 void Juego::dibujarElementosFondo()
@@ -1338,6 +1388,17 @@ sf::IntRect Juego::obtenerRectanguloTileFondo(TipoElementoFondo tipo) const
     const int indice = static_cast<int>(tipo);
     return {
         {indice % columnas * anchoTile, indice / columnas * altoTile},
+        {anchoTile, altoTile}
+    };
+}
+
+sf::IntRect Juego::obtenerRectanguloTileTerrenoFondo(int indiceTile) const
+{
+    constexpr int columnas = 2;
+    constexpr int anchoTile = 1024;
+    constexpr int altoTile = 256;
+    return {
+        {indiceTile % columnas * anchoTile, indiceTile / columnas * altoTile},
         {anchoTile, altoTile}
     };
 }

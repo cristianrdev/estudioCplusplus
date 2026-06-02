@@ -74,6 +74,13 @@ struct ElementoFondo
     bool activo;
 };
 
+struct TileTerrenoFondo
+{
+    int indiceTile;
+    float y;
+    bool activo;
+};
+
 class Juego {
 public:
     Juego();
@@ -86,6 +93,8 @@ private:
     void iniciarExplosionNave();
     void actualizarExplosionNave();
     void actualizar();
+    void inicializarTerrenoFondo();
+    void actualizarTerrenoFondo();
     void procesarAparicionesElementosFondo();
     void crearAparicionElementoFondo(const AparicionElementoFondo& aparicion);
     void actualizarElementosFondo();
@@ -111,6 +120,7 @@ private:
     void actualizarProyectilesEnemigos();
     void detectarColisionesConNave();
     void dibujar();
+    void dibujarTerrenoFondo();
     void dibujarElementosFondo();
     void dibujarCapsulasItems();
     void dibujarPowerUps();
@@ -128,6 +138,7 @@ private:
     sf::FloatRect obtenerLimitesCapsulaItem(const CapsulaItem& capsula) const;
     sf::FloatRect obtenerLimitesPowerUp(const PowerUp& powerUp) const;
     sf::IntRect obtenerRectanguloTileFondo(TipoElementoFondo tipo) const;
+    sf::IntRect obtenerRectanguloTileTerrenoFondo(int indiceTile) const;
     void dibujarProyectilEnemigo(const ProyectilEnemigo& proyectil);
     sf::FloatRect obtenerLimitesProyectilEnemigo(const ProyectilEnemigo& proyectil) const;
     const sf::Texture& obtenerTexturaProyectilEnemigo(TipoProyectilEnemigo tipo) const;
@@ -144,6 +155,7 @@ private:
     std::vector<CapsulaItem> capsulasItems_;
     std::vector<PowerUp> powerUps_;
     std::vector<ElementoFondo> elementosFondo_;
+    std::vector<TileTerrenoFondo> tilesTerrenoFondo_;
     std::vector<ExplosionEnemigo> explosionesEnemigos_;
     std::vector<ImpactoLaser> impactosLaser_;
     std::vector<std::string> ultimasOleadasDebug_;
@@ -159,6 +171,7 @@ private:
     sf::Texture texturaCapsulaItemFrame2_;
     sf::Texture texturaPowerUpP_;
     sf::Texture texturaAtlasRocasFondo_;
+    sf::Texture texturaAtlasTerrenoFondo_;
     sf::Texture texturaGameOver_;
     std::vector<sf::Texture> texturasExplosionNave_;
     std::vector<sf::Texture> texturasImpactoLaser_;
@@ -185,6 +198,7 @@ private:
     float escalaPowerUp_ = 0.07f;
     float velocidadPowerUp_ = 1.8f;
     float escalaElementosFondo_ = 0.5f;
+    float velocidadTerrenoFondo_ = 1.5f;
     float duracionExplosionEnemigo_ = 0.45f;
     float duracionFrameImpactoLaser_ = 0.09f;
     float escalaImpactoLaser_ = 0.08f;
