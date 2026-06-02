@@ -2,6 +2,7 @@
 
 #include "src/orquestacion/OrquestacionEnemigos.hpp"
 #include "src/orquestacion/OrquestacionElementosFondo.hpp"
+#include "src/orquestacion/OrquestacionFondo.hpp"
 #include "src/orquestacion/OrquestacionItems.hpp"
 #include "ConfiguracionProyectiles.hpp"
 #include "Personajes.hpp"
@@ -76,8 +77,10 @@ struct ElementoFondo
 
 struct TileTerrenoFondo
 {
-    int indiceTile;
+    float x;
     float y;
+    float velocidadY;
+    TipoFondo tipo;
     bool activo;
 };
 
@@ -93,7 +96,8 @@ private:
     void iniciarExplosionNave();
     void actualizarExplosionNave();
     void actualizar();
-    void inicializarTerrenoFondo();
+    void procesarAparicionesFondo();
+    void crearAparicionFondo(const AparicionFondo& aparicion);
     void actualizarTerrenoFondo();
     void procesarAparicionesElementosFondo();
     void crearAparicionElementoFondo(const AparicionElementoFondo& aparicion);
@@ -138,7 +142,7 @@ private:
     sf::FloatRect obtenerLimitesCapsulaItem(const CapsulaItem& capsula) const;
     sf::FloatRect obtenerLimitesPowerUp(const PowerUp& powerUp) const;
     sf::IntRect obtenerRectanguloTileFondo(TipoElementoFondo tipo) const;
-    sf::IntRect obtenerRectanguloTileTerrenoFondo(int indiceTile) const;
+    sf::IntRect obtenerRectanguloTileTerrenoFondo(TipoFondo tipo) const;
     void dibujarProyectilEnemigo(const ProyectilEnemigo& proyectil);
     sf::FloatRect obtenerLimitesProyectilEnemigo(const ProyectilEnemigo& proyectil) const;
     const sf::Texture& obtenerTexturaProyectilEnemigo(TipoProyectilEnemigo tipo) const;
@@ -180,6 +184,7 @@ private:
     std::size_t proximaOleada_ = 0;
     std::size_t proximaAparicionItem_ = 0;
     std::size_t proximaAparicionElementoFondo_ = 0;
+    std::size_t proximaAparicionFondo_ = 0;
     int impactosNave_ = 0;
     int vidaNave_ = 3;
     int frameExplosionNave_ = 0;
@@ -198,7 +203,6 @@ private:
     float escalaPowerUp_ = 0.07f;
     float velocidadPowerUp_ = 1.8f;
     float escalaElementosFondo_ = 0.5f;
-    float velocidadTerrenoFondo_ = 1.5f;
     float duracionExplosionEnemigo_ = 0.45f;
     float duracionFrameImpactoLaser_ = 0.09f;
     float escalaImpactoLaser_ = 0.08f;

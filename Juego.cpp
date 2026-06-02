@@ -77,7 +77,6 @@ int Juego::ejecutar()
     textoDebug_.setFillColor(sf::Color::White);
     textoDebug_.setPosition({12.f, 10.f});
     relojInicio_.restart();
-    inicializarTerrenoFondo();
 
     while (window_.isOpen())
     {
@@ -157,6 +156,7 @@ void Juego::reiniciar()
     proximaOleada_ = 0;
     proximaAparicionItem_ = 0;
     proximaAparicionElementoFondo_ = 0;
+    proximaAparicionFondo_ = 0;
     impactosNave_ = 0;
     vidaNave_ = 3;
     frameExplosionNave_ = 0;
@@ -168,7 +168,6 @@ void Juego::reiniciar()
     nave_.reiniciarEstado();
     relojDisparo_.restart();
     relojInicio_.restart();
-    inicializarTerrenoFondo();
 }
 
 void Juego::iniciarExplosionNave()
@@ -223,6 +222,7 @@ void Juego::actualizar()
     }
 
     nave_.actualizar();
+    procesarAparicionesFondo();
     actualizarTerrenoFondo();
     procesarAparicionesElementosFondo();
     procesarApariciones();
@@ -242,17 +242,36 @@ void Juego::actualizar()
     actualizarImpactosLaser();
 }
 
-void Juego::inicializarTerrenoFondo()
+void Juego::procesarAparicionesFondo()
 {
-    constexpr int cantidadTiles = 20;
-    constexpr float altoTile = 256.f;
+    const auto& apariciones = obtenerAparicionesFondo();
+    const float segundos = relojInicio_.getElapsedTime().asSeconds();
 
-    tilesTerrenoFondo_.clear();
-    for (int indice = 0; indice < cantidadTiles; ++indice)
+    while (proximaAparicionFondo_ < apariciones.size()
+        && apariciones[proximaAparicionFondo_].tiempoSegundos <= segundos)
+    {
+        crearAparicionFondo(apariciones[proximaAparicionFondo_]);
+        ++proximaAparicionFondo_;
+    }
+}
+
+void Juego::crearAparicionFondo(const AparicionFondo& aparicion)
+{
+    constexpr float altoTile = 256.f;
+    float posicionY = -altoTile;
+    for (const auto& tile : tilesTerrenoFondo_)
+    {
+        if (tile.activo)
+            posicionY = std::min(posicionY, tile.y - altoTile);
+    }
+
+    for (int i = 0; i < aparicion.cantidad; ++i)
     {
         tilesTerrenoFondo_.push_back({
-            indice,
-            -(indice + 1) * altoTile,
+            aparicion.posicionXInicial + i * aparicion.separacionX,
+            posicionY,
+            aparicion.velocidadY,
+            aparicion.tipo,
             true
         });
     }
@@ -265,7 +284,7 @@ void Juego::actualizarTerrenoFondo()
         if (!tile.activo)
             continue;
 
-        tile.y += velocidadTerrenoFondo_;
+        tile.y += tile.velocidadY;
         if (tile.y > 1080.f)
             tile.activo = false;
     }
@@ -1113,8 +1132,8 @@ void Juego::dibujarTerrenoFondo()
             continue;
 
         sf::Sprite sprite(texturaAtlasTerrenoFondo_);
-        sprite.setTextureRect(obtenerRectanguloTileTerrenoFondo(tile.indiceTile));
-        sprite.setPosition({0.f, tile.y});
+        sprite.setTextureRect(obtenerRectanguloTileTerrenoFondo(tile.tipo));
+        sprite.setPosition({tile.x, tile.y});
         window_.draw(sprite);
     }
 }
@@ -1392,13 +1411,14 @@ sf::IntRect Juego::obtenerRectanguloTileFondo(TipoElementoFondo tipo) const
     };
 }
 
-sf::IntRect Juego::obtenerRectanguloTileTerrenoFondo(int indiceTile) const
+sf::IntRect Juego::obtenerRectanguloTileTerrenoFondo(TipoFondo tipo) const
 {
     constexpr int columnas = 2;
     constexpr int anchoTile = 1024;
     constexpr int altoTile = 256;
+    const int indice = static_cast<int>(tipo);
     return {
-        {indiceTile % columnas * anchoTile, indiceTile / columnas * altoTile},
+        {indice % columnas * anchoTile, indice / columnas * altoTile},
         {anchoTile, altoTile}
     };
 }
