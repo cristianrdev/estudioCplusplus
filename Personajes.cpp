@@ -2,6 +2,26 @@
 
 #include <cmath>
 
+namespace
+{
+void dibujarSombraEnemigo(
+    sf::RenderWindow& window,
+    const sf::FloatRect& limites,
+    float desplazamientoVertical = 0.72f)
+{
+    const float ancho = limites.size.x * 0.82f;
+    const float alto = limites.size.y * 0.22f;
+    sf::CircleShape sombra(1.f);
+    sombra.setScale({ancho / 2.f, alto / 2.f});
+    sombra.setFillColor(sf::Color(8, 12, 20, 115));
+    sombra.setPosition({
+        limites.position.x + (limites.size.x - ancho) / 2.f,
+        limites.position.y + limites.size.y * desplazamientoVertical
+    });
+    window.draw(sombra);
+}
+}
+
 bool Nave::cargarTexturas()
 {
     if (!texturaCentro_.loadFromFile("assets/centro.png"))
@@ -185,7 +205,7 @@ void Nave::actualizarPosiciones()
 
 bool Enemigo::cargarTextura()
 {
-    if (!textura_.loadFromFile("assets/enemigo.png"))
+    if (!textura_.loadFromFile("assets/enemigo_contorno.png"))
         return false;
 
     sprite_.setTexture(textura_, true);
@@ -238,7 +258,10 @@ void Enemigo::actualizar()
 void Enemigo::dibujar(sf::RenderWindow& window) const
 {
     if (activo_)
+    {
+        dibujarSombraEnemigo(window, sprite_.getGlobalBounds());
         window.draw(sprite_);
+    }
 }
 
 bool Enemigo::estaActivo() const
@@ -295,9 +318,9 @@ void Enemigo::establecerPausa(bool pausado)
 
 bool EnemigoAlien::cargarTexturas()
 {
-    if (!texturaFrame1_.loadFromFile("assets/enemigo_alien.png"))
+    if (!texturaFrame1_.loadFromFile("assets/enemigo_alien_contorno.png"))
         return false;
-    if (!texturaFrame2_.loadFromFile("assets/enemigo_alien_2.png"))
+    if (!texturaFrame2_.loadFromFile("assets/enemigo_alien_2_contorno.png"))
         return false;
 
     sprite_.setTexture(texturaFrame1_, true);
@@ -348,7 +371,10 @@ void EnemigoAlien::actualizar()
 void EnemigoAlien::dibujar(sf::RenderWindow& window) const
 {
     if (activo_)
+    {
+        dibujarSombraEnemigo(window, sprite_.getGlobalBounds());
         window.draw(sprite_);
+    }
 }
 
 bool EnemigoAlien::estaActivo() const
@@ -421,7 +447,7 @@ void EnemigoAlien::actualizarAnimacion()
 
 bool Esbirro::cargarTextura()
 {
-    if (!textura_.loadFromFile("assets/esbirro.png"))
+    if (!textura_.loadFromFile("assets/esbirro_contorno.png"))
         return false;
 
     sprite_.setTexture(textura_, true);
@@ -460,7 +486,10 @@ void Esbirro::actualizar()
 void Esbirro::dibujar(sf::RenderWindow& window) const
 {
     if (activo_)
+    {
+        dibujarSombraEnemigo(window, sprite_.getGlobalBounds(), 2.5f);
         window.draw(sprite_);
+    }
 }
 
 bool Esbirro::estaActivo() const
@@ -517,7 +546,7 @@ void Esbirro::establecerPausa(bool pausado)
 
 bool MoluscoGiratorio::cargarTextura()
 {
-    if (!textura_.loadFromFile("assets/molusco_giratorio.png"))
+    if (!textura_.loadFromFile("assets/molusco_giratorio_contorno.png"))
         return false;
 
     sprite_.setTexture(textura_, true);
@@ -589,7 +618,10 @@ void MoluscoGiratorio::actualizar()
 void MoluscoGiratorio::dibujar(sf::RenderWindow& window) const
 {
     if (activo_)
+    {
+        dibujarSombraEnemigo(window, sprite_.getGlobalBounds());
         window.draw(sprite_);
+    }
 }
 
 bool MoluscoGiratorio::estaActivo() const
@@ -646,11 +678,11 @@ void MoluscoGiratorio::establecerPausa(bool pausado)
 
 bool MiniBossMolusco::cargarTexturas()
 {
-    if (!texturaFrame1_.loadFromFile("assets/miniboss_molusco_1.png"))
+    if (!texturaFrame1_.loadFromFile("assets/miniboss_molusco_1_contorno.png"))
         return false;
-    if (!texturaFrame2_.loadFromFile("assets/miniboss_molusco_2.png"))
+    if (!texturaFrame2_.loadFromFile("assets/miniboss_molusco_2_contorno.png"))
         return false;
-    if (!texturaFrame3_.loadFromFile("assets/miniboss_molusco_3.png"))
+    if (!texturaFrame3_.loadFromFile("assets/miniboss_molusco_3_contorno.png"))
         return false;
 
     sprite_.setTexture(texturaFrame1_, true);
@@ -733,7 +765,10 @@ void MiniBossMolusco::actualizar()
 void MiniBossMolusco::dibujar(sf::RenderWindow& window) const
 {
     if (activo_)
+    {
+        dibujarSombraEnemigo(window, sprite_.getGlobalBounds());
         window.draw(sprite_);
+    }
 }
 
 bool MiniBossMolusco::estaActivo() const

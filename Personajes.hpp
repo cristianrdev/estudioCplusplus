@@ -108,7 +108,7 @@ private:
     float amplitud_ = 300.f;
     float velocidadVertical_ = 1.8f;
     float velocidadOscilacion_ = 0.025f;
-    float escala_ = 0.156f;
+    float escala_ = 0.2028f;
     int frame_ = 0;
     bool activo_ = false;
     int danio_ = 1;
