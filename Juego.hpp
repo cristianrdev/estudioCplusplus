@@ -110,6 +110,7 @@ public:
 
 private:
     void procesarEventos();
+    bool cargarTexturaContabilizada(sf::Texture& textura, const char* ruta);
     void registrarRendimientoFrame(float duracionMs);
     void alternarPausa();
     void reiniciar();
@@ -227,6 +228,7 @@ private:
     int impactosNave_ = 0;
     int vidaNave_ = 3;
     int frameExplosionNave_ = 0;
+    int texturasCargadas_ = 0;
     int framesMuestraFps_ = 0;
     bool gameOver_ = false;
     bool naveExplotando_ = false;

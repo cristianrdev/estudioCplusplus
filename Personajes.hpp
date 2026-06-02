@@ -6,6 +6,7 @@
 class Nave {
 public:
     bool cargarTexturas();
+    int obtenerCantidadTexturasCargadas() const;
     void actualizar();
     void dibujar(sf::RenderWindow& window) const;
     sf::Vector2f obtenerOrigenDisparo() const;
@@ -29,6 +30,7 @@ private:
     float y_ = 500.f;
     float velocidad_ = 8.f;
     int frameFuego_ = 0;
+    int cantidadTexturasCargadas_ = 0;
 
     sf::Clock relojFuego_;
     sf::Clock relojInvulnerabilidad_;

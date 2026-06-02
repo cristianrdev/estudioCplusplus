@@ -24,24 +24,36 @@ void dibujarSombraEnemigo(
 
 bool Nave::cargarTexturas()
 {
+    cantidadTexturasCargadas_ = 0;
     if (!texturaCentro_.loadFromFile("assets/centro.png"))
         return false;
+    ++cantidadTexturasCargadas_;
     if (!texturaIzquierda_.loadFromFile("assets/izquierda.png"))
         return false;
+    ++cantidadTexturasCargadas_;
     if (!texturaDerecha_.loadFromFile("assets/derecha.png"))
         return false;
+    ++cantidadTexturasCargadas_;
     if (!fuegoTex1_.loadFromFile("assets/fuego1.png"))
         return false;
+    ++cantidadTexturasCargadas_;
     if (!fuegoTex2_.loadFromFile("assets/fuego2.png"))
         return false;
+    ++cantidadTexturasCargadas_;
     if (!fuegoTex3_.loadFromFile("assets/fuego3.png"))
         return false;
+    ++cantidadTexturasCargadas_;
 
     spriteNave_.setTexture(texturaCentro_, true);
     fuegoIzq_.setTexture(fuegoTex1_, true);
     fuegoDer_.setTexture(fuegoTex1_, true);
     actualizarPosiciones();
     return true;
+}
+
+int Nave::obtenerCantidadTexturasCargadas() const
+{
+    return cantidadTexturasCargadas_;
 }
 
 void Nave::actualizar()

@@ -36,29 +36,37 @@ float aleatorioEntre(std::uint32_t& estado, float minimo, float maximo)
 
 int Juego::ejecutar()
 {
+    texturasCargadas_ = 0;
     if (!nave_.cargarTexturas())
         return -1;
-    if (!texturaEnemigo_.loadFromFile("assets/enemigo_contorno.png"))
+    texturasCargadas_ += nave_.obtenerCantidadTexturasCargadas();
+    if (!cargarTexturaContabilizada(texturaEnemigo_, "assets/enemigo_contorno.png"))
         return -1;
-    if (!texturaEnemigoAlienFrame1_.loadFromFile("assets/enemigo_alien_contorno.png"))
+    if (!cargarTexturaContabilizada(
+            texturaEnemigoAlienFrame1_, "assets/enemigo_alien_contorno.png"))
         return -1;
-    if (!texturaEnemigoAlienFrame2_.loadFromFile("assets/enemigo_alien_2_contorno.png"))
+    if (!cargarTexturaContabilizada(
+            texturaEnemigoAlienFrame2_, "assets/enemigo_alien_2_contorno.png"))
         return -1;
-    if (!texturaEsbirro_.loadFromFile("assets/esbirro_contorno.png"))
+    if (!cargarTexturaContabilizada(texturaEsbirro_, "assets/esbirro_contorno.png"))
         return -1;
-    if (!texturaMoluscoGiratorio_.loadFromFile("assets/molusco_giratorio_contorno.png"))
+    if (!cargarTexturaContabilizada(
+            texturaMoluscoGiratorio_, "assets/molusco_giratorio_contorno.png"))
         return -1;
-    if (!texturaMiniBossMoluscoFrame1_.loadFromFile("assets/miniboss_molusco_1_contorno.png"))
+    if (!cargarTexturaContabilizada(
+            texturaMiniBossMoluscoFrame1_, "assets/miniboss_molusco_1_contorno.png"))
         return -1;
-    if (!texturaMiniBossMoluscoFrame2_.loadFromFile("assets/miniboss_molusco_2_contorno.png"))
+    if (!cargarTexturaContabilizada(
+            texturaMiniBossMoluscoFrame2_, "assets/miniboss_molusco_2_contorno.png"))
         return -1;
-    if (!texturaMiniBossMoluscoFrame3_.loadFromFile("assets/miniboss_molusco_3_contorno.png"))
+    if (!cargarTexturaContabilizada(
+            texturaMiniBossMoluscoFrame3_, "assets/miniboss_molusco_3_contorno.png"))
         return -1;
-    if (!texturaPescadoGigante_.loadFromFile("assets/pescado_gigante.png"))
+    if (!cargarTexturaContabilizada(texturaPescadoGigante_, "assets/pescado_gigante.png"))
         return -1;
-    if (!texturaLaserJugador_.loadFromFile("assets/laser_jugador.png"))
+    if (!cargarTexturaContabilizada(texturaLaserJugador_, "assets/laser_jugador.png"))
         return -1;
-    if (!texturaLaserJugadorAzul_.loadFromFile("assets/laser_jugador_azul.png"))
+    if (!cargarTexturaContabilizada(texturaLaserJugadorAzul_, "assets/laser_jugador_azul.png"))
         return -1;
     tamanioLaserJugador_ = {
         texturaLaserJugador_.getSize().x * escalaLaserJugador_,
@@ -68,25 +76,27 @@ int Juego::ejecutar()
         texturaLaserJugadorAzul_.getSize().x * escalaLaserJugadorAzul_,
         texturaLaserJugadorAzul_.getSize().y * escalaLaserJugadorAzul_
     };
-    if (!texturaCapsulaItemFrame1_.loadFromFile("assets/capsula_item_1.png"))
+    if (!cargarTexturaContabilizada(texturaCapsulaItemFrame1_, "assets/capsula_item_1.png"))
         return -1;
-    if (!texturaCapsulaItemFrame2_.loadFromFile("assets/capsula_item_2.png"))
+    if (!cargarTexturaContabilizada(texturaCapsulaItemFrame2_, "assets/capsula_item_2.png"))
         return -1;
-    if (!texturaPowerUpP_.loadFromFile("assets/power_up_p.png"))
+    if (!cargarTexturaContabilizada(texturaPowerUpP_, "assets/power_up_p.png"))
         return -1;
-    if (!texturaAtlasRocasFondo_.loadFromFile("assets/atlas_rocas_fondo.png"))
+    if (!cargarTexturaContabilizada(texturaAtlasRocasFondo_, "assets/atlas_rocas_fondo.png"))
         return -1;
-    if (!texturaAtlasTerrenoFondo_.loadFromFile("assets/atlas_terreno_rocoso.png"))
+    if (!cargarTexturaContabilizada(
+            texturaAtlasTerrenoFondo_, "assets/atlas_terreno_rocoso.png"))
         return -1;
     for (const auto& configuracion : obtenerConfiguracionesProyectiles())
     {
-        if (!texturasProyectilesEnemigos_[configuracion.tipo].loadFromFile(
+        if (!cargarTexturaContabilizada(
+                texturasProyectilesEnemigos_[configuracion.tipo],
                 configuracion.rutaTextura))
         {
             return -1;
         }
     }
-    if (!texturaGameOver_.loadFromFile("assets/game_over.png"))
+    if (!cargarTexturaContabilizada(texturaGameOver_, "assets/game_over.png"))
         return -1;
     for (const auto& [tipo, ruta] : std::initializer_list<std::pair<TipoEnemigo, const char*>>{
         {TipoEnemigo::Nave, "assets/explosion_enemigo_nave.png"},
@@ -96,7 +106,7 @@ int Juego::ejecutar()
         {TipoEnemigo::MiniBossMolusco, "assets/explosion_enemigo_alien.png"},
         {TipoEnemigo::PescadoGigante, "assets/explosion_enemigo_nave.png"}})
     {
-        if (!texturasExplosionesEnemigos_[tipo].loadFromFile(ruta))
+        if (!cargarTexturaContabilizada(texturasExplosionesEnemigos_[tipo], ruta))
             return -1;
     }
     for (const char* ruta : {
@@ -105,7 +115,7 @@ int Juego::ejecutar()
         "assets/explosion_nave_3.png"})
     {
         sf::Texture textura;
-        if (!textura.loadFromFile(ruta))
+        if (!cargarTexturaContabilizada(textura, ruta))
             return -1;
         texturasExplosionNave_.push_back(std::move(textura));
     }
@@ -114,7 +124,7 @@ int Juego::ejecutar()
         "assets/impacto_laser_2.png"})
     {
         sf::Texture textura;
-        if (!textura.loadFromFile(ruta))
+        if (!cargarTexturaContabilizada(textura, ruta))
             return -1;
         texturasImpactoLaser_.push_back(std::move(textura));
     }
@@ -138,6 +148,15 @@ int Juego::ejecutar()
     }
 
     return 0;
+}
+
+bool Juego::cargarTexturaContabilizada(sf::Texture& textura, const char* ruta)
+{
+    if (!textura.loadFromFile(ruta))
+        return false;
+
+    ++texturasCargadas_;
+    return true;
 }
 
 void Juego::registrarRendimientoFrame(float duracionMs)
@@ -1663,6 +1682,7 @@ void Juego::dibujarDebug()
           << "Tiempo: " << relojInicio_.getElapsedTime().asSeconds() << " s"
           << "\nFPS: " << fps_
           << "\nPeor frame: " << peorFrameVisibleMs_ << " ms"
+          << "\nTexturas cargadas: " << texturasCargadas_
           << "\nVida: " << vidaNave_ << "/3"
           << "\nImpactos: " << impactosNave_
           << "\nLaser: " << (laserDobleActivo_ ? "doble azul" : "normal");
