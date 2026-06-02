@@ -176,7 +176,7 @@ private:
 
     float velocidadHorizontal_ = 3.2f;
     float velocidadVertical_ = 4.f;
-    float escala_ = 0.04f;
+    float escala_ = 0.07f;
     bool activo_ = false;
     int danio_ = 1;
     int vida_ = 1;

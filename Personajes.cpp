@@ -505,7 +505,7 @@ void Esbirro::establecerPausa(bool pausado)
 
 bool MoluscoGiratorio::cargarTextura()
 {
-    if (!textura_.loadFromFile("assets/miniboss_molusco_1.png"))
+    if (!textura_.loadFromFile("assets/molusco_giratorio.png"))
         return false;
 
     sprite_.setTexture(textura_, true);
