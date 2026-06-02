@@ -9,6 +9,7 @@
 
 #include <SFML/Graphics.hpp>
 #include <cstddef>
+#include <cstdint>
 #include <map>
 #include <memory>
 #include <string>
@@ -84,6 +85,18 @@ struct TileTerrenoFondo
     bool activo;
 };
 
+struct EstrellaFondo
+{
+    float x;
+    float y;
+    float velocidadY;
+    float tamanio;
+    float faseTitileo;
+    std::uint8_t brilloBase;
+    bool titila;
+    bool cruz;
+};
+
 class Juego {
 public:
     Juego();
@@ -96,6 +109,8 @@ private:
     void iniciarExplosionNave();
     void actualizarExplosionNave();
     void actualizar();
+    void inicializarEstrellasFondo();
+    void actualizarEstrellasFondo();
     void procesarAparicionesFondo();
     void crearAparicionFondo(const AparicionFondo& aparicion);
     void actualizarTerrenoFondo();
@@ -124,6 +139,7 @@ private:
     void actualizarProyectilesEnemigos();
     void detectarColisionesConNave();
     void dibujar();
+    void dibujarEstrellasFondo();
     void dibujarTerrenoFondo();
     void dibujarElementosFondo();
     void dibujarCapsulasItems();
@@ -161,6 +177,7 @@ private:
     std::vector<PowerUp> powerUps_;
     std::vector<ElementoFondo> elementosFondo_;
     std::vector<TileTerrenoFondo> tilesTerrenoFondo_;
+    std::vector<EstrellaFondo> estrellasFondo_;
     std::vector<ExplosionEnemigo> explosionesEnemigos_;
     std::vector<ImpactoLaser> impactosLaser_;
     std::vector<std::string> ultimasOleadasDebug_;

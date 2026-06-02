@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <cstdint>
 #include <iomanip>
 #include <iostream>
 #include <optional>
@@ -11,6 +12,22 @@ Juego::Juego()
     : window_(sf::VideoMode({1024, 1080}), "Nave Shooter")
 {
     window_.setFramerateLimit(60);
+}
+
+namespace
+{
+std::uint32_t siguienteAleatorio(std::uint32_t& estado)
+{
+    estado = estado * 1664525u + 1013904223u;
+    return estado;
+}
+
+float aleatorioEntre(std::uint32_t& estado, float minimo, float maximo)
+{
+    const float proporcion = static_cast<float>(siguienteAleatorio(estado) & 0xffffu)
+        / 65535.f;
+    return minimo + (maximo - minimo) * proporcion;
+}
 }
 
 int Juego::ejecutar()
@@ -78,6 +95,7 @@ int Juego::ejecutar()
     textoDebug_.setFillColor(sf::Color::White);
     textoDebug_.setPosition({12.f, 10.f});
     relojInicio_.restart();
+    inicializarEstrellasFondo();
 
     while (window_.isOpen())
     {
@@ -154,6 +172,7 @@ void Juego::reiniciar()
     powerUps_.clear();
     elementosFondo_.clear();
     tilesTerrenoFondo_.clear();
+    estrellasFondo_.clear();
     explosionesEnemigos_.clear();
     impactosLaser_.clear();
     ultimasOleadasDebug_.clear();
@@ -172,6 +191,7 @@ void Juego::reiniciar()
     nave_.reiniciarEstado();
     relojDisparo_.restart();
     relojInicio_.restart();
+    inicializarEstrellasFondo();
 }
 
 void Juego::iniciarExplosionNave()
@@ -226,6 +246,7 @@ void Juego::actualizar()
     }
 
     nave_.actualizar();
+    actualizarEstrellasFondo();
     procesarAparicionesFondo();
     actualizarTerrenoFondo();
     procesarAparicionesElementosFondo();
@@ -244,6 +265,59 @@ void Juego::actualizar()
     detectarColisionesPowerUps();
     actualizarExplosionesEnemigos();
     actualizarImpactosLaser();
+}
+
+void Juego::inicializarEstrellasFondo()
+{
+    struct CapaEstrellas
+    {
+        int cantidad;
+        float velocidadMinima;
+        float velocidadMaxima;
+        float tamanioMinimo;
+        float tamanioMaximo;
+        std::uint8_t brilloMinimo;
+        std::uint8_t brilloMaximo;
+    };
+
+    constexpr CapaEstrellas capas[] = {
+        {55, 0.35f, 0.65f, 1.f, 1.f, 80, 145},
+        {32, 0.8f, 1.2f, 1.f, 2.f, 130, 205},
+        {16, 1.45f, 2.f, 2.f, 3.f, 185, 255},
+    };
+
+    std::uint32_t estado = 0x5a17u;
+    estrellasFondo_.clear();
+    for (const auto& capa : capas)
+    {
+        for (int i = 0; i < capa.cantidad; ++i)
+        {
+            const auto brillo = static_cast<std::uint8_t>(
+                aleatorioEntre(estado, capa.brilloMinimo, capa.brilloMaximo));
+            const float tamanio = std::floor(
+                aleatorioEntre(estado, capa.tamanioMinimo, capa.tamanioMaximo) + 0.5f);
+            estrellasFondo_.push_back({
+                aleatorioEntre(estado, 0.f, 1023.f),
+                aleatorioEntre(estado, 0.f, 1079.f),
+                aleatorioEntre(estado, capa.velocidadMinima, capa.velocidadMaxima),
+                tamanio,
+                aleatorioEntre(estado, 0.f, 6.2831853f),
+                brillo,
+                siguienteAleatorio(estado) % 4u == 0u,
+                tamanio >= 2.f && siguienteAleatorio(estado) % 3u == 0u
+            });
+        }
+    }
+}
+
+void Juego::actualizarEstrellasFondo()
+{
+    for (auto& estrella : estrellasFondo_)
+    {
+        estrella.y += estrella.velocidadY;
+        if (estrella.y > 1082.f)
+            estrella.y = -estrella.tamanio * 2.f;
+    }
 }
 
 void Juego::procesarAparicionesFondo()
@@ -1192,6 +1266,7 @@ void Juego::detectarColisionesConNave()
 void Juego::dibujar()
 {
     window_.clear();
+    dibujarEstrellasFondo();
     dibujarTerrenoFondo();
     dibujarElementosFondo();
     dibujarCapsulasItems();
@@ -1215,6 +1290,39 @@ void Juego::dibujar()
     if (gameOver_)
         dibujarGameOver();
     window_.display();
+}
+
+void Juego::dibujarEstrellasFondo()
+{
+    const float tiempo = relojInicio_.getElapsedTime().asSeconds();
+
+    for (const auto& estrella : estrellasFondo_)
+    {
+        float brillo = estrella.brilloBase;
+        if (estrella.titila)
+            brillo *= 0.62f + 0.38f * (std::sin(tiempo * 4.5f + estrella.faseTitileo) + 1.f) / 2.f;
+
+        const auto alpha = static_cast<std::uint8_t>(std::clamp(brillo, 0.f, 255.f));
+        const sf::Color color(190, 220, 255, alpha);
+        sf::RectangleShape centro({estrella.tamanio, estrella.tamanio});
+        centro.setFillColor(color);
+        centro.setPosition({estrella.x, estrella.y});
+        window_.draw(centro);
+
+        if (!estrella.cruz)
+            continue;
+
+        const sf::Color halo(140, 190, 255, static_cast<std::uint8_t>(alpha / 2));
+        sf::RectangleShape horizontal({estrella.tamanio * 3.f, 1.f});
+        horizontal.setFillColor(halo);
+        horizontal.setPosition({estrella.x - estrella.tamanio, estrella.y + estrella.tamanio / 2.f});
+        window_.draw(horizontal);
+
+        sf::RectangleShape vertical({1.f, estrella.tamanio * 3.f});
+        vertical.setFillColor(halo);
+        vertical.setPosition({estrella.x + estrella.tamanio / 2.f, estrella.y - estrella.tamanio});
+        window_.draw(vertical);
+    }
 }
 
 void Juego::dibujarTerrenoFondo()
