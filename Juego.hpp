@@ -263,4 +263,6 @@ private:
     float duracionFrameExplosionNave_ = 0.16f;
     float esperaAntesGameOver_ = 2.f;
     float umbralFrameLentoMs_ = 35.f;
+    float recorteSuperiorPantallaJugable_ = 100.f;
+    float recorteInferiorPantallaJugable_ = 100.f;
 };

@@ -147,7 +147,7 @@ int Juego::ejecutar()
 
     textoDebug_.setCharacterSize(22);
     textoDebug_.setFillColor(sf::Color::White);
-    textoDebug_.setPosition({12.f, 10.f});
+    textoDebug_.setPosition({12.f, recorteSuperiorPantallaJugable_ + 10.f});
     relojInicio_.restart();
     relojFrame_.restart();
     inicializarEstrellasFondo();
@@ -186,29 +186,39 @@ void Juego::cambiarResolucion(unsigned int ancho, unsigned int alto)
 
 void Juego::configurarVista()
 {
-    vistaJuego_.setSize({anchoLogicoJuego, altoLogicoJuego});
-    vistaJuego_.setCenter({anchoLogicoJuego / 2.f, altoLogicoJuego / 2.f});
+    const float altoJugable = altoLogicoJuego
+        - recorteSuperiorPantallaJugable_
+        - recorteInferiorPantallaJugable_;
+    vistaJuego_.setSize({anchoLogicoJuego, altoJugable});
+    vistaJuego_.setCenter({
+        anchoLogicoJuego / 2.f,
+        recorteSuperiorPantallaJugable_ + altoJugable / 2.f
+    });
 
-    const float proporcionVentana = static_cast<float>(resolucionVentana_.x)
-        / static_cast<float>(resolucionVentana_.y);
-    const float proporcionJuego = anchoLogicoJuego / altoLogicoJuego;
-    sf::FloatRect viewport({0.f, 0.f}, {1.f, 1.f});
+    const float escalaBase = std::min(
+        static_cast<float>(resolucionVentana_.x) / anchoLogicoJuego,
+        static_cast<float>(resolucionVentana_.y) / altoLogicoJuego);
+    const sf::Vector2f tamanioViewport = {
+        anchoLogicoJuego * escalaBase,
+        altoJugable * escalaBase
+    };
+    const sf::Vector2f posicionViewport = {
+        (static_cast<float>(resolucionVentana_.x) - tamanioViewport.x) / 2.f,
+        (static_cast<float>(resolucionVentana_.y) - tamanioViewport.y) / 2.f
+    };
 
-    if (proporcionVentana > proporcionJuego)
-    {
-        const float anchoViewport = proporcionJuego / proporcionVentana;
-        viewport.position.x = (1.f - anchoViewport) / 2.f;
-        viewport.size.x = anchoViewport;
-    }
-    else if (proporcionVentana < proporcionJuego)
-    {
-        const float altoViewport = proporcionVentana / proporcionJuego;
-        viewport.position.y = (1.f - altoViewport) / 2.f;
-        viewport.size.y = altoViewport;
-    }
-
-    vistaJuego_.setViewport(viewport);
+    vistaJuego_.setViewport({
+        {
+            posicionViewport.x / resolucionVentana_.x,
+            posicionViewport.y / resolucionVentana_.y
+        },
+        {
+            tamanioViewport.x / resolucionVentana_.x,
+            tamanioViewport.y / resolucionVentana_.y
+        }
+    });
     window_.setView(vistaJuego_);
+    textoDebug_.setPosition({12.f, recorteSuperiorPantallaJugable_ + 10.f});
 }
 
 void Juego::registrarRendimientoFrame(float duracionMs)
