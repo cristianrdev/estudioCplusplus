@@ -21,16 +21,10 @@ Juego::Juego()
 namespace
 {
 constexpr float tamanioTileTerreno = 128.f;
-constexpr int pixelesTileTerreno = 256;
-constexpr int margenTileTerreno = 2;
-constexpr int pasoTileTerreno = pixelesTileTerreno + margenTileTerreno * 2;
-constexpr float escalaTileTerreno = tamanioTileTerreno / pixelesTileTerreno;
 constexpr int columnasTilemapTerreno = 8;
 constexpr int filasSectorRocoso = 16;
-constexpr int columnasAtlasTerreno = 8;
-constexpr int tilesBaseTerreno = 1;
-constexpr int primerTileEntradaTerreno = 1;
-constexpr int primerTileSalidaTerreno = 9;
+constexpr float anchoSectorTerreno = columnasTilemapTerreno * tamanioTileTerreno;
+constexpr float altoSectorTerreno = filasSectorRocoso * tamanioTileTerreno;
 
 std::uint32_t siguienteAleatorio(std::uint32_t& estado)
 {
@@ -97,7 +91,7 @@ int Juego::ejecutar()
     if (!cargarTexturaContabilizada(texturaAtlasRocasFondo_, "assets/atlas_rocas_fondo.png"))
         return -1;
     if (!cargarTexturaContabilizada(
-            texturaAtlasTerrenoFondo_, "assets/atlas_terreno_rocoso.png"))
+            texturaSectorTerrenoFondo_, "assets/sector_terreno_rocoso.png"))
         return -1;
     for (const auto& configuracion : obtenerConfiguracionesProyectiles())
     {
@@ -456,36 +450,23 @@ void Juego::procesarAparicionesFondo()
 
 void Juego::crearAparicionFondo(const AparicionFondo& aparicion)
 {
-    float posicionY = -tamanioTileTerreno;
-    for (const auto& tile : tilesTerrenoFondo_)
+    float posicionY = -altoSectorTerreno;
+    for (const auto& sector : tilesTerrenoFondo_)
     {
-        if (tile.activo)
-            posicionY = std::min(posicionY, tile.y - tamanioTileTerreno);
+        if (sector.activo)
+            posicionY = std::min(posicionY, sector.y - altoSectorTerreno);
     }
 
     for (int sector = 0; sector < aparicion.cantidad; ++sector)
     {
         const float desplazamientoX = aparicion.posicionXInicial
             + sector * aparicion.separacionX;
-        for (int fila = 0; fila < filasSectorRocoso; ++fila)
-        {
-            for (int columna = 0; columna < columnasTilemapTerreno; ++columna)
-            {
-                int indiceBase = (fila + columna * 3) % tilesBaseTerreno;
-                if (fila == 0)
-                    indiceBase = primerTileEntradaTerreno + columna;
-                else if (fila == filasSectorRocoso - 1)
-                    indiceBase = primerTileSalidaTerreno + columna;
-
-                tilesTerrenoFondo_.push_back({
-                    desplazamientoX + columna * tamanioTileTerreno,
-                    posicionY - (sector * filasSectorRocoso + fila) * tamanioTileTerreno,
-                    aparicion.velocidadY,
-                    indiceBase,
-                    true
-                });
-            }
-        }
+        tilesTerrenoFondo_.push_back({
+            desplazamientoX,
+            posicionY - sector * altoSectorTerreno,
+            aparicion.velocidadY,
+            true
+        });
     }
 }
 
@@ -1440,15 +1421,13 @@ void Juego::dibujarEstrellasFondo()
 
 void Juego::dibujarTerrenoFondo()
 {
-    for (const auto& tile : tilesTerrenoFondo_)
+    for (const auto& sector : tilesTerrenoFondo_)
     {
-        if (!tile.activo)
+        if (!sector.activo)
             continue;
 
-        sf::Sprite sprite(texturaAtlasTerrenoFondo_);
-        sprite.setTextureRect(obtenerRectanguloTileTerrenoFondo(tile.indiceBase));
-        sprite.setScale({escalaTileTerreno, escalaTileTerreno});
-        sprite.setPosition({std::round(tile.x), std::round(tile.y)});
+        sf::Sprite sprite(texturaSectorTerrenoFondo_);
+        sprite.setPosition({std::round(sector.x), std::round(sector.y)});
         window_.draw(sprite);
     }
 
@@ -1785,19 +1764,5 @@ sf::IntRect Juego::obtenerRectanguloTileFondo(TipoElementoFondo tipo) const
     return {
         {indice % columnas * anchoTile, indice / columnas * altoTile},
         {anchoTile, altoTile}
-    };
-}
-
-sf::IntRect Juego::obtenerRectanguloTileTerrenoFondo(int indice) const
-{
-    return {
-        {
-            indice % columnasAtlasTerreno * pasoTileTerreno + margenTileTerreno,
-            indice / columnasAtlasTerreno * pasoTileTerreno + margenTileTerreno
-        },
-        {
-            pixelesTileTerreno,
-            pixelesTileTerreno
-        }
     };
 }

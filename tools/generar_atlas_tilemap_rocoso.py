@@ -18,6 +18,7 @@ INDICE_SALIDA = 9
 
 RAIZ = Path(__file__).resolve().parents[1]
 SALIDA = RAIZ / "assets" / "atlas_terreno_rocoso.png"
+SALIDA_SECTOR = RAIZ / "assets" / "sector_terreno_rocoso.png"
 
 
 def color_base(x: int, y: int, variante: int) -> tuple[int, int, int, int]:
@@ -112,6 +113,43 @@ def pegar_con_margen(atlas: Image.Image, tile: Image.Image, x: int, y: int) -> N
     )
 
 
+def obtener_tile_desde_atlas(atlas: Image.Image, indice: int) -> Image.Image:
+    x = indice % COLUMNAS_ATLAS * PASO + MARGEN
+    y = indice // COLUMNAS_ATLAS * PASO + MARGEN
+    return atlas.crop((x, y, x + TILE, y + TILE)).resize(
+        (TILE_LOGICO, TILE_LOGICO),
+        Image.Resampling.NEAREST,
+    )
+
+
+def indice_tile_sector(fila: int, columna: int) -> int:
+    if fila == 0:
+        return INDICE_ENTRADA + columna
+    if fila == FILAS_SECTOR - 1:
+        return INDICE_SALIDA + columna
+    return 0
+
+
+def crear_sector_compuesto(atlas: Image.Image) -> Image.Image:
+    sector = Image.new(
+        "RGBA",
+        (COLUMNAS_PANTALLA * TILE_LOGICO, FILAS_SECTOR * TILE_LOGICO),
+        (0, 0, 0, 0),
+    )
+    for fila in range(FILAS_SECTOR):
+        for columna in range(COLUMNAS_PANTALLA):
+            indice = indice_tile_sector(fila, columna)
+            tile = obtener_tile_desde_atlas(atlas, indice)
+            sector.alpha_composite(
+                tile,
+                (
+                    columna * TILE_LOGICO,
+                    (FILAS_SECTOR - 1 - fila) * TILE_LOGICO,
+                ),
+            )
+    return sector
+
+
 def main() -> None:
     tiles = crear_tiles()
     filas_atlas = (len(tiles) + COLUMNAS_ATLAS - 1) // COLUMNAS_ATLAS
@@ -125,7 +163,10 @@ def main() -> None:
         y = indice // COLUMNAS_ATLAS * PASO
         pegar_con_margen(atlas, tile, x, y)
     atlas.save(SALIDA, optimize=True)
+    sector = crear_sector_compuesto(atlas)
+    sector.save(SALIDA_SECTOR, optimize=True)
     print(f"Atlas generado: {SALIDA} ({atlas.width}x{atlas.height})")
+    print(f"Sector generado: {SALIDA_SECTOR} ({sector.width}x{sector.height})")
 
 
 if __name__ == "__main__":
