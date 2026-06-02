@@ -4,26 +4,7 @@
 
 enum class TipoFondo
 {
-    TerrenoRocoso01,
-    TerrenoRocoso02,
-    TerrenoRocoso03,
-    TerrenoRocoso04,
-    TerrenoRocoso05,
-    TerrenoRocoso06,
-    TerrenoRocoso07,
-    TerrenoRocoso08,
-    TerrenoRocoso09,
-    TerrenoRocoso10,
-    TerrenoRocoso11,
-    TerrenoRocoso12,
-    TerrenoRocoso13,
-    TerrenoRocoso14,
-    TerrenoRocoso15,
-    TerrenoRocoso16,
-    TerrenoRocoso17,
-    TerrenoRocoso18,
-    TerrenoRocoso19,
-    TerrenoRocoso20
+    SectorRocoso
 };
 
 enum class ComportamientoFondo

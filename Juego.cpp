@@ -20,6 +20,11 @@ Juego::Juego()
 
 namespace
 {
+constexpr float tamanioTileTerreno = 128.f;
+constexpr int columnasTilemapTerreno = 8;
+constexpr int filasSectorRocoso = 16;
+constexpr int columnasAtlasTerreno = 16;
+
 std::uint32_t siguienteAleatorio(std::uint32_t& estado)
 {
     estado = estado * 1664525u + 1013904223u;
@@ -444,23 +449,30 @@ void Juego::procesarAparicionesFondo()
 
 void Juego::crearAparicionFondo(const AparicionFondo& aparicion)
 {
-    constexpr float altoTile = 256.f;
-    float posicionY = -altoTile;
+    float posicionY = -tamanioTileTerreno;
     for (const auto& tile : tilesTerrenoFondo_)
     {
         if (tile.activo)
-            posicionY = std::min(posicionY, tile.y - altoTile);
+            posicionY = std::min(posicionY, tile.y - tamanioTileTerreno);
     }
 
-    for (int i = 0; i < aparicion.cantidad; ++i)
+    for (int sector = 0; sector < aparicion.cantidad; ++sector)
     {
-        tilesTerrenoFondo_.push_back({
-            aparicion.posicionXInicial + i * aparicion.separacionX,
-            posicionY,
-            aparicion.velocidadY,
-            aparicion.tipo,
-            true
-        });
+        const float desplazamientoX = aparicion.posicionXInicial
+            + sector * aparicion.separacionX;
+        for (int fila = 0; fila < filasSectorRocoso; ++fila)
+        {
+            for (int columna = 0; columna < columnasTilemapTerreno; ++columna)
+            {
+                tilesTerrenoFondo_.push_back({
+                    desplazamientoX + columna * tamanioTileTerreno,
+                    posicionY - (sector * filasSectorRocoso + fila) * tamanioTileTerreno,
+                    aparicion.velocidadY,
+                    fila * columnasTilemapTerreno + columna,
+                    true
+                });
+            }
+        }
     }
 }
 
@@ -1421,10 +1433,11 @@ void Juego::dibujarTerrenoFondo()
             continue;
 
         sf::Sprite sprite(texturaAtlasTerrenoFondo_);
-        sprite.setTextureRect(obtenerRectanguloTileTerrenoFondo(tile.tipo));
-        sprite.setPosition({tile.x, tile.y});
+        sprite.setTextureRect(obtenerRectanguloTileTerrenoFondo(tile.indiceBase));
+        sprite.setPosition({std::round(tile.x), std::round(tile.y)});
         window_.draw(sprite);
     }
+
 }
 
 void Juego::dibujarElementosFondo()
@@ -1761,14 +1774,16 @@ sf::IntRect Juego::obtenerRectanguloTileFondo(TipoElementoFondo tipo) const
     };
 }
 
-sf::IntRect Juego::obtenerRectanguloTileTerrenoFondo(TipoFondo tipo) const
+sf::IntRect Juego::obtenerRectanguloTileTerrenoFondo(int indice) const
 {
-    constexpr int columnas = 2;
-    constexpr int anchoTile = 1024;
-    constexpr int altoTile = 256;
-    const int indice = static_cast<int>(tipo);
     return {
-        {indice % columnas * anchoTile, indice / columnas * altoTile},
-        {anchoTile, altoTile}
+        {
+            indice % columnasAtlasTerreno * static_cast<int>(tamanioTileTerreno),
+            indice / columnasAtlasTerreno * static_cast<int>(tamanioTileTerreno)
+        },
+        {
+            static_cast<int>(tamanioTileTerreno),
+            static_cast<int>(tamanioTileTerreno)
+        }
     };
 }

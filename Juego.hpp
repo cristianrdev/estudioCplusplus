@@ -87,7 +87,7 @@ struct TileTerrenoFondo
     float x;
     float y;
     float velocidadY;
-    TipoFondo tipo;
+    int indiceBase;
     bool activo;
 };
 
@@ -168,7 +168,7 @@ private:
     sf::FloatRect obtenerLimitesCapsulaItem(const CapsulaItem& capsula) const;
     sf::FloatRect obtenerLimitesPowerUp(const PowerUp& powerUp) const;
     sf::IntRect obtenerRectanguloTileFondo(TipoElementoFondo tipo) const;
-    sf::IntRect obtenerRectanguloTileTerrenoFondo(TipoFondo tipo) const;
+    sf::IntRect obtenerRectanguloTileTerrenoFondo(int indice) const;
     void dibujarProyectilEnemigo(const ProyectilEnemigo& proyectil);
     sf::FloatRect obtenerLimitesProyectilEnemigo(const ProyectilEnemigo& proyectil) const;
     const sf::Texture& obtenerTexturaProyectilEnemigo(TipoProyectilEnemigo tipo) const;
