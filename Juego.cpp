@@ -1258,12 +1258,10 @@ void Juego::detectarColisionesConNave()
     if (vidaNave_ <= 0 || nave_.esInvulnerable())
         return;
 
-    const sf::FloatRect limitesNave = nave_.obtenerLimitesColision();
-
     for (auto& enemigo : enemigos_)
     {
         if (enemigo->estaActivo()
-            && limitesNave.findIntersection(enemigo->obtenerLimitesColision()))
+            && colisionaConNave(enemigo->obtenerLimitesColision()))
         {
             enemigo->desactivar();
             vidaNave_ = std::max(0, vidaNave_ - enemigo->obtenerDanio());
@@ -1278,7 +1276,7 @@ void Juego::detectarColisionesConNave()
     for (auto& enemigo : enemigosAlien_)
     {
         if (enemigo->estaActivo()
-            && limitesNave.findIntersection(enemigo->obtenerLimitesColision()))
+            && colisionaConNave(enemigo->obtenerLimitesColision()))
         {
             enemigo->desactivar();
             vidaNave_ = std::max(0, vidaNave_ - enemigo->obtenerDanio());
@@ -1293,7 +1291,7 @@ void Juego::detectarColisionesConNave()
     for (auto& esbirro : esbirros_)
     {
         if (esbirro->estaActivo()
-            && limitesNave.findIntersection(esbirro->obtenerLimitesColision()))
+            && colisionaConNave(esbirro->obtenerLimitesColision()))
         {
             esbirro->desactivar();
             vidaNave_ = std::max(0, vidaNave_ - esbirro->obtenerDanio());
@@ -1308,7 +1306,7 @@ void Juego::detectarColisionesConNave()
     for (auto& miniBoss : miniBossesMolusco_)
     {
         if (miniBoss->estaActivo()
-            && limitesNave.findIntersection(miniBoss->obtenerLimitesColision()))
+            && colisionaConNave(miniBoss->obtenerLimitesColision()))
         {
             vidaNave_ = std::max(0, vidaNave_ - miniBoss->obtenerDanio());
             nave_.recibirDanio();
@@ -1322,7 +1320,7 @@ void Juego::detectarColisionesConNave()
     for (auto& molusco : moluscosGiratorios_)
     {
         if (molusco->estaActivo()
-            && limitesNave.findIntersection(molusco->obtenerLimitesColision()))
+            && colisionaConNave(molusco->obtenerLimitesColision()))
         {
             molusco->desactivar();
             vidaNave_ = std::max(0, vidaNave_ - molusco->obtenerDanio());
@@ -1337,7 +1335,7 @@ void Juego::detectarColisionesConNave()
     for (auto& proyectil : proyectilesEnemigos_)
     {
         if (proyectil.activo
-            && limitesNave.findIntersection(obtenerLimitesProyectilEnemigo(proyectil)))
+            && colisionaConNave(obtenerLimitesProyectilEnemigo(proyectil)))
         {
             const auto& configuracion = obtenerConfiguracionProyectil(proyectil.tipo);
             if (configuracion.desapareceAlImpactar)
@@ -1354,7 +1352,7 @@ void Juego::detectarColisionesConNave()
     for (auto& pescado : pescadosGigantes_)
     {
         if (pescado->estaActivo()
-            && limitesNave.findIntersection(pescado->obtenerLimitesColision()))
+            && colisionaConNave(pescado->obtenerLimitesColision()))
         {
             pescado->desactivar();
             vidaNave_ = std::max(0, vidaNave_ - pescado->obtenerDanio());
@@ -1365,6 +1363,23 @@ void Juego::detectarColisionesConNave()
             return;
         }
     }
+}
+
+bool Juego::colisionaConNave(const sf::FloatRect& limites) const
+{
+    const HitboxOvalada hitbox = nave_.obtenerHitboxOvalada();
+    const float puntoX = std::clamp(
+        hitbox.centro.x,
+        limites.position.x,
+        limites.position.x + limites.size.x);
+    const float puntoY = std::clamp(
+        hitbox.centro.y,
+        limites.position.y,
+        limites.position.y + limites.size.y);
+    const float distanciaX = (puntoX - hitbox.centro.x) / hitbox.radioX;
+    const float distanciaY = (puntoY - hitbox.centro.y) / hitbox.radioY;
+
+    return distanciaX * distanciaX + distanciaY * distanciaY <= 1.f;
 }
 
 void Juego::dibujar()

@@ -146,6 +146,7 @@ private:
     void dispararEnemigos();
     void actualizarProyectilesEnemigos();
     void detectarColisionesConNave();
+    bool colisionaConNave(const sf::FloatRect& limites) const;
     void dibujar();
     void dibujarEstrellasFondo();
     void dibujarTerrenoFondo();

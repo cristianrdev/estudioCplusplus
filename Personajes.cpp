@@ -140,9 +140,26 @@ sf::Vector2f Nave::obtenerCentro() const
     };
 }
 
+HitboxOvalada Nave::obtenerHitboxOvalada() const
+{
+    const sf::FloatRect limites = spriteNave_.getGlobalBounds();
+    return {
+        {
+            limites.position.x + limites.size.x * 0.5f,
+            limites.position.y + limites.size.y * 0.53f
+        },
+        limites.size.x * 0.29f,
+        limites.size.y * 0.36f
+    };
+}
+
 sf::FloatRect Nave::obtenerLimitesColision() const
 {
-    return spriteNave_.getGlobalBounds();
+    const HitboxOvalada hitbox = obtenerHitboxOvalada();
+    return {
+        {hitbox.centro.x - hitbox.radioX, hitbox.centro.y - hitbox.radioY},
+        {hitbox.radioX * 2.f, hitbox.radioY * 2.f}
+    };
 }
 
 bool Nave::esInvulnerable() const

@@ -3,6 +3,13 @@
 #include <SFML/Graphics.hpp>
 #include <vector>
 
+struct HitboxOvalada
+{
+    sf::Vector2f centro;
+    float radioX;
+    float radioY;
+};
+
 class Nave {
 public:
     bool cargarTexturas();
@@ -13,6 +20,7 @@ public:
     sf::Vector2f obtenerOrigenDisparoIzquierdo() const;
     sf::Vector2f obtenerOrigenDisparoDerecho() const;
     sf::Vector2f obtenerCentro() const;
+    HitboxOvalada obtenerHitboxOvalada() const;
     sf::FloatRect obtenerLimitesColision() const;
     bool esInvulnerable() const;
     void recibirDanio();
