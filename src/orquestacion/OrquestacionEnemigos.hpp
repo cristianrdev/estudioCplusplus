@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ComportamientosEnemigos.hpp"
+#include "../../ComportamientosEnemigos.hpp"
 
 #include <vector>
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ConfiguracionEnemigos.hpp"
+#include "src/orquestacion/OrquestacionEnemigos.hpp"
 #include "ConfiguracionProyectiles.hpp"
 #include "Personajes.hpp"
 
