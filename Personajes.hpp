@@ -23,8 +23,8 @@ private:
     void actualizarAnimacionFuego();
     void actualizarPosiciones();
 
-    float escalaNave_ = 0.11f;
-    float escalaFuego_ = 0.08f;
+    float escalaNave_ = 0.154f;
+    float escalaFuego_ = 0.112f;
     float largoFuego_ = escalaFuego_;
     float x_ = 340.f;
     float y_ = 500.f;

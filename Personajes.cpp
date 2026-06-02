@@ -67,12 +67,12 @@ void Nave::actualizar()
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up))
     {
         y_ -= velocidad_;
-        largoFuego_ = 0.1f;
+        largoFuego_ = 0.14f;
     }
     else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Down))
     {
         y_ += velocidad_;
-        largoFuego_ = 0.05f;
+        largoFuego_ = 0.07f;
     }
     else
     {
@@ -116,7 +116,7 @@ void Nave::dibujar(sf::RenderWindow& window) const
 sf::Vector2f Nave::obtenerOrigenDisparo() const
 {
     const float anchoNave = spriteNave_.getGlobalBounds().size.x;
-    return {x_ + (anchoNave / 2.f) - 4.f, y_ - 20.f};
+    return {x_ + (anchoNave / 2.f) - 5.6f, y_ - 20.f};
 }
 
 sf::Vector2f Nave::obtenerOrigenDisparoIzquierdo() const

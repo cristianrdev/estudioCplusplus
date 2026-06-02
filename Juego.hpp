@@ -244,8 +244,8 @@ private:
 
     float cadenciaDisparo_ = 0.12f;
     float velocidadLaser_ = 8.f;
-    float escalaLaserJugador_ = 0.035f;
-    float escalaLaserJugadorAzul_ = 0.035f;
+    float escalaLaserJugador_ = 0.049f;
+    float escalaLaserJugadorAzul_ = 0.049f;
     float escalaCapsulaItem_ = 0.07f;
     float escalaPowerUp_ = 0.07f;
     float velocidadPowerUp_ = 1.8f;
