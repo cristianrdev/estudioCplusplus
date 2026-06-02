@@ -1459,6 +1459,7 @@ void Juego::dibujar()
         dibujarExplosionNave();
     if (gameOver_)
         dibujarGameOver();
+    dibujarMarcoJugable();
     window_.display();
 }
 
@@ -1778,6 +1779,32 @@ void Juego::dibujarDebug()
         texto << "\nPAUSA";
     textoDebug_.setString(texto.str());
     window_.draw(textoDebug_);
+}
+
+void Juego::dibujarMarcoJugable()
+{
+    const sf::View vistaAnterior = window_.getView();
+    window_.setView(window_.getDefaultView());
+
+    const sf::FloatRect viewport = vistaJuego_.getViewport();
+    const sf::Vector2u tamanioVentana = window_.getSize();
+    const sf::Vector2f posicion = {
+        std::round(viewport.position.x * tamanioVentana.x) + 1.f,
+        std::round(viewport.position.y * tamanioVentana.y) + 1.f
+    };
+    const sf::Vector2f tamanio = {
+        std::round(viewport.size.x * tamanioVentana.x) - 2.f,
+        std::round(viewport.size.y * tamanioVentana.y) - 2.f
+    };
+
+    sf::RectangleShape marco(tamanio);
+    marco.setPosition(posicion);
+    marco.setFillColor(sf::Color::Transparent);
+    marco.setOutlineColor(sf::Color::Red);
+    marco.setOutlineThickness(2.f);
+    window_.draw(marco);
+
+    window_.setView(vistaAnterior);
 }
 
 void Juego::dibujarProyectil(const Proyectil& proyectil)

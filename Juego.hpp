@@ -161,6 +161,7 @@ private:
     void dibujarImpactosLaser();
     void dibujarFogonazosCanones();
     void dibujarDebug();
+    void dibujarMarcoJugable();
     void dibujarGameOver();
     void dibujarExplosionNave();
     void dibujarProyectil(const Proyectil& proyectil);
