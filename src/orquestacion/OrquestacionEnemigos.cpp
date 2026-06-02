@@ -5,11 +5,21 @@ const std::vector<OleadaEnemigos> &obtenerOleadasEnemigos()
     // tiempo, tipo, cantidad, danio, vida, frecuencia disparo,
     // x inicial, separacion x, comportamiento
     static const std::vector<OleadaEnemigos> oleadas = {
-        {1.0f, TipoEnemigo::MoluscoGiratorio, 1, 1, 1, 0.5f, 180.f, 0.f, ComportamientoEnemigo::MoluscoGiratorio},
-        {1.3f, TipoEnemigo::MoluscoGiratorio, 1, 1, 1, 0.5f, 180.f, 0.f, ComportamientoEnemigo::MoluscoGiratorio},
-        {1.6f, TipoEnemigo::MoluscoGiratorio, 1, 1, 1, 0.5f, 180.f, 0.f, ComportamientoEnemigo::MoluscoGiratorio},
-        {1.9f, TipoEnemigo::MoluscoGiratorio, 1, 1, 1, 0.5f, 180.f, 0.f, ComportamientoEnemigo::MoluscoGiratorio},
-        {2.2f, TipoEnemigo::MoluscoGiratorio, 1, 1, 1, 0.5f, 180.f, 0.f, ComportamientoEnemigo::MoluscoGiratorio},
+
+        {4.0f, TipoEnemigo::MoluscoGiratorio, 1, 1, 1, 1.5f, 180.f, 0.f, ComportamientoEnemigo::MoluscoGiratorio},
+        {4.3f, TipoEnemigo::MoluscoGiratorio, 1, 1, 1, 1.5f, 180.f, 0.f, ComportamientoEnemigo::MoluscoGiratorio},
+        {4.6f, TipoEnemigo::MoluscoGiratorio, 1, 1, 1, 1.5f, 180.f, 0.f, ComportamientoEnemigo::MoluscoGiratorio},
+        {4.9f, TipoEnemigo::MoluscoGiratorio, 1, 1, 1, 1.5f, 180.f, 0.f, ComportamientoEnemigo::MoluscoGiratorio},
+        {5.2f, TipoEnemigo::MoluscoGiratorio, 1, 1, 1, 1.5f, 180.f, 0.f, ComportamientoEnemigo::MoluscoGiratorio},
+        {5.5f, TipoEnemigo::MoluscoGiratorio, 1, 1, 1, 1.5f, 180.f, 0.f, ComportamientoEnemigo::MoluscoGiratorio},
+
+
+        {11.0f, TipoEnemigo::MoluscoGiratorio, 1, 1, 1, 1.5f, 350.f, 0.f, ComportamientoEnemigo::MoluscoGiratorio},
+        {11.3f, TipoEnemigo::MoluscoGiratorio, 1, 1, 1, 1.5f, 350.f, 0.f, ComportamientoEnemigo::MoluscoGiratorio},
+        {11.6f, TipoEnemigo::MoluscoGiratorio, 1, 1, 1, 1.5f, 350.f, 0.f, ComportamientoEnemigo::MoluscoGiratorio},
+        {11.9f, TipoEnemigo::MoluscoGiratorio, 1, 1, 1, 1.5f, 350.f, 0.f, ComportamientoEnemigo::MoluscoGiratorio},
+        {12.2f, TipoEnemigo::MoluscoGiratorio, 1, 1, 1, 1.5f, 350.f, 0.f, ComportamientoEnemigo::MoluscoGiratorio},
+        {12.5f, TipoEnemigo::MoluscoGiratorio, 1, 1, 1, 1.5f, 350.f, 0.f, ComportamientoEnemigo::MoluscoGiratorio},
         // tiempo, tipo,        cantidad, danio, vida, frecuencia disparo, x inicial, separacion x,
 
         // {2.f, TipoEnemigo::Esbirro, 2, 1, 1, 0.8f, 300.f, 400.f, ComportamientoEnemigo::EsbirroNormal},
@@ -18,32 +28,32 @@ const std::vector<OleadaEnemigos> &obtenerOleadasEnemigos()
 
 
         // tiempo,     tipo,       cantidad,  danio, vida, frecuencia disparo, x inicial, separacion x, {amplitud  ,descenso, oscilacion   }
-        {7.f, TipoEnemigo::Alien, 1, 2, 3, 1.8f, 500.f, 0.f, ComportamientoEnemigo::AlienNormal},
+        {17.f, TipoEnemigo::Alien, 1, 2, 3, 1.8f, 500.f, 0.f, ComportamientoEnemigo::AlienNormal},
         // {9.f, TipoEnemigo::Alien, 1, 2, 3, 1.8f, 500.f, 0.f, ComportamientoEnemigo::AlienNormal},
-        {12.f, TipoEnemigo::Alien, 2, 2, 3, 1.8f, 300.f, 300.f, ComportamientoEnemigo::AlienNormal},
+        {22.f, TipoEnemigo::Alien, 2, 2, 3, 1.8f, 300.f, 300.f, ComportamientoEnemigo::AlienNormal},
 
 
 
-        {18.0f, TipoEnemigo::Esbirro, 1, 1, 1, 0.8f, 500.f, 0.f, ComportamientoEnemigo::EsbirroNormal},  //      *     *
-        {18.3f, TipoEnemigo::Esbirro, 2, 1, 1, 0.8f, 400.f, 200.f, ComportamientoEnemigo::EsbirroNormal}, //     *       *
-        {18.6f, TipoEnemigo::Esbirro, 2, 1, 1, 0.8f, 300.f, 400.f, ComportamientoEnemigo::EsbirroNormal}, //    *         *
-        {18.9f, TipoEnemigo::Esbirro, 2, 1, 1, 0.8f, 200.f, 600.f, ComportamientoEnemigo::EsbirroNormal}, //   *           *
-        {19.2f, TipoEnemigo::Esbirro, 2, 1, 1, 0.8f, 100.f, 800.f, ComportamientoEnemigo::EsbirroNormal}, //  *             *
+        {28.0f, TipoEnemigo::Esbirro, 1, 1, 1, 0.8f, 500.f, 0.f, ComportamientoEnemigo::EsbirroNormal},  //      *     *
+        {28.3f, TipoEnemigo::Esbirro, 2, 1, 1, 0.8f, 400.f, 200.f, ComportamientoEnemigo::EsbirroNormal}, //     *       *
+        {28.6f, TipoEnemigo::Esbirro, 2, 1, 1, 0.8f, 300.f, 400.f, ComportamientoEnemigo::EsbirroNormal}, //    *         *
+        {28.9f, TipoEnemigo::Esbirro, 2, 1, 1, 0.8f, 200.f, 600.f, ComportamientoEnemigo::EsbirroNormal}, //   *           *
+        {29.2f, TipoEnemigo::Esbirro, 2, 1, 1, 0.8f, 100.f, 800.f, ComportamientoEnemigo::EsbirroNormal}, //  *             *
 
-        {25.f, TipoEnemigo::Alien, 1, 2, 3, 1.8f, 500.f, 0.f, ComportamientoEnemigo::AlienNormal},
-        {26.f, TipoEnemigo::Esbirro, 2, 1, 1, 1.1f, 300.f, 400.f, ComportamientoEnemigo::EsbirroNormal},
-        {30.f, TipoEnemigo::Alien, 3, 2, 3, 1.8f, 300.f, 300.f, ComportamientoEnemigo::AlienLento},
-
-
-        {40.f, TipoEnemigo::MiniBossMolusco, 1, 3, 60, 1.8f, 512.f, 0.f, ComportamientoEnemigo::MiniBossMolusco},
-        {45.2f, TipoEnemigo::Esbirro, 2, 1, 1, 0.4f, 100.f, 800.f, ComportamientoEnemigo::EsbirroNormal},
-        {47.0f, TipoEnemigo::Esbirro, 2, 1, 1, 0.4f, 100.f, 800.f, ComportamientoEnemigo::EsbirroNormal},
+        {35.f, TipoEnemigo::Alien, 1, 2, 3, 1.8f, 500.f, 0.f, ComportamientoEnemigo::AlienNormal},
+        {36.f, TipoEnemigo::Esbirro, 2, 1, 1, 1.1f, 300.f, 400.f, ComportamientoEnemigo::EsbirroNormal},
+        {40.f, TipoEnemigo::Alien, 3, 2, 3, 1.8f, 300.f, 300.f, ComportamientoEnemigo::AlienLento},
 
 
-        {59.f, TipoEnemigo::Esbirro, 2, 1, 1, 0.8f, 100.f, 800.f, ComportamientoEnemigo::EsbirroNormal},
+        {50.f, TipoEnemigo::MiniBossMolusco, 1, 3, 60, 1.8f, 512.f, 0.f, ComportamientoEnemigo::MiniBossMolusco},
+        {55.2f, TipoEnemigo::Esbirro, 2, 1, 1, 0.4f, 100.f, 800.f, ComportamientoEnemigo::EsbirroNormal},
+        {57.0f, TipoEnemigo::Esbirro, 2, 1, 1, 0.4f, 100.f, 800.f, ComportamientoEnemigo::EsbirroNormal},
+
+
+        {69.f, TipoEnemigo::Esbirro, 2, 1, 1, 0.8f, 100.f, 800.f, ComportamientoEnemigo::EsbirroNormal},
         
         
-        {61.f, TipoEnemigo::Nave, 4, 1, 3, 1.4f, 180.f, 220.f, ComportamientoEnemigo::NaveDiagonalDerecha},
+        {71.f, TipoEnemigo::Nave, 4, 1, 3, 1.4f, 180.f, 220.f, ComportamientoEnemigo::NaveDiagonalDerecha},
         
 
         // {13.f, TipoEnemigo::Alien, 1, 2, 3, 1.8f, 450.f, 0.f, ComportamientoEnemigo::AlienLento},
