@@ -48,6 +48,13 @@ struct ImpactoLaser
     float tiempoInicio;
 };
 
+struct FogonazoCanon
+{
+    sf::Vector2f centro;
+    float tiempoInicio;
+    bool laserAzul;
+};
+
 struct CapsulaItem
 {
     float x;
@@ -129,8 +136,10 @@ private:
     void crearPowerUp(const CapsulaItem& capsula);
     void actualizarExplosionesEnemigos();
     void actualizarImpactosLaser();
+    void actualizarFogonazosCanones();
     void crearExplosionEnemigo(TipoEnemigo tipo, const sf::FloatRect& limites);
     void crearImpactoLaser(const sf::FloatRect& interseccion);
+    void crearFogonazoCanon(const sf::Vector2f& origen, bool laserAzul);
     void procesarApariciones();
     void registrarOleadaDebug(const OleadaEnemigos& oleada, float tiempoReal);
     void crearOleada(const OleadaEnemigos& oleada);
@@ -148,6 +157,7 @@ private:
     void dibujarProyectilesEnemigos();
     void dibujarExplosionesEnemigos();
     void dibujarImpactosLaser();
+    void dibujarFogonazosCanones();
     void dibujarDebug();
     void dibujarGameOver();
     void dibujarExplosionNave();
@@ -180,6 +190,7 @@ private:
     std::vector<EstrellaFondo> estrellasFondo_;
     std::vector<ExplosionEnemigo> explosionesEnemigos_;
     std::vector<ImpactoLaser> impactosLaser_;
+    std::vector<FogonazoCanon> fogonazosCanones_;
     std::vector<std::string> ultimasOleadasDebug_;
     sf::Clock relojDisparo_;
     sf::Clock relojInicio_;
@@ -195,6 +206,8 @@ private:
     sf::Texture texturaAtlasRocasFondo_;
     sf::Texture texturaAtlasTerrenoFondo_;
     sf::Texture texturaGameOver_;
+    sf::Vector2f tamanioLaserJugador_;
+    sf::Vector2f tamanioLaserJugadorAzul_;
     std::vector<sf::Texture> texturasExplosionNave_;
     std::vector<sf::Texture> texturasImpactoLaser_;
     sf::Clock relojExplosionNave_;
@@ -224,6 +237,7 @@ private:
     float duracionExplosionEnemigo_ = 0.45f;
     float duracionFrameImpactoLaser_ = 0.09f;
     float escalaImpactoLaser_ = 0.08f;
+    float duracionFrameFogonazoCanon_ = 0.035f;
     float escalaGameOver_ = 0.62f;
     float escalaExplosionNave_ = 0.22f;
     float duracionFrameExplosionNave_ = 0.16f;

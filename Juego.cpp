@@ -12,6 +12,10 @@ Juego::Juego()
     : window_(sf::VideoMode({1024, 1080}), "Nave Shooter")
 {
     window_.setFramerateLimit(60);
+    proyectiles_.reserve(128);
+    proyectilesEnemigos_.reserve(1024);
+    fogonazosCanones_.reserve(32);
+    impactosLaser_.reserve(128);
 }
 
 namespace
@@ -38,6 +42,14 @@ int Juego::ejecutar()
         return -1;
     if (!texturaLaserJugadorAzul_.loadFromFile("assets/laser_jugador_azul.png"))
         return -1;
+    tamanioLaserJugador_ = {
+        texturaLaserJugador_.getSize().x * escalaLaserJugador_,
+        texturaLaserJugador_.getSize().y * escalaLaserJugador_
+    };
+    tamanioLaserJugadorAzul_ = {
+        texturaLaserJugadorAzul_.getSize().x * escalaLaserJugadorAzul_,
+        texturaLaserJugadorAzul_.getSize().y * escalaLaserJugadorAzul_
+    };
     if (!texturaCapsulaItemFrame1_.loadFromFile("assets/capsula_item_1.png"))
         return -1;
     if (!texturaCapsulaItemFrame2_.loadFromFile("assets/capsula_item_2.png"))
@@ -175,6 +187,7 @@ void Juego::reiniciar()
     estrellasFondo_.clear();
     explosionesEnemigos_.clear();
     impactosLaser_.clear();
+    fogonazosCanones_.clear();
     ultimasOleadasDebug_.clear();
     proximaOleada_ = 0;
     proximaAparicionItem_ = 0;
@@ -265,6 +278,7 @@ void Juego::actualizar()
     detectarColisionesPowerUps();
     actualizarExplosionesEnemigos();
     actualizarImpactosLaser();
+    actualizarFogonazosCanones();
 }
 
 void Juego::inicializarEstrellasFondo()
@@ -606,6 +620,29 @@ void Juego::actualizarImpactosLaser()
         impactosLaser_.end());
 }
 
+void Juego::actualizarFogonazosCanones()
+{
+    const float tiempoActual = relojInicio_.getElapsedTime().asSeconds();
+    const float duracion = duracionFrameFogonazoCanon_ * 3.f;
+    fogonazosCanones_.erase(
+        std::remove_if(
+            fogonazosCanones_.begin(),
+            fogonazosCanones_.end(),
+            [tiempoActual, duracion](const FogonazoCanon& fogonazo) {
+                return tiempoActual - fogonazo.tiempoInicio >= duracion;
+            }),
+        fogonazosCanones_.end());
+}
+
+void Juego::crearFogonazoCanon(const sf::Vector2f& origen, bool laserAzul)
+{
+    fogonazosCanones_.push_back({
+        {origen.x, origen.y + 20.f},
+        relojInicio_.getElapsedTime().asSeconds(),
+        laserAzul
+    });
+}
+
 void Juego::disparar()
 {
     if (!sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space))
@@ -620,12 +657,14 @@ void Juego::disparar()
             nave_.obtenerOrigenDisparoDerecho()})
         {
             proyectiles_.push_back({origen.x, origen.y, 2, true, true});
+            crearFogonazoCanon(origen, true);
         }
     }
     else
     {
         const sf::Vector2f origen = nave_.obtenerOrigenDisparo();
         proyectiles_.push_back({origen.x, origen.y, 1, false, true});
+        crearFogonazoCanon(origen, false);
     }
     relojDisparo_.restart();
 }
@@ -1274,6 +1313,7 @@ void Juego::dibujar()
     dibujarEnemigos();
     if (!naveExplotando_ && !esperandoGameOver_ && !gameOver_)
         nave_.dibujar(window_);
+    dibujarFogonazosCanones();
 
     for (const auto& proyectil : proyectiles_)
     {
@@ -1414,6 +1454,43 @@ void Juego::dibujarImpactosLaser()
             impacto.centro.y - limites.size.y / 2.f
         });
         window_.draw(sprite);
+    }
+}
+
+void Juego::dibujarFogonazosCanones()
+{
+    const float tiempoActual = relojInicio_.getElapsedTime().asSeconds();
+
+    for (const auto& fogonazo : fogonazosCanones_)
+    {
+        const int frame = static_cast<int>(
+            (tiempoActual - fogonazo.tiempoInicio) / duracionFrameFogonazoCanon_);
+        if (frame < 0 || frame >= 3)
+            continue;
+
+        const float radio = 3.f + frame * 2.f;
+        const std::uint8_t alpha = static_cast<std::uint8_t>(255 - frame * 70);
+        const sf::Color colorExterior = fogonazo.laserAzul
+            ? sf::Color(30, 150, 255, alpha)
+            : sf::Color(255, 145, 35, alpha);
+        const sf::Color colorInterior = fogonazo.laserAzul
+            ? sf::Color(190, 245, 255, alpha)
+            : sf::Color(255, 245, 170, alpha);
+
+        sf::RectangleShape horizontal({radio * 2.f, 3.f});
+        horizontal.setFillColor(colorExterior);
+        horizontal.setPosition({fogonazo.centro.x - radio, fogonazo.centro.y - 1.f});
+        window_.draw(horizontal);
+
+        sf::RectangleShape vertical({3.f, radio * 2.f});
+        vertical.setFillColor(colorExterior);
+        vertical.setPosition({fogonazo.centro.x - 1.f, fogonazo.centro.y - radio});
+        window_.draw(vertical);
+
+        sf::RectangleShape nucleo({3.f, 3.f});
+        nucleo.setFillColor(colorInterior);
+        nucleo.setPosition({fogonazo.centro.x - 1.f, fogonazo.centro.y - 1.f});
+        window_.draw(nucleo);
     }
 }
 
@@ -1579,13 +1656,10 @@ void Juego::dibujarProyectil(const Proyectil& proyectil)
 
 sf::FloatRect Juego::obtenerLimitesProyectilJugador(const Proyectil& proyectil) const
 {
-    sf::Sprite sprite(obtenerTexturaProyectilJugador(proyectil));
-    const float escala = proyectil.laserAzul
-        ? escalaLaserJugadorAzul_
-        : escalaLaserJugador_;
-    sprite.setScale({escala, escala});
-    sprite.setPosition({proyectil.x, proyectil.y});
-    return sprite.getGlobalBounds();
+    const sf::Vector2f tamanio = proyectil.laserAzul
+        ? tamanioLaserJugadorAzul_
+        : tamanioLaserJugador_;
+    return {{proyectil.x, proyectil.y}, tamanio};
 }
 
 const sf::Texture& Juego::obtenerTexturaProyectilJugador(const Proyectil& proyectil) const
