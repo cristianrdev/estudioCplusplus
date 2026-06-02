@@ -27,6 +27,8 @@ int Juego::ejecutar()
         return -1;
     if (!texturaPowerUpP_.loadFromFile("assets/power_up_p.png"))
         return -1;
+    if (!texturaAtlasRocasFondo_.loadFromFile("assets/atlas_rocas_fondo.png"))
+        return -1;
     for (const auto& configuracion : obtenerConfiguracionesProyectiles())
     {
         if (!texturasProyectilesEnemigos_[configuracion.tipo].loadFromFile(
@@ -144,11 +146,13 @@ void Juego::reiniciar()
     proyectilesEnemigos_.clear();
     capsulasItems_.clear();
     powerUps_.clear();
+    elementosFondo_.clear();
     explosionesEnemigos_.clear();
     impactosLaser_.clear();
     ultimasOleadasDebug_.clear();
     proximaOleada_ = 0;
     proximaAparicionItem_ = 0;
+    proximaAparicionElementoFondo_ = 0;
     impactosNave_ = 0;
     vidaNave_ = 3;
     frameExplosionNave_ = 0;
@@ -214,8 +218,10 @@ void Juego::actualizar()
     }
 
     nave_.actualizar();
+    procesarAparicionesElementosFondo();
     procesarApariciones();
     procesarAparicionesItems();
+    actualizarElementosFondo();
     actualizarEnemigos();
     actualizarCapsulasItems();
     actualizarPowerUps();
@@ -228,6 +234,53 @@ void Juego::actualizar()
     detectarColisionesPowerUps();
     actualizarExplosionesEnemigos();
     actualizarImpactosLaser();
+}
+
+void Juego::procesarAparicionesElementosFondo()
+{
+    const auto& apariciones = obtenerAparicionesElementosFondo();
+    const float segundos = relojInicio_.getElapsedTime().asSeconds();
+
+    while (proximaAparicionElementoFondo_ < apariciones.size()
+        && apariciones[proximaAparicionElementoFondo_].tiempoSegundos <= segundos)
+    {
+        crearAparicionElementoFondo(apariciones[proximaAparicionElementoFondo_]);
+        ++proximaAparicionElementoFondo_;
+    }
+}
+
+void Juego::crearAparicionElementoFondo(const AparicionElementoFondo& aparicion)
+{
+    for (int i = 0; i < aparicion.cantidad; ++i)
+    {
+        elementosFondo_.push_back({
+            aparicion.posicionXInicial + i * aparicion.separacionX,
+            -200.f,
+            aparicion.velocidadY,
+            aparicion.tipo,
+            true
+        });
+    }
+}
+
+void Juego::actualizarElementosFondo()
+{
+    for (auto& elemento : elementosFondo_)
+    {
+        if (!elemento.activo)
+            continue;
+
+        elemento.y += elemento.velocidadY;
+        if (elemento.y > 1280.f)
+            elemento.activo = false;
+    }
+
+    elementosFondo_.erase(
+        std::remove_if(
+            elementosFondo_.begin(),
+            elementosFondo_.end(),
+            [](const ElementoFondo& elemento) { return !elemento.activo; }),
+        elementosFondo_.end());
 }
 
 void Juego::detectarColisionesProyectilesJugador()
@@ -992,6 +1045,7 @@ void Juego::detectarColisionesConNave()
 void Juego::dibujar()
 {
     window_.clear();
+    dibujarElementosFondo();
     dibujarCapsulasItems();
     dibujarPowerUps();
     dibujarEnemigos();
@@ -1013,6 +1067,25 @@ void Juego::dibujar()
     if (gameOver_)
         dibujarGameOver();
     window_.display();
+}
+
+void Juego::dibujarElementosFondo()
+{
+    for (const auto& elemento : elementosFondo_)
+    {
+        if (!elemento.activo)
+            continue;
+
+        sf::Sprite sprite(texturaAtlasRocasFondo_);
+        sprite.setTextureRect(obtenerRectanguloTileFondo(elemento.tipo));
+        sprite.setScale({escalaElementosFondo_, escalaElementosFondo_});
+        const sf::FloatRect limites = sprite.getGlobalBounds();
+        sprite.setPosition({
+            elemento.x - limites.size.x / 2.f,
+            elemento.y - limites.size.y / 2.f
+        });
+        window_.draw(sprite);
+    }
 }
 
 void Juego::dibujarCapsulasItems()
@@ -1255,4 +1328,16 @@ sf::FloatRect Juego::obtenerLimitesPowerUp(const PowerUp& powerUp) const
         powerUp.y - limites.size.y / 2.f
     });
     return sprite.getGlobalBounds();
+}
+
+sf::IntRect Juego::obtenerRectanguloTileFondo(TipoElementoFondo tipo) const
+{
+    constexpr int columnas = 5;
+    constexpr int anchoTile = 396;
+    constexpr int altoTile = 396;
+    const int indice = static_cast<int>(tipo);
+    return {
+        {indice % columnas * anchoTile, indice / columnas * altoTile},
+        {anchoTile, altoTile}
+    };
 }

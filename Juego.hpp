@@ -1,6 +1,7 @@
 #pragma once
 
 #include "src/orquestacion/OrquestacionEnemigos.hpp"
+#include "src/orquestacion/OrquestacionElementosFondo.hpp"
 #include "src/orquestacion/OrquestacionItems.hpp"
 #include "ConfiguracionProyectiles.hpp"
 #include "Personajes.hpp"
@@ -64,6 +65,15 @@ struct PowerUp
     bool activo;
 };
 
+struct ElementoFondo
+{
+    float x;
+    float y;
+    float velocidadY;
+    TipoElementoFondo tipo;
+    bool activo;
+};
+
 class Juego {
 public:
     Juego();
@@ -76,6 +86,9 @@ private:
     void iniciarExplosionNave();
     void actualizarExplosionNave();
     void actualizar();
+    void procesarAparicionesElementosFondo();
+    void crearAparicionElementoFondo(const AparicionElementoFondo& aparicion);
+    void actualizarElementosFondo();
     void disparar();
     void actualizarProyectiles();
     void detectarColisionesProyectilesJugador();
@@ -98,6 +111,7 @@ private:
     void actualizarProyectilesEnemigos();
     void detectarColisionesConNave();
     void dibujar();
+    void dibujarElementosFondo();
     void dibujarCapsulasItems();
     void dibujarPowerUps();
     void dibujarEnemigos();
@@ -113,6 +127,7 @@ private:
     const sf::Texture& obtenerTexturaCapsulaItem() const;
     sf::FloatRect obtenerLimitesCapsulaItem(const CapsulaItem& capsula) const;
     sf::FloatRect obtenerLimitesPowerUp(const PowerUp& powerUp) const;
+    sf::IntRect obtenerRectanguloTileFondo(TipoElementoFondo tipo) const;
     void dibujarProyectilEnemigo(const ProyectilEnemigo& proyectil);
     sf::FloatRect obtenerLimitesProyectilEnemigo(const ProyectilEnemigo& proyectil) const;
     const sf::Texture& obtenerTexturaProyectilEnemigo(TipoProyectilEnemigo tipo) const;
@@ -128,6 +143,7 @@ private:
     std::vector<ProyectilEnemigo> proyectilesEnemigos_;
     std::vector<CapsulaItem> capsulasItems_;
     std::vector<PowerUp> powerUps_;
+    std::vector<ElementoFondo> elementosFondo_;
     std::vector<ExplosionEnemigo> explosionesEnemigos_;
     std::vector<ImpactoLaser> impactosLaser_;
     std::vector<std::string> ultimasOleadasDebug_;
@@ -142,6 +158,7 @@ private:
     sf::Texture texturaCapsulaItemFrame1_;
     sf::Texture texturaCapsulaItemFrame2_;
     sf::Texture texturaPowerUpP_;
+    sf::Texture texturaAtlasRocasFondo_;
     sf::Texture texturaGameOver_;
     std::vector<sf::Texture> texturasExplosionNave_;
     std::vector<sf::Texture> texturasImpactoLaser_;
@@ -149,6 +166,7 @@ private:
     sf::Clock relojEsperaGameOver_;
     std::size_t proximaOleada_ = 0;
     std::size_t proximaAparicionItem_ = 0;
+    std::size_t proximaAparicionElementoFondo_ = 0;
     int impactosNave_ = 0;
     int vidaNave_ = 3;
     int frameExplosionNave_ = 0;
@@ -166,6 +184,7 @@ private:
     float escalaCapsulaItem_ = 0.07f;
     float escalaPowerUp_ = 0.07f;
     float velocidadPowerUp_ = 1.8f;
+    float escalaElementosFondo_ = 0.5f;
     float duracionExplosionEnemigo_ = 0.45f;
     float duracionFrameImpactoLaser_ = 0.09f;
     float escalaImpactoLaser_ = 0.08f;
