@@ -106,7 +106,7 @@ private:
     float amplitud_ = 300.f;
     float velocidadVertical_ = 1.8f;
     float velocidadOscilacion_ = 0.025f;
-    float escala_ = 0.12f;
+    float escala_ = 0.156f;
     int frame_ = 0;
     bool activo_ = false;
     int danio_ = 1;
@@ -176,7 +176,7 @@ private:
 
     float velocidadHorizontal_ = 3.2f;
     float velocidadVertical_ = 4.f;
-    float escala_ = 0.07f;
+    float escala_ = 0.055f;
     bool activo_ = false;
     int danio_ = 1;
     int vida_ = 1;
