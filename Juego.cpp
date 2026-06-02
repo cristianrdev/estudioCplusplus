@@ -21,7 +21,7 @@ Juego::Juego()
 namespace
 {
 constexpr float tamanioTileTerreno = 128.f;
-constexpr int pixelesTileTerreno = 252;
+constexpr int pixelesTileTerreno = 256;
 constexpr int margenTileTerreno = 2;
 constexpr int pasoTileTerreno = pixelesTileTerreno + margenTileTerreno * 2;
 constexpr float escalaTileTerreno = tamanioTileTerreno / pixelesTileTerreno;

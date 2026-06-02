@@ -6,7 +6,7 @@ from PIL import Image, ImageDraw
 
 
 TILE_LOGICO = 128
-TILE = 252
+TILE = 256
 MARGEN = 2
 PASO = TILE + MARGEN * 2
 COLUMNAS_PANTALLA = 8
