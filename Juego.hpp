@@ -110,6 +110,8 @@ public:
 private:
     void procesarEventos();
     bool cargarTexturaContabilizada(sf::Texture& textura, const char* ruta);
+    void cambiarResolucion(unsigned int ancho, unsigned int alto);
+    void configurarVista();
     void registrarRendimientoFrame(float duracionMs);
     void alternarPausa();
     void reiniciar();
@@ -173,6 +175,8 @@ private:
     const sf::Texture& obtenerTexturaProyectilEnemigo(TipoProyectilEnemigo tipo) const;
 
     sf::RenderWindow window_;
+    sf::View vistaJuego_;
+    sf::Vector2u resolucionVentana_{1920u, 1080u};
     Nave nave_;
     std::vector<std::unique_ptr<Enemigo>> enemigos_;
     std::vector<std::unique_ptr<EnemigoAlien>> enemigosAlien_;

@@ -8,18 +8,14 @@
 #include <optional>
 #include <sstream>
 
-Juego::Juego()
-    : window_(sf::VideoMode({1024, 1080}), "Nave Shooter")
-{
-    window_.setFramerateLimit(60);
-    proyectiles_.reserve(128);
-    proyectilesEnemigos_.reserve(1024);
-    fogonazosCanones_.reserve(32);
-    impactosLaser_.reserve(128);
-}
-
 namespace
 {
+constexpr float anchoLogicoJuego = 1024.f;
+constexpr float altoLogicoJuego = 1080.f;
+constexpr unsigned int anchoVentana720p = 1280u;
+constexpr unsigned int altoVentana720p = 720u;
+constexpr unsigned int anchoVentana1080p = 1920u;
+constexpr unsigned int altoVentana1080p = 1080u;
 constexpr float tamanioTileTerreno = 128.f;
 constexpr int columnasTilemapTerreno = 8;
 constexpr int filasSectorRocoso = 16;
@@ -38,6 +34,18 @@ float aleatorioEntre(std::uint32_t& estado, float minimo, float maximo)
         / 65535.f;
     return minimo + (maximo - minimo) * proporcion;
 }
+}
+
+Juego::Juego()
+    : window_(sf::VideoMode({anchoVentana1080p, altoVentana1080p}), "Nave Shooter"),
+      vistaJuego_(sf::FloatRect({0.f, 0.f}, {anchoLogicoJuego, altoLogicoJuego}))
+{
+    window_.setFramerateLimit(60);
+    configurarVista();
+    proyectiles_.reserve(128);
+    proyectilesEnemigos_.reserve(1024);
+    fogonazosCanones_.reserve(32);
+    impactosLaser_.reserve(128);
 }
 
 int Juego::ejecutar()
@@ -165,6 +173,44 @@ bool Juego::cargarTexturaContabilizada(sf::Texture& textura, const char* ruta)
     return true;
 }
 
+void Juego::cambiarResolucion(unsigned int ancho, unsigned int alto)
+{
+    if (resolucionVentana_.x == ancho && resolucionVentana_.y == alto)
+        return;
+
+    resolucionVentana_ = {ancho, alto};
+    window_.create(sf::VideoMode(resolucionVentana_), "Nave Shooter");
+    window_.setFramerateLimit(60);
+    configurarVista();
+}
+
+void Juego::configurarVista()
+{
+    vistaJuego_.setSize({anchoLogicoJuego, altoLogicoJuego});
+    vistaJuego_.setCenter({anchoLogicoJuego / 2.f, altoLogicoJuego / 2.f});
+
+    const float proporcionVentana = static_cast<float>(resolucionVentana_.x)
+        / static_cast<float>(resolucionVentana_.y);
+    const float proporcionJuego = anchoLogicoJuego / altoLogicoJuego;
+    sf::FloatRect viewport({0.f, 0.f}, {1.f, 1.f});
+
+    if (proporcionVentana > proporcionJuego)
+    {
+        const float anchoViewport = proporcionJuego / proporcionVentana;
+        viewport.position.x = (1.f - anchoViewport) / 2.f;
+        viewport.size.x = anchoViewport;
+    }
+    else if (proporcionVentana < proporcionJuego)
+    {
+        const float altoViewport = proporcionVentana / proporcionJuego;
+        viewport.position.y = (1.f - altoViewport) / 2.f;
+        viewport.size.y = altoViewport;
+    }
+
+    vistaJuego_.setViewport(viewport);
+    window_.setView(vistaJuego_);
+}
+
 void Juego::registrarRendimientoFrame(float duracionMs)
 {
     if (duracionMs <= 0.f)
@@ -220,14 +266,18 @@ void Juego::procesarEventos()
     {
         if (event->is<sf::Event::Closed>())
             window_.close();
-        else if (!gameOver_
-            && event->is<sf::Event::KeyPressed>()
-            && event->getIf<sf::Event::KeyPressed>()->code == sf::Keyboard::Key::P)
+        else if (event->is<sf::Event::KeyPressed>())
         {
-            alternarPausa();
+            const auto codigo = event->getIf<sf::Event::KeyPressed>()->code;
+            if (codigo == sf::Keyboard::Key::Num1)
+                cambiarResolucion(anchoVentana720p, altoVentana720p);
+            else if (codigo == sf::Keyboard::Key::Num2)
+                cambiarResolucion(anchoVentana1080p, altoVentana1080p);
+            else if (!gameOver_ && codigo == sf::Keyboard::Key::P)
+                alternarPausa();
+            else if (gameOver_)
+                reiniciar();
         }
-        else if (gameOver_ && event->is<sf::Event::KeyPressed>())
-            reiniciar();
     }
 }
 
@@ -1717,6 +1767,7 @@ void Juego::dibujarDebug()
           << "Tiempo: " << relojInicio_.getElapsedTime().asSeconds() << " s"
           << "\nFPS: " << fps_
           << "\nPeor frame: " << peorFrameVisibleMs_ << " ms"
+          << "\nResolucion: " << resolucionVentana_.x << "x" << resolucionVentana_.y
           << "\nTexturas cargadas: " << texturasCargadas_
           << "\nVida: " << vidaNave_ << "/3"
           << "\nImpactos: " << impactosNave_
