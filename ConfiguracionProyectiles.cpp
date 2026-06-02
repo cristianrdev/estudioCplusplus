@@ -10,6 +10,7 @@ const std::vector<ConfiguracionProyectilEnemigo>& obtenerConfiguracionesProyecti
         {TipoProyectilEnemigo::LaserCeleste, "assets/proyectil_nave.png", 0.03f, 1, false},
         {TipoProyectilEnemigo::BolaEnergiaPurpura, "assets/proyectil_alien.png", 0.075f, 2, true},
         {TipoProyectilEnemigo::PuntoEnergiaAmarillo, "assets/proyectil_esbirro.png", 0.16f, 1, true},
+        {TipoProyectilEnemigo::EscamaMetalica, "assets/proyectil_escama.png", 0.065f, 1, true},
     };
 
     return configuraciones;

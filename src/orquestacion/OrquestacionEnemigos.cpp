@@ -50,12 +50,13 @@ const std::vector<OleadaEnemigos> &obtenerOleadasEnemigos()
         {57.0f, TipoEnemigo::Esbirro, 2, 1, 1, 0.4f, 100.f, 800.f, ComportamientoEnemigo::EsbirroNormal},
 
 
-        {69.f, TipoEnemigo::Esbirro, 2, 1, 1, 0.8f, 100.f, 800.f, ComportamientoEnemigo::EsbirroNormal},
+        {69.f, TipoEnemigo::Esbirro, 2, 1, 1, 1.8f, 100.f, 800.f, ComportamientoEnemigo::EsbirroNormal},
         
         
-        {71.f, TipoEnemigo::Nave, 4, 1, 3, 1.4f, 180.f, 220.f, ComportamientoEnemigo::NaveDiagonalDerecha},
-        
-
+        // {71.f, TipoEnemigo::Nave, 4, 1, 3, 1.4f, 180.f, 220.f, ComportamientoEnemigo::NaveDiagonalDerecha},
+        {71.0f, TipoEnemigo::PescadoGigante, 1, 2, 20, 2.0f, 512.f, 0.f, ComportamientoEnemigo::PescadoGigante},
+        {75.0f, TipoEnemigo::PescadoGigante, 1, 2, 20, 2.0f, 200.f, 0.f, ComportamientoEnemigo::PescadoGigante},
+        {79.0f, TipoEnemigo::PescadoGigante, 1, 2, 20, 2.0f, 700.f, 0.f, ComportamientoEnemigo::PescadoGigante},
         // {13.f, TipoEnemigo::Alien, 1, 2, 3, 1.8f, 450.f, 0.f, ComportamientoEnemigo::AlienLento},
         // {16.f, TipoEnemigo::Esbirro, 4, 1, 1, 1.1f, 140.f, 230.f, ComportamientoEnemigo::EsbirroRapido},
         // {21.f, TipoEnemigo::Alien, 3, 1, 3, 2.2f, 170.f, 280.f, ComportamientoEnemigo::AlienRapido},

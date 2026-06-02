@@ -154,6 +154,7 @@ private:
     std::vector<std::unique_ptr<Esbirro>> esbirros_;
     std::vector<std::unique_ptr<MoluscoGiratorio>> moluscosGiratorios_;
     std::vector<std::unique_ptr<MiniBossMolusco>> miniBossesMolusco_;
+    std::vector<std::unique_ptr<PescadoGigante>> pescadosGigantes_;
     std::vector<Proyectil> proyectiles_;
     std::vector<ProyectilEnemigo> proyectilesEnemigos_;
     std::vector<CapsulaItem> capsulasItems_;

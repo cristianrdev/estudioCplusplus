@@ -46,7 +46,8 @@ int Juego::ejecutar()
         {TipoEnemigo::Alien, "assets/explosion_enemigo_alien.png"},
         {TipoEnemigo::Esbirro, "assets/explosion_esbirro.png"},
         {TipoEnemigo::MoluscoGiratorio, "assets/explosion_esbirro.png"},
-        {TipoEnemigo::MiniBossMolusco, "assets/explosion_enemigo_alien.png"}})
+        {TipoEnemigo::MiniBossMolusco, "assets/explosion_enemigo_alien.png"},
+        {TipoEnemigo::PescadoGigante, "assets/explosion_enemigo_nave.png"}})
     {
         if (!texturasExplosionesEnemigos_[tipo].loadFromFile(ruta))
             return -1;
@@ -135,6 +136,8 @@ void Juego::alternarPausa()
         molusco->establecerPausa(pausado_);
     for (auto& miniBoss : miniBossesMolusco_)
         miniBoss->establecerPausa(pausado_);
+    for (auto& pescado : pescadosGigantes_)
+        pescado->establecerPausa(pausado_);
 }
 
 void Juego::reiniciar()
@@ -144,6 +147,7 @@ void Juego::reiniciar()
     esbirros_.clear();
     moluscosGiratorios_.clear();
     miniBossesMolusco_.clear();
+    pescadosGigantes_.clear();
     proyectiles_.clear();
     proyectilesEnemigos_.clear();
     capsulasItems_.clear();
@@ -432,6 +436,29 @@ void Juego::detectarColisionesProyectilesJugador()
         if (!proyectil.activo)
             continue;
 
+        for (auto& pescado : pescadosGigantes_)
+        {
+            if (pescado->estaActivo())
+            {
+                const auto interseccion = limitesProyectil.findIntersection(
+                    pescado->obtenerLimitesColision());
+                if (!interseccion)
+                    continue;
+                crearImpactoLaser(*interseccion);
+                proyectil.activo = false;
+                if (pescado->recibirDanio(proyectil.danio))
+                {
+                    crearExplosionEnemigo(
+                        TipoEnemigo::PescadoGigante,
+                        pescado->obtenerLimitesColision());
+                    pescado->desactivar();
+                }
+                break;
+            }
+        }
+        if (!proyectil.activo)
+            continue;
+
         for (auto& miniBoss : miniBossesMolusco_)
         {
             if (miniBoss->estaActivo())
@@ -701,6 +728,8 @@ void Juego::registrarOleadaDebug(const OleadaEnemigos& oleada, float tiempoReal)
         tipo = "MiniBossMolusco";
     else if (oleada.tipo == TipoEnemigo::MoluscoGiratorio)
         tipo = "MoluscoGiratorio";
+    else if (oleada.tipo == TipoEnemigo::PescadoGigante)
+        tipo = "PescadoGigante";
 
     std::ostringstream registro;
     registro << std::fixed << std::setprecision(2)
@@ -792,6 +821,19 @@ void Juego::crearOleada(const OleadaEnemigos& oleada)
                 std::max(1, oleada.vida),
                 std::max(0.1f, oleada.frecuenciaDisparo));
             moluscosGiratorios_.push_back(std::move(molusco));
+        }
+        else if (oleada.tipo == TipoEnemigo::PescadoGigante)
+        {
+            auto pescado = std::make_unique<PescadoGigante>();
+            if (!pescado->cargarTextura())
+                continue;
+            pescado->configurarVelocidad(comportamiento.movimiento.velocidadVertical);
+            pescado->activar(
+                posicionX,
+                std::clamp(oleada.danio, 1, 3),
+                std::max(1, oleada.vida),
+                std::max(0.1f, oleada.frecuenciaDisparo));
+            pescadosGigantes_.push_back(std::move(pescado));
         }
         else
         {
@@ -929,6 +971,33 @@ void Juego::dispararEnemigos()
             true
         });
     }
+
+    for (auto& pescado : pescadosGigantes_)
+    {
+        if (!pescado->listoParaDisparar())
+            continue;
+
+        const bool patronDiagonal = pescado->usarPatronDiagonal();
+        const std::initializer_list<sf::Vector2f> velocidades = patronDiagonal
+            ? std::initializer_list<sf::Vector2f>{{-4.2f, -4.2f}, {4.2f, -4.2f}, {-4.2f, 4.2f}, {4.2f, 4.2f}}
+            : std::initializer_list<sf::Vector2f>{{0.f, -6.f}, {0.f, 6.f}, {-6.f, 0.f}, {6.f, 0.f}};
+
+        for (const sf::Vector2f origen : pescado->obtenerOrigenesDisparo())
+        {
+            for (const sf::Vector2f velocidad : velocidades)
+            {
+                proyectilesEnemigos_.push_back({
+                    origen.x,
+                    origen.y,
+                    velocidad.x,
+                    velocidad.y,
+                    obtenerConfiguracionProyectil(TipoProyectilEnemigo::EscamaMetalica).danio,
+                    TipoProyectilEnemigo::EscamaMetalica,
+                    true
+                });
+            }
+        }
+    }
 }
 
 void Juego::actualizarProyectilesEnemigos()
@@ -938,7 +1007,8 @@ void Juego::actualizarProyectilesEnemigos()
         proyectil.x += proyectil.velocidadX;
         proyectil.y += proyectil.velocidadY;
 
-        if (proyectil.x < -100.f || proyectil.x > 1124.f || proyectil.y > 1180.f)
+        if (proyectil.x < -100.f || proyectil.x > 1124.f
+            || proyectil.y < -100.f || proyectil.y > 1180.f)
             proyectil.activo = false;
     }
 
@@ -962,6 +1032,8 @@ void Juego::actualizarEnemigos()
         molusco->actualizar();
     for (auto& miniBoss : miniBossesMolusco_)
         miniBoss->actualizar();
+    for (auto& pescado : pescadosGigantes_)
+        pescado->actualizar();
 
     detectarColisionesConNave();
 
@@ -995,6 +1067,12 @@ void Juego::actualizarEnemigos()
             miniBossesMolusco_.end(),
             [](const auto& miniBoss) { return !miniBoss->estaActivo(); }),
         miniBossesMolusco_.end());
+    pescadosGigantes_.erase(
+        std::remove_if(
+            pescadosGigantes_.begin(),
+            pescadosGigantes_.end(),
+            [](const auto& pescado) { return !pescado->estaActivo(); }),
+        pescadosGigantes_.end());
 }
 
 void Juego::detectarColisionesConNave()
@@ -1087,6 +1165,21 @@ void Juego::detectarColisionesConNave()
             if (configuracion.desapareceAlImpactar)
                 proyectil.activo = false;
             vidaNave_ = std::max(0, vidaNave_ - proyectil.danio);
+            nave_.recibirDanio();
+            ++impactosNave_;
+            if (vidaNave_ <= 0)
+                iniciarExplosionNave();
+            return;
+        }
+    }
+
+    for (auto& pescado : pescadosGigantes_)
+    {
+        if (pescado->estaActivo()
+            && limitesNave.findIntersection(pescado->obtenerLimitesColision()))
+        {
+            pescado->desactivar();
+            vidaNave_ = std::max(0, vidaNave_ - pescado->obtenerDanio());
             nave_.recibirDanio();
             ++impactosNave_;
             if (vidaNave_ <= 0)
@@ -1228,7 +1321,9 @@ void Juego::dibujarExplosionesEnemigos()
             ? 0.1f
             : explosion.tipo == TipoEnemigo::MiniBossMolusco
                 ? 0.22f
-                : explosion.tipo == TipoEnemigo::Nave ? 0.075f : 0.055f;
+                : explosion.tipo == TipoEnemigo::PescadoGigante
+                    ? 0.16f
+                    : explosion.tipo == TipoEnemigo::Nave ? 0.075f : 0.055f;
         const float escala = escalaBase * (0.65f + progreso * 0.7f);
 
         sf::Sprite sprite(texturasExplosionesEnemigos_.at(explosion.tipo));
@@ -1296,6 +1391,8 @@ void Juego::dibujarEnemigos()
         molusco->dibujar(window_);
     for (const auto& miniBoss : miniBossesMolusco_)
         miniBoss->dibujar(window_);
+    for (const auto& pescado : pescadosGigantes_)
+        pescado->dibujar(window_);
 }
 
 void Juego::dibujarProyectilEnemigo(const ProyectilEnemigo& proyectil)
@@ -1305,6 +1402,16 @@ void Juego::dibujarProyectilEnemigo(const ProyectilEnemigo& proyectil)
 
     sf::Sprite sprite(textura);
     sprite.setScale({escala, escala});
+    if (proyectil.tipo == TipoProyectilEnemigo::EscamaMetalica)
+    {
+        sprite.setOrigin({
+            textura.getSize().x / 2.f,
+            textura.getSize().y / 2.f
+        });
+        const float angulo = std::atan2(proyectil.velocidadY, proyectil.velocidadX)
+            * 180.f / 3.14159265f + 90.f;
+        sprite.setRotation(sf::degrees(angulo));
+    }
     sprite.setPosition({proyectil.x, proyectil.y});
     window_.draw(sprite);
 }
@@ -1316,6 +1423,16 @@ sf::FloatRect Juego::obtenerLimitesProyectilEnemigo(const ProyectilEnemigo& proy
 
     sf::Sprite sprite(textura);
     sprite.setScale({escala, escala});
+    if (proyectil.tipo == TipoProyectilEnemigo::EscamaMetalica)
+    {
+        sprite.setOrigin({
+            textura.getSize().x / 2.f,
+            textura.getSize().y / 2.f
+        });
+        const float angulo = std::atan2(proyectil.velocidadY, proyectil.velocidadX)
+            * 180.f / 3.14159265f + 90.f;
+        sprite.setRotation(sf::degrees(angulo));
+    }
     sprite.setPosition({proyectil.x, proyectil.y});
     return sprite.getGlobalBounds();
 }

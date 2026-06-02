@@ -10,7 +10,8 @@ enum class ComportamientoEnemigo
     NaveDiagonalDerecha,
     NaveDiagonalIzquierda,
     MoluscoGiratorio,
-    MiniBossMolusco
+    MiniBossMolusco,
+    PescadoGigante
 };
 
 struct MovimientoEnemigo

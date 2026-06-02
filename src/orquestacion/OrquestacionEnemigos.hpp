@@ -10,7 +10,8 @@ enum class TipoEnemigo
     Alien,
     Esbirro,
     MoluscoGiratorio,
-    MiniBossMolusco
+    MiniBossMolusco,
+    PescadoGigante
 };
 
 struct OleadaEnemigos

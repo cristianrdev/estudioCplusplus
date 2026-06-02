@@ -1,6 +1,7 @@
 #pragma once
 
 #include <SFML/Graphics.hpp>
+#include <vector>
 
 class Nave {
 public:
@@ -240,4 +241,35 @@ private:
     sf::Texture texturaFrame2_;
     sf::Texture texturaFrame3_;
     sf::Sprite sprite_{texturaFrame1_};
+};
+
+class PescadoGigante {
+public:
+    bool cargarTextura();
+    void activar(float posicionX, int danio, int vida, float frecuenciaDisparo);
+    void configurarVelocidad(float velocidadVertical);
+    void actualizar();
+    void dibujar(sf::RenderWindow& window) const;
+    bool estaActivo() const;
+    void desactivar();
+    int obtenerDanio() const;
+    bool recibirDanio(int danio);
+    bool listoParaDisparar();
+    bool usarPatronDiagonal();
+    std::vector<sf::Vector2f> obtenerOrigenesDisparo() const;
+    sf::FloatRect obtenerLimitesColision() const;
+    void establecerPausa(bool pausado);
+
+private:
+    float velocidadVertical_ = 1.2f;
+    float escala_ = 0.32f;
+    bool activo_ = false;
+    bool siguientePatronDiagonal_ = false;
+    int danio_ = 2;
+    int vida_ = 20;
+    float frecuenciaDisparo_ = 1.6f;
+
+    sf::Clock relojDisparo_;
+    sf::Texture textura_;
+    sf::Sprite sprite_{textura_};
 };

@@ -854,3 +854,114 @@ void MiniBossMolusco::actualizarAnimacion()
         sprite_.setTexture(texturaFrame3_, true);
     relojAnimacion_.restart();
 }
+
+bool PescadoGigante::cargarTextura()
+{
+    if (!textura_.loadFromFile("assets/pescado_gigante.png"))
+        return false;
+
+    sprite_.setTexture(textura_, true);
+    sprite_.setScale({escala_, escala_});
+    sprite_.setOrigin({
+        textura_.getSize().x / 2.f,
+        textura_.getSize().y / 2.f
+    });
+    return true;
+}
+
+void PescadoGigante::activar(float posicionX, int danio, int vida, float frecuenciaDisparo)
+{
+    const float mitadAlto = sprite_.getGlobalBounds().size.y / 2.f;
+    sprite_.setPosition({posicionX, -mitadAlto});
+    danio_ = danio;
+    vida_ = vida;
+    frecuenciaDisparo_ = frecuenciaDisparo;
+    siguientePatronDiagonal_ = false;
+    activo_ = true;
+    relojDisparo_.restart();
+}
+
+void PescadoGigante::configurarVelocidad(float velocidadVertical)
+{
+    velocidadVertical_ = velocidadVertical;
+}
+
+void PescadoGigante::actualizar()
+{
+    if (!activo_)
+        return;
+
+    sprite_.move({0.f, velocidadVertical_});
+    if (sprite_.getGlobalBounds().position.y > 1080.f)
+        activo_ = false;
+}
+
+void PescadoGigante::dibujar(sf::RenderWindow& window) const
+{
+    if (activo_)
+    {
+        dibujarSombraEnemigo(window, sprite_.getGlobalBounds());
+        window.draw(sprite_);
+    }
+}
+
+bool PescadoGigante::estaActivo() const
+{
+    return activo_;
+}
+
+void PescadoGigante::desactivar()
+{
+    activo_ = false;
+}
+
+int PescadoGigante::obtenerDanio() const
+{
+    return danio_;
+}
+
+bool PescadoGigante::recibirDanio(int danio)
+{
+    vida_ -= danio;
+    return vida_ <= 0;
+}
+
+bool PescadoGigante::listoParaDisparar()
+{
+    if (!activo_ || relojDisparo_.getElapsedTime().asSeconds() < frecuenciaDisparo_)
+        return false;
+
+    relojDisparo_.restart();
+    return true;
+}
+
+bool PescadoGigante::usarPatronDiagonal()
+{
+    const bool patronDiagonal = siguientePatronDiagonal_;
+    siguientePatronDiagonal_ = !siguientePatronDiagonal_;
+    return patronDiagonal;
+}
+
+std::vector<sf::Vector2f> PescadoGigante::obtenerOrigenesDisparo() const
+{
+    const sf::FloatRect limites = sprite_.getGlobalBounds();
+    return {
+        {limites.position.x + limites.size.x * 0.32f, limites.position.y + limites.size.y * 0.83f},
+        {limites.position.x + limites.size.x * 0.68f, limites.position.y + limites.size.y * 0.83f},
+        {limites.position.x + limites.size.x * 0.5f, limites.position.y + limites.size.y * 0.52f},
+        {limites.position.x + limites.size.x * 0.5f, limites.position.y + limites.size.y * 0.12f}
+    };
+}
+
+sf::FloatRect PescadoGigante::obtenerLimitesColision() const
+{
+    return sprite_.getGlobalBounds();
+}
+
+void PescadoGigante::establecerPausa(bool pausado)
+{
+    if (pausado)
+        relojDisparo_.stop();
+    else
+        relojDisparo_.start();
+}
