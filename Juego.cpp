@@ -82,6 +82,12 @@ int Juego::ejecutar()
         return -1;
     if (!cargarTexturaContabilizada(texturaPescadoGigante_, "assets/pescado_gigante.png"))
         return -1;
+    if (!cargarTexturaContabilizada(
+            texturaCangrejoMetalicoFrame1_, "assets/cangrejo_metalico_1.png"))
+        return -1;
+    if (!cargarTexturaContabilizada(
+            texturaCangrejoMetalicoFrame2_, "assets/cangrejo_metalico_2.png"))
+        return -1;
     if (!cargarTexturaContabilizada(texturaLaserJugador_, "assets/laser_jugador.png"))
         return -1;
     if (!cargarTexturaContabilizada(texturaLaserJugadorAzul_, "assets/laser_jugador_azul.png"))
@@ -122,7 +128,8 @@ int Juego::ejecutar()
         {TipoEnemigo::Esbirro, "assets/explosion_esbirro.png"},
         {TipoEnemigo::MoluscoGiratorio, "assets/explosion_esbirro.png"},
         {TipoEnemigo::MiniBossMolusco, "assets/explosion_enemigo_alien.png"},
-        {TipoEnemigo::PescadoGigante, "assets/explosion_enemigo_nave.png"}})
+        {TipoEnemigo::PescadoGigante, "assets/explosion_enemigo_nave.png"},
+        {TipoEnemigo::CangrejoMetalico, "assets/explosion_esbirro.png"}})
     {
         if (!cargarTexturaContabilizada(texturasExplosionesEnemigos_[tipo], ruta))
             return -1;
@@ -258,7 +265,8 @@ void Juego::registrarRendimientoFrame(float duracionMs)
         + esbirros_.size()
         + moluscosGiratorios_.size()
         + miniBossesMolusco_.size()
-        + pescadosGigantes_.size();
+        + pescadosGigantes_.size()
+        + cangrejosMetalicos_.size();
 
     std::cout << std::fixed << std::setprecision(2)
               << "\n[PERF] frame_lento"
@@ -331,6 +339,8 @@ void Juego::alternarPausa()
         miniBoss->establecerPausa(pausado_);
     for (auto& pescado : pescadosGigantes_)
         pescado->establecerPausa(pausado_);
+    for (auto& cangrejo : cangrejosMetalicos_)
+        cangrejo->establecerPausa(pausado_);
 }
 
 void Juego::reiniciar()
@@ -341,6 +351,7 @@ void Juego::reiniciar()
     moluscosGiratorios_.clear();
     miniBossesMolusco_.clear();
     pescadosGigantes_.clear();
+    cangrejosMetalicos_.clear();
     proyectiles_.clear();
     proyectilesEnemigos_.clear();
     capsulasItems_.clear();
@@ -732,6 +743,29 @@ void Juego::detectarColisionesProyectilesJugador()
         if (!proyectil.activo)
             continue;
 
+        for (auto& cangrejo : cangrejosMetalicos_)
+        {
+            if (cangrejo->estaActivo())
+            {
+                const auto interseccion = limitesProyectil.findIntersection(
+                    cangrejo->obtenerLimitesColision());
+                if (!interseccion)
+                    continue;
+                crearImpactoLaser(*interseccion);
+                proyectil.activo = false;
+                if (cangrejo->recibirDanio(proyectil.danio))
+                {
+                    crearExplosionEnemigo(
+                        TipoEnemigo::CangrejoMetalico,
+                        cangrejo->obtenerLimitesColision());
+                    cangrejo->desactivar();
+                }
+                break;
+            }
+        }
+        if (!proyectil.activo)
+            continue;
+
         for (auto& miniBoss : miniBossesMolusco_)
         {
             if (miniBoss->estaActivo())
@@ -1085,6 +1119,21 @@ void Juego::crearOleada(const OleadaEnemigos& oleada)
                 std::max(0.1f, oleada.frecuenciaDisparo));
             pescadosGigantes_.push_back(std::move(pescado));
         }
+        else if (oleada.tipo == TipoEnemigo::CangrejoMetalico)
+        {
+            auto cangrejo = std::make_unique<CangrejoMetalico>(
+                texturaCangrejoMetalicoFrame1_,
+                texturaCangrejoMetalicoFrame2_);
+            cangrejo->configurarMovimiento(
+                comportamiento.movimiento.amplitudOVelocidadHorizontal,
+                comportamiento.movimiento.velocidadVertical);
+            cangrejo->activar(
+                posicionX,
+                std::clamp(oleada.danio, 1, 3),
+                std::max(1, oleada.vida),
+                std::max(0.1f, oleada.frecuenciaDisparo));
+            cangrejosMetalicos_.push_back(std::move(cangrejo));
+        }
         else
         {
             auto miniBoss = std::make_unique<MiniBossMolusco>(
@@ -1223,6 +1272,31 @@ void Juego::dispararEnemigos()
         });
     }
 
+    for (auto& cangrejo : cangrejosMetalicos_)
+    {
+        if (!cangrejo->listoParaDisparar())
+            continue;
+
+        const sf::Vector2f origen = cangrejo->obtenerOrigenDisparo();
+        const sf::Vector2f objetivo = nave_.obtenerCentro();
+        const float direccionX = objetivo.x - origen.x;
+        const float direccionY = objetivo.y - origen.y;
+        const float distancia = std::sqrt(direccionX * direccionX + direccionY * direccionY);
+        if (distancia <= 0.f)
+            continue;
+
+        constexpr float velocidad = 3.2f;
+        proyectilesEnemigos_.push_back({
+            origen.x,
+            origen.y,
+            direccionX / distancia * velocidad,
+            direccionY / distancia * velocidad,
+            obtenerConfiguracionProyectil(TipoProyectilEnemigo::OrbeVerde).danio,
+            TipoProyectilEnemigo::OrbeVerde,
+            true
+        });
+    }
+
     for (auto& pescado : pescadosGigantes_)
     {
         if (!pescado->listoParaDisparar())
@@ -1285,6 +1359,8 @@ void Juego::actualizarEnemigos()
         miniBoss->actualizar();
     for (auto& pescado : pescadosGigantes_)
         pescado->actualizar();
+    for (auto& cangrejo : cangrejosMetalicos_)
+        cangrejo->actualizar();
 
     detectarColisionesConNave();
 
@@ -1324,6 +1400,12 @@ void Juego::actualizarEnemigos()
             pescadosGigantes_.end(),
             [](const auto& pescado) { return !pescado->estaActivo(); }),
         pescadosGigantes_.end());
+    cangrejosMetalicos_.erase(
+        std::remove_if(
+            cangrejosMetalicos_.begin(),
+            cangrejosMetalicos_.end(),
+            [](const auto& cangrejo) { return !cangrejo->estaActivo(); }),
+        cangrejosMetalicos_.end());
 }
 
 void Juego::detectarColisionesConNave()
@@ -1429,6 +1511,21 @@ void Juego::detectarColisionesConNave()
         {
             pescado->desactivar();
             vidaNave_ = std::max(0, vidaNave_ - pescado->obtenerDanio());
+            nave_.recibirDanio();
+            ++impactosNave_;
+            if (vidaNave_ <= 0)
+                iniciarExplosionNave();
+            return;
+        }
+    }
+
+    for (auto& cangrejo : cangrejosMetalicos_)
+    {
+        if (cangrejo->estaActivo()
+            && colisionaConNave(cangrejo->obtenerLimitesColision()))
+        {
+            cangrejo->desactivar();
+            vidaNave_ = std::max(0, vidaNave_ - cangrejo->obtenerDanio());
             nave_.recibirDanio();
             ++impactosNave_;
             if (vidaNave_ <= 0)
@@ -1735,6 +1832,8 @@ void Juego::dibujarEnemigos()
         miniBoss->dibujar(window_);
     for (const auto& pescado : pescadosGigantes_)
         pescado->dibujar(window_);
+    for (const auto& cangrejo : cangrejosMetalicos_)
+        cangrejo->dibujar(window_);
 }
 
 void Juego::dibujarProyectilEnemigo(const ProyectilEnemigo& proyectil)

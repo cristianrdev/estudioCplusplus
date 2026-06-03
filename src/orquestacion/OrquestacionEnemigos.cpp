@@ -40,8 +40,10 @@ const std::vector<OleadaEnemigos> &obtenerOleadasEnemigos()
         {28.9f, TipoEnemigo::Esbirro, 2, 1, 1, 0.8f, 200.f, 600.f, ComportamientoEnemigo::EsbirroNormal}, //   *           *
         {29.2f, TipoEnemigo::Esbirro, 2, 1, 1, 0.8f, 100.f, 800.f, ComportamientoEnemigo::EsbirroNormal}, //  *             *
 
+        {32.0f, TipoEnemigo::CangrejoMetalico, 2, 1, 2, 1.7f, 260.f, 500.f, ComportamientoEnemigo::CangrejoMetalico},
         {35.f, TipoEnemigo::Alien, 1, 2, 3, 1.8f, 500.f, 0.f, ComportamientoEnemigo::AlienNormal},
         {36.f, TipoEnemigo::Esbirro, 2, 1, 1, 1.1f, 300.f, 400.f, ComportamientoEnemigo::EsbirroNormal},
+        {38.0f, TipoEnemigo::CangrejoMetalico, 1, 1, 2, 1.6f, 512.f, 0.f, ComportamientoEnemigo::CangrejoMetalico},
         {40.f, TipoEnemigo::Alien, 3, 2, 3, 1.8f, 300.f, 300.f, ComportamientoEnemigo::AlienLento},
 
 

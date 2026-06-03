@@ -983,3 +983,140 @@ void PescadoGigante::establecerPausa(bool pausado)
     else
         relojDisparo_.start();
 }
+
+CangrejoMetalico::CangrejoMetalico(
+    const sf::Texture& texturaFrame1,
+    const sf::Texture& texturaFrame2)
+    : texturaFrame1_(texturaFrame1),
+      texturaFrame2_(texturaFrame2),
+      sprite_(texturaFrame1_)
+{
+    sprite_.setScale({escala_, escala_});
+    sprite_.setOrigin({
+        texturaFrame1_.getSize().x / 2.f,
+        texturaFrame1_.getSize().y / 2.f
+    });
+}
+
+void CangrejoMetalico::activar(
+    float posicionX,
+    int danio,
+    int vida,
+    float frecuenciaDisparo)
+{
+    const float mitadAlto = sprite_.getGlobalBounds().size.y / 2.f;
+    sprite_.setPosition({posicionX, -mitadAlto});
+    danio_ = danio;
+    vida_ = vida;
+    frecuenciaDisparo_ = frecuenciaDisparo;
+    activo_ = true;
+    frame_ = 0;
+    sprite_.setTexture(texturaFrame1_, true);
+    relojAnimacion_.restart();
+    relojDisparo_.restart();
+}
+
+void CangrejoMetalico::configurarMovimiento(
+    float velocidadHorizontal,
+    float velocidadVertical)
+{
+    velocidadHorizontal_ = velocidadHorizontal;
+    velocidadVertical_ = velocidadVertical;
+}
+
+void CangrejoMetalico::actualizar()
+{
+    if (!activo_)
+        return;
+
+    actualizarAnimacion();
+    sprite_.move({velocidadHorizontal_, velocidadVertical_});
+
+    const float mitadAncho = sprite_.getGlobalBounds().size.x / 2.f;
+    const float x = sprite_.getPosition().x;
+    if (x < mitadAncho || x > 1024.f - mitadAncho)
+    {
+        velocidadHorizontal_ = -velocidadHorizontal_;
+        sprite_.move({velocidadHorizontal_ * 2.f, 0.f});
+    }
+
+    if (sprite_.getGlobalBounds().position.y > 1080.f)
+        activo_ = false;
+}
+
+void CangrejoMetalico::dibujar(sf::RenderWindow& window) const
+{
+    if (activo_)
+    {
+        dibujarSombraEnemigo(window, sprite_.getGlobalBounds());
+        window.draw(sprite_);
+    }
+}
+
+bool CangrejoMetalico::estaActivo() const
+{
+    return activo_;
+}
+
+void CangrejoMetalico::desactivar()
+{
+    activo_ = false;
+}
+
+int CangrejoMetalico::obtenerDanio() const
+{
+    return danio_;
+}
+
+bool CangrejoMetalico::recibirDanio(int danio)
+{
+    vida_ -= danio;
+    return vida_ <= 0;
+}
+
+bool CangrejoMetalico::listoParaDisparar()
+{
+    if (!activo_ || relojDisparo_.getElapsedTime().asSeconds() < frecuenciaDisparo_)
+        return false;
+
+    relojDisparo_.restart();
+    return true;
+}
+
+sf::Vector2f CangrejoMetalico::obtenerOrigenDisparo() const
+{
+    const sf::FloatRect limites = sprite_.getGlobalBounds();
+    return {
+        limites.position.x + limites.size.x / 2.f,
+        limites.position.y + limites.size.y * 0.76f
+    };
+}
+
+sf::FloatRect CangrejoMetalico::obtenerLimitesColision() const
+{
+    return sprite_.getGlobalBounds();
+}
+
+void CangrejoMetalico::establecerPausa(bool pausado)
+{
+    if (pausado)
+    {
+        relojAnimacion_.stop();
+        relojDisparo_.stop();
+    }
+    else
+    {
+        relojAnimacion_.start();
+        relojDisparo_.start();
+    }
+}
+
+void CangrejoMetalico::actualizarAnimacion()
+{
+    if (relojAnimacion_.getElapsedTime().asSeconds() < 0.18f)
+        return;
+
+    frame_ = (frame_ + 1) % 2;
+    sprite_.setTexture(frame_ == 0 ? texturaFrame1_ : texturaFrame2_, true);
+    relojAnimacion_.restart();
+}

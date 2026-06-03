@@ -283,3 +283,38 @@ private:
     sf::Clock relojDisparo_;
     sf::Sprite sprite_;
 };
+
+class CangrejoMetalico {
+public:
+    CangrejoMetalico(const sf::Texture& texturaFrame1, const sf::Texture& texturaFrame2);
+    void activar(float posicionX, int danio, int vida, float frecuenciaDisparo);
+    void configurarMovimiento(float velocidadHorizontal, float velocidadVertical);
+    void actualizar();
+    void dibujar(sf::RenderWindow& window) const;
+    bool estaActivo() const;
+    void desactivar();
+    int obtenerDanio() const;
+    bool recibirDanio(int danio);
+    bool listoParaDisparar();
+    sf::Vector2f obtenerOrigenDisparo() const;
+    sf::FloatRect obtenerLimitesColision() const;
+    void establecerPausa(bool pausado);
+
+private:
+    void actualizarAnimacion();
+
+    float velocidadHorizontal_ = 2.4f;
+    float velocidadVertical_ = 1.5f;
+    float escala_ = 0.13f;
+    int frame_ = 0;
+    bool activo_ = false;
+    int danio_ = 1;
+    int vida_ = 2;
+    float frecuenciaDisparo_ = 1.7f;
+
+    sf::Clock relojAnimacion_;
+    sf::Clock relojDisparo_;
+    const sf::Texture& texturaFrame1_;
+    const sf::Texture& texturaFrame2_;
+    sf::Sprite sprite_;
+};
