@@ -20,6 +20,7 @@ const ConfiguracionComportamientoEnemigo& obtenerComportamientoEnemigo(
         {"MiniBossMolusco", {0.f, 2.4f, 0.f}, {200.f, 10.f, 3.2f}},
         {"PescadoGigante", {0.f, 1.2f, 0.f}, {}},
         {"CangrejoMetalico", {2.4f, 1.5f, 0.f}, {}},
+        {"TortugaGiratoria", {0.f, 1.35f, 0.f}, {}},
     };
 
     const int indice = static_cast<int>(comportamiento);

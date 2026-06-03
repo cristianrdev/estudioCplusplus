@@ -8,7 +8,8 @@ enum class TipoProyectilEnemigo
     BolaEnergiaPurpura,
     PuntoEnergiaAmarillo,
     EscamaMetalica,
-    OrbeVerde
+    OrbeVerde,
+    OrbeRojoTortuga
 };
 
 struct ConfiguracionProyectilEnemigo

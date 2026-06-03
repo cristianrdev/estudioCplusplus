@@ -91,6 +91,15 @@ int Juego::ejecutar()
     if (!cargarTexturaContabilizada(
             texturaCangrejoMetalicoFrame3_, "assets/cangrejo_metalico_3.png"))
         return -1;
+    if (!cargarTexturaContabilizada(
+            texturaTortugaGiratoriaFrame1_, "assets/tortuga_giratoria_1.png"))
+        return -1;
+    if (!cargarTexturaContabilizada(
+            texturaTortugaGiratoriaFrame2_, "assets/tortuga_giratoria_2.png"))
+        return -1;
+    if (!cargarTexturaContabilizada(
+            texturaTortugaGiratoriaFrame3_, "assets/tortuga_giratoria_3.png"))
+        return -1;
     if (!cargarTexturaContabilizada(texturaLaserJugador_, "assets/laser_jugador.png"))
         return -1;
     if (!cargarTexturaContabilizada(texturaLaserJugadorAzul_, "assets/laser_jugador_azul.png"))
@@ -134,7 +143,8 @@ int Juego::ejecutar()
         {TipoEnemigo::MoluscoGiratorio, "assets/explosion_esbirro.png"},
         {TipoEnemigo::MiniBossMolusco, "assets/explosion_enemigo_alien.png"},
         {TipoEnemigo::PescadoGigante, "assets/explosion_enemigo_nave.png"},
-        {TipoEnemigo::CangrejoMetalico, "assets/explosion_esbirro.png"}})
+        {TipoEnemigo::CangrejoMetalico, "assets/explosion_esbirro.png"},
+        {TipoEnemigo::TortugaGiratoria, "assets/explosion_esbirro.png"}})
     {
         if (!cargarTexturaContabilizada(texturasExplosionesEnemigos_[tipo], ruta))
             return -1;
@@ -272,7 +282,8 @@ void Juego::registrarRendimientoFrame(float duracionMs)
         + moluscosGiratorios_.size()
         + miniBossesMolusco_.size()
         + pescadosGigantes_.size()
-        + cangrejosMetalicos_.size();
+        + cangrejosMetalicos_.size()
+        + tortugasGiratorias_.size();
 
     std::cout << std::fixed << std::setprecision(2)
               << "\n[PERF] frame_lento"
@@ -435,6 +446,8 @@ void Juego::alternarPausa()
         pescado->establecerPausa(pausado_);
     for (auto& cangrejo : cangrejosMetalicos_)
         cangrejo->establecerPausa(pausado_);
+    for (auto& tortuga : tortugasGiratorias_)
+        tortuga->establecerPausa(pausado_);
 }
 
 void Juego::reiniciar()
@@ -446,6 +459,7 @@ void Juego::reiniciar()
     miniBossesMolusco_.clear();
     pescadosGigantes_.clear();
     cangrejosMetalicos_.clear();
+    tortugasGiratorias_.clear();
     proyectiles_.clear();
     proyectilesEnemigos_.clear();
     capsulasItems_.clear();
@@ -862,6 +876,29 @@ void Juego::detectarColisionesProyectilesJugador()
         if (!proyectil.activo)
             continue;
 
+        for (auto& tortuga : tortugasGiratorias_)
+        {
+            if (tortuga->estaActivo())
+            {
+                const auto interseccion = limitesProyectil.findIntersection(
+                    tortuga->obtenerLimitesColision());
+                if (!interseccion)
+                    continue;
+                crearImpactoLaser(*interseccion);
+                proyectil.activo = false;
+                if (tortuga->recibirDanio(proyectil.danio))
+                {
+                    crearExplosionEnemigo(
+                        TipoEnemigo::TortugaGiratoria,
+                        tortuga->obtenerLimitesColision());
+                    tortuga->desactivar();
+                }
+                break;
+            }
+        }
+        if (!proyectil.activo)
+            continue;
+
         for (auto& miniBoss : miniBossesMolusco_)
         {
             if (miniBoss->estaActivo())
@@ -1231,6 +1268,20 @@ void Juego::crearOleada(const OleadaEnemigos& oleada)
                 std::max(0.1f, oleada.frecuenciaDisparo));
             cangrejosMetalicos_.push_back(std::move(cangrejo));
         }
+        else if (oleada.tipo == TipoEnemigo::TortugaGiratoria)
+        {
+            auto tortuga = std::make_unique<TortugaGiratoria>(
+                texturaTortugaGiratoriaFrame1_,
+                texturaTortugaGiratoriaFrame2_,
+                texturaTortugaGiratoriaFrame3_);
+            tortuga->configurarVelocidad(comportamiento.movimiento.velocidadVertical);
+            tortuga->activar(
+                posicionX,
+                std::clamp(oleada.danio, 1, 3),
+                std::max(1, oleada.vida),
+                std::max(0.1f, oleada.frecuenciaDisparo));
+            tortugasGiratorias_.push_back(std::move(tortuga));
+        }
         else
         {
             auto miniBoss = std::make_unique<MiniBossMolusco>(
@@ -1394,6 +1445,30 @@ void Juego::dispararEnemigos()
         });
     }
 
+    for (auto& tortuga : tortugasGiratorias_)
+    {
+        if (!tortuga->listoParaDisparar())
+            continue;
+
+        const sf::Vector2f origen = tortuga->obtenerOrigenDisparo();
+        const float anguloBase = tortuga->consumirAnguloDisparo();
+        constexpr float velocidad = 2.25f;
+        constexpr float gradosARadianes = 3.14159265f / 180.f;
+        for (int i = 0; i < 8; ++i)
+        {
+            const float angulo = (anguloBase + i * 45.f) * gradosARadianes;
+            proyectilesEnemigos_.push_back({
+                origen.x,
+                origen.y,
+                std::cos(angulo) * velocidad,
+                std::sin(angulo) * velocidad,
+                obtenerConfiguracionProyectil(TipoProyectilEnemigo::OrbeRojoTortuga).danio,
+                TipoProyectilEnemigo::OrbeRojoTortuga,
+                true
+            });
+        }
+    }
+
     for (auto& pescado : pescadosGigantes_)
     {
         if (!pescado->listoParaDisparar())
@@ -1458,6 +1533,8 @@ void Juego::actualizarEnemigos()
         pescado->actualizar();
     for (auto& cangrejo : cangrejosMetalicos_)
         cangrejo->actualizar();
+    for (auto& tortuga : tortugasGiratorias_)
+        tortuga->actualizar();
 
     detectarColisionesConNave();
 
@@ -1503,6 +1580,12 @@ void Juego::actualizarEnemigos()
             cangrejosMetalicos_.end(),
             [](const auto& cangrejo) { return !cangrejo->estaActivo(); }),
         cangrejosMetalicos_.end());
+    tortugasGiratorias_.erase(
+        std::remove_if(
+            tortugasGiratorias_.begin(),
+            tortugasGiratorias_.end(),
+            [](const auto& tortuga) { return !tortuga->estaActivo(); }),
+        tortugasGiratorias_.end());
 }
 
 void Juego::detectarColisionesConNave()
@@ -1623,6 +1706,21 @@ void Juego::detectarColisionesConNave()
         {
             cangrejo->desactivar();
             vidaNave_ = std::max(0, vidaNave_ - cangrejo->obtenerDanio());
+            nave_.recibirDanio();
+            ++impactosNave_;
+            if (vidaNave_ <= 0)
+                iniciarExplosionNave();
+            return;
+        }
+    }
+
+    for (auto& tortuga : tortugasGiratorias_)
+    {
+        if (tortuga->estaActivo()
+            && colisionaConNave(tortuga->obtenerLimitesColision()))
+        {
+            tortuga->desactivar();
+            vidaNave_ = std::max(0, vidaNave_ - tortuga->obtenerDanio());
             nave_.recibirDanio();
             ++impactosNave_;
             if (vidaNave_ <= 0)
@@ -1939,6 +2037,8 @@ void Juego::dibujarEnemigos()
         pescado->dibujar(window_);
     for (const auto& cangrejo : cangrejosMetalicos_)
         cangrejo->dibujar(window_);
+    for (const auto& tortuga : tortugasGiratorias_)
+        tortuga->dibujar(window_);
 }
 
 void Juego::dibujarProyectilEnemigo(const ProyectilEnemigo& proyectil)

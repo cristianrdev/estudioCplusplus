@@ -12,7 +12,8 @@ enum class TipoEnemigo
     MoluscoGiratorio,
     MiniBossMolusco,
     PescadoGigante,
-    CangrejoMetalico
+    CangrejoMetalico,
+    TortugaGiratoria
 };
 
 struct OleadaEnemigos

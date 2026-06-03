@@ -53,6 +53,7 @@ const std::vector<OleadaEnemigos> &obtenerOleadasEnemigos()
         {56.f, TipoEnemigo::Alien, 1, 2, 6, 1.8f, 400.f, 0.f, ComportamientoEnemigo::AlienNormal},
         {58.f, TipoEnemigo::Alien, 1, 2, 6, 1.8f, 900.f, 0.f, ComportamientoEnemigo::AlienNormal},
         {60.f, TipoEnemigo::Alien, 1, 2, 6, 1.8f, 400.f, 0.f, ComportamientoEnemigo::AlienNormal},
+        {64.f, TipoEnemigo::TortugaGiratoria, 1, 2, 4, 1.25f, 512.f, 0.f, ComportamientoEnemigo::TortugaGiratoria},
 
 
 

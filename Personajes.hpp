@@ -323,3 +323,42 @@ private:
     const sf::Texture& texturaFrame3_;
     sf::Sprite sprite_;
 };
+
+class TortugaGiratoria {
+public:
+    TortugaGiratoria(
+        const sf::Texture& texturaFrame1,
+        const sf::Texture& texturaFrame2,
+        const sf::Texture& texturaFrame3);
+    void activar(float posicionX, int danio, int vida, float frecuenciaDisparo);
+    void configurarVelocidad(float velocidadVertical);
+    void actualizar();
+    void dibujar(sf::RenderWindow& window) const;
+    bool estaActivo() const;
+    void desactivar();
+    int obtenerDanio() const;
+    bool recibirDanio(int danio);
+    bool listoParaDisparar();
+    float consumirAnguloDisparo();
+    sf::Vector2f obtenerOrigenDisparo() const;
+    sf::FloatRect obtenerLimitesColision() const;
+    void establecerPausa(bool pausado);
+
+private:
+    void actualizarAnimacion();
+
+    float velocidadVertical_ = 1.35f;
+    float anguloDisparo_ = 0.f;
+    int frame_ = 0;
+    bool activo_ = false;
+    int danio_ = 2;
+    int vida_ = 4;
+    float frecuenciaDisparo_ = 1.35f;
+
+    sf::Clock relojAnimacion_;
+    sf::Clock relojDisparo_;
+    const sf::Texture& texturaFrame1_;
+    const sf::Texture& texturaFrame2_;
+    const sf::Texture& texturaFrame3_;
+    sf::Sprite sprite_;
+};

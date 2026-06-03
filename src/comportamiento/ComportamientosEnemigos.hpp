@@ -13,7 +13,8 @@ enum class ComportamientoEnemigo
     MoluscoGiratorioIzquierda,
     MiniBossMolusco,
     PescadoGigante,
-    CangrejoMetalico
+    CangrejoMetalico,
+    TortugaGiratoria
 };
 
 struct MovimientoEnemigo

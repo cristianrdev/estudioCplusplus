@@ -194,6 +194,7 @@ private:
     std::vector<std::unique_ptr<MiniBossMolusco>> miniBossesMolusco_;
     std::vector<std::unique_ptr<PescadoGigante>> pescadosGigantes_;
     std::vector<std::unique_ptr<CangrejoMetalico>> cangrejosMetalicos_;
+    std::vector<std::unique_ptr<TortugaGiratoria>> tortugasGiratorias_;
     std::vector<Proyectil> proyectiles_;
     std::vector<ProyectilEnemigo> proyectilesEnemigos_;
     std::vector<CapsulaItem> capsulasItems_;
@@ -232,6 +233,9 @@ private:
     sf::Texture texturaCangrejoMetalicoFrame1_;
     sf::Texture texturaCangrejoMetalicoFrame2_;
     sf::Texture texturaCangrejoMetalicoFrame3_;
+    sf::Texture texturaTortugaGiratoriaFrame1_;
+    sf::Texture texturaTortugaGiratoriaFrame2_;
+    sf::Texture texturaTortugaGiratoriaFrame3_;
     sf::Vector2f tamanioLaserJugador_;
     sf::Vector2f tamanioLaserJugadorAzul_;
     std::vector<sf::Texture> texturasExplosionNave_;

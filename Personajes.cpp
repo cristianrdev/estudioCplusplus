@@ -1153,3 +1153,147 @@ void CangrejoMetalico::actualizarAnimacion()
         sprite_.setTexture(texturaFrame3_, true);
     relojAnimacion_.restart();
 }
+
+TortugaGiratoria::TortugaGiratoria(
+    const sf::Texture& texturaFrame1,
+    const sf::Texture& texturaFrame2,
+    const sf::Texture& texturaFrame3)
+    : texturaFrame1_(texturaFrame1),
+      texturaFrame2_(texturaFrame2),
+      texturaFrame3_(texturaFrame3),
+      sprite_(texturaFrame1_)
+{
+    sprite_.setOrigin({
+        texturaFrame1_.getSize().x / 2.f,
+        texturaFrame1_.getSize().y / 2.f
+    });
+}
+
+void TortugaGiratoria::activar(
+    float posicionX,
+    int danio,
+    int vida,
+    float frecuenciaDisparo)
+{
+    const float mitadAlto = sprite_.getGlobalBounds().size.y / 2.f;
+    sprite_.setPosition({posicionX, -mitadAlto});
+    sprite_.setRotation(sf::degrees(0.f));
+    danio_ = danio;
+    vida_ = vida;
+    frecuenciaDisparo_ = frecuenciaDisparo;
+    anguloDisparo_ = 0.f;
+    frame_ = 0;
+    activo_ = true;
+    sprite_.setTexture(texturaFrame1_, true);
+    relojAnimacion_.restart();
+    relojDisparo_.restart();
+}
+
+void TortugaGiratoria::configurarVelocidad(float velocidadVertical)
+{
+    velocidadVertical_ = velocidadVertical;
+}
+
+void TortugaGiratoria::actualizar()
+{
+    if (!activo_)
+        return;
+
+    actualizarAnimacion();
+    sprite_.rotate(sf::degrees(2.8f));
+    sprite_.move({0.f, velocidadVertical_});
+
+    if (sprite_.getGlobalBounds().position.y > 1080.f)
+        activo_ = false;
+}
+
+void TortugaGiratoria::dibujar(sf::RenderWindow& window) const
+{
+    if (activo_)
+    {
+        dibujarSombraEnemigo(window, sprite_.getGlobalBounds());
+        window.draw(sprite_);
+    }
+}
+
+bool TortugaGiratoria::estaActivo() const
+{
+    return activo_;
+}
+
+void TortugaGiratoria::desactivar()
+{
+    activo_ = false;
+}
+
+int TortugaGiratoria::obtenerDanio() const
+{
+    return danio_;
+}
+
+bool TortugaGiratoria::recibirDanio(int danio)
+{
+    vida_ -= danio;
+    return vida_ <= 0;
+}
+
+bool TortugaGiratoria::listoParaDisparar()
+{
+    if (!activo_ || relojDisparo_.getElapsedTime().asSeconds() < frecuenciaDisparo_)
+        return false;
+
+    relojDisparo_.restart();
+    return true;
+}
+
+float TortugaGiratoria::consumirAnguloDisparo()
+{
+    const float angulo = anguloDisparo_;
+    anguloDisparo_ += 12.f;
+    if (anguloDisparo_ >= 360.f)
+        anguloDisparo_ -= 360.f;
+    return angulo;
+}
+
+sf::Vector2f TortugaGiratoria::obtenerOrigenDisparo() const
+{
+    const sf::FloatRect limites = sprite_.getGlobalBounds();
+    return {
+        limites.position.x + limites.size.x / 2.f,
+        limites.position.y + limites.size.y / 2.f
+    };
+}
+
+sf::FloatRect TortugaGiratoria::obtenerLimitesColision() const
+{
+    return sprite_.getGlobalBounds();
+}
+
+void TortugaGiratoria::establecerPausa(bool pausado)
+{
+    if (pausado)
+    {
+        relojAnimacion_.stop();
+        relojDisparo_.stop();
+    }
+    else
+    {
+        relojAnimacion_.start();
+        relojDisparo_.start();
+    }
+}
+
+void TortugaGiratoria::actualizarAnimacion()
+{
+    if (relojAnimacion_.getElapsedTime().asSeconds() < 0.16f)
+        return;
+
+    frame_ = (frame_ + 1) % 3;
+    if (frame_ == 0)
+        sprite_.setTexture(texturaFrame1_, true);
+    else if (frame_ == 1)
+        sprite_.setTexture(texturaFrame2_, true);
+    else
+        sprite_.setTexture(texturaFrame3_, true);
+    relojAnimacion_.restart();
+}
