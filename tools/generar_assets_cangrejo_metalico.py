@@ -1,127 +1,134 @@
-from PIL import Image, ImageDraw
+from collections import deque
+from pathlib import Path
+
+from PIL import Image
 
 
-TRANSPARENTE = (0, 0, 0, 0)
-CONTORNO = (7, 8, 14, 255)
-ROJO_OSCURO = (92, 12, 18, 255)
-ROJO = (168, 28, 32, 255)
-ROJO_CLARO = (234, 64, 54, 255)
-METAL_OSCURO = (54, 57, 62, 255)
-METAL = (112, 116, 118, 255)
-METAL_CLARO = (190, 194, 186, 255)
-VERDE = (42, 234, 86, 255)
-VERDE_CLARO = (168, 255, 175, 255)
-VERDE_OSCURO = (8, 94, 38, 255)
+FUENTE = Path(
+    r"C:\Users\luxo2\.codex\generated_images\019e85a2-b08d-7db1-8bfc-30ab60221be3"
+    r"\ig_02036dd1c00c7c4f016a1f7df18328819197f2651156d27153.png"
+)
+SALIDA = Path("assets")
+TAMANIO_FRAME = (1280, 1024)
+ESCALA_FINAL = 0.34
 
 
-def rect(draw, xy, color):
-    draw.rectangle(xy, fill=color)
+def es_fondo(pixel):
+    r, g, b, _ = pixel
+    return max(r, g, b) < 48 and abs(r - g) < 18 and abs(g - b) < 18
 
 
-def punto(draw, x, y, color, escala=2):
-    rect(draw, (x, y, x + escala - 1, y + escala - 1), color)
+def remover_fondo(imagen):
+    imagen = imagen.convert("RGBA")
+    pixeles = imagen.load()
+    ancho, alto = imagen.size
+    visitado = set()
+    cola = deque()
 
-
-def contorno_desde_alpha(imagen, radio=2):
-    base = imagen.convert("RGBA")
-    alpha = base.getchannel("A")
-    contorno = Image.new("RGBA", base.size, TRANSPARENTE)
-    draw = ImageDraw.Draw(contorno)
-
-    pix = alpha.load()
-    ancho, alto = base.size
+    for x in range(ancho):
+        cola.append((x, 0))
+        cola.append((x, alto - 1))
     for y in range(alto):
-        for x in range(ancho):
-            if pix[x, y] == 0:
-                continue
-            for dy in range(-radio, radio + 1):
-                for dx in range(-radio, radio + 1):
-                    if dx * dx + dy * dy > radio * radio:
-                        continue
-                    px = x + dx
-                    py = y + dy
-                    if 0 <= px < ancho and 0 <= py < alto and pix[px, py] == 0:
-                        draw.point((px, py), fill=CONTORNO)
+        cola.append((0, y))
+        cola.append((ancho - 1, y))
 
-    contorno.alpha_composite(base)
-    return contorno
+    while cola:
+        x, y = cola.popleft()
+        if (x, y) in visitado or not (0 <= x < ancho and 0 <= y < alto):
+            continue
+        if not es_fondo(pixeles[x, y]):
+            continue
 
+        visitado.add((x, y))
+        pixeles[x, y] = (0, 0, 0, 0)
+        cola.extend(((x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1)))
 
-def crear_cangrejo(frame):
-    im = Image.new("RGBA", (160, 128), TRANSPARENTE)
-    d = ImageDraw.Draw(im)
-
-    # Cuerpo principal, visto desde arriba.
-    rect(d, (58, 36, 102, 84), ROJO_OSCURO)
-    rect(d, (50, 44, 110, 74), ROJO)
-    rect(d, (64, 28, 96, 94), ROJO)
-    rect(d, (70, 34, 90, 88), ROJO_CLARO)
-    rect(d, (74, 42, 86, 72), METAL_OSCURO)
-    rect(d, (78, 38, 82, 78), METAL)
-    rect(d, (78, 42, 82, 50), METAL_CLARO)
-
-    # Caparazon segmentado.
-    for y in (46, 58, 70):
-        rect(d, (56, y, 68, y + 3), ROJO_OSCURO)
-        rect(d, (92, y, 104, y + 3), ROJO_OSCURO)
-    rect(d, (62, 32, 70, 40), METAL)
-    rect(d, (90, 32, 98, 40), METAL)
-    rect(d, (64, 34, 68, 37), METAL_CLARO)
-    rect(d, (92, 34, 96, 37), METAL_CLARO)
-
-    # Pinzas delanteras.
-    apertura = 4 if frame == 1 else -2
-    rect(d, (30, 26 + apertura, 54, 42 + apertura), ROJO_OSCURO)
-    rect(d, (22, 20 + apertura, 38, 30 + apertura), ROJO)
-    rect(d, (18, 30 + apertura, 34, 42 + apertura), ROJO)
-    rect(d, (24, 24 + apertura, 32, 28 + apertura), ROJO_CLARO)
-
-    rect(d, (106, 26 + apertura, 130, 42 + apertura), ROJO_OSCURO)
-    rect(d, (122, 20 + apertura, 138, 30 + apertura), ROJO)
-    rect(d, (126, 30 + apertura, 142, 42 + apertura), ROJO)
-    rect(d, (128, 24 + apertura, 136, 28 + apertura), ROJO_CLARO)
-
-    # Patas laterales animadas.
-    patas = [42, 56, 70, 82]
-    for i, y in enumerate(patas):
-        delta = (2 if (i + frame) % 2 == 0 else -2)
-        rect(d, (38 + delta, y, 52 + delta, y + 5), ROJO_OSCURO)
-        rect(d, (26 + delta, y + 4, 40 + delta, y + 9), ROJO)
-        rect(d, (18 + delta, y + 8, 28 + delta, y + 13), METAL)
-        rect(d, (108 - delta, y, 122 - delta, y + 5), ROJO_OSCURO)
-        rect(d, (120 - delta, y + 4, 134 - delta, y + 9), ROJO)
-        rect(d, (132 - delta, y + 8, 142 - delta, y + 13), METAL)
-
-    # Canon/ojos mecanicos frontales.
-    rect(d, (70, 22, 90, 30), METAL_OSCURO)
-    rect(d, (74, 20, 86, 26), METAL)
-    rect(d, (78, 20, 82, 24), VERDE_CLARO)
-    rect(d, (76, 96, 84, 104), METAL_OSCURO)
-    rect(d, (78, 98, 82, 102), VERDE)
-
-    # Brillos de metal y remaches.
-    for x, y in ((54, 48), (102, 48), (56, 70), (100, 70), (70, 86), (90, 86)):
-        punto(d, x, y, METAL_CLARO, 2)
-
-    return contorno_desde_alpha(im)
+    return imagen
 
 
-def crear_orbe():
-    im = Image.new("RGBA", (48, 48), TRANSPARENTE)
-    d = ImageDraw.Draw(im)
-    d.ellipse((10, 10, 37, 37), fill=CONTORNO)
-    d.ellipse((13, 13, 34, 34), fill=VERDE_OSCURO)
-    d.ellipse((16, 16, 31, 31), fill=VERDE)
-    d.ellipse((19, 18, 25, 24), fill=VERDE_CLARO)
-    rect(d, (5, 22, 42, 25), (38, 255, 94, 150))
-    rect(d, (22, 5, 25, 42), (38, 255, 94, 110))
-    return im
+def recortar_con_margen(imagen, margen=24):
+    bbox = imagen.getchannel("A").getbbox()
+    if bbox is None:
+        return imagen
+
+    izquierda = max(0, bbox[0] - margen)
+    arriba = max(0, bbox[1] - margen)
+    derecha = min(imagen.size[0], bbox[2] + margen)
+    abajo = min(imagen.size[1], bbox[3] + margen)
+    return imagen.crop((izquierda, arriba, derecha, abajo))
+
+
+def normalizar_tamanio(imagen, tamanio_objetivo):
+    lienzo = Image.new("RGBA", tamanio_objetivo, (0, 0, 0, 0))
+    posicion = (
+        (tamanio_objetivo[0] - imagen.size[0]) // 2,
+        (tamanio_objetivo[1] - imagen.size[1]) // 2,
+    )
+    lienzo.alpha_composite(imagen, posicion)
+    return lienzo
+
+
+def escalar_para_juego(imagen):
+    ancho = max(1, int(imagen.size[0] * ESCALA_FINAL))
+    alto = max(1, int(imagen.size[1] * ESCALA_FINAL))
+    return imagen.resize((ancho, alto), Image.Resampling.NEAREST)
+
+
+def desplazar_lateral(imagen, pixeles):
+    lienzo = Image.new("RGBA", imagen.size, (0, 0, 0, 0))
+    lienzo.alpha_composite(imagen, (pixeles, 0))
+    return lienzo
 
 
 def main():
-    crear_cangrejo(0).save("assets/cangrejo_metalico_1.png")
-    crear_cangrejo(1).save("assets/cangrejo_metalico_2.png")
-    crear_orbe().save("assets/proyectil_orbe_verde.png")
+    fuente = Image.open(FUENTE).convert("RGBA")
+    mitad = fuente.size[0] // 2
+    crops = [
+        fuente.crop((0, 0, mitad, fuente.size[1])),
+        fuente.crop((mitad, 0, fuente.size[0], fuente.size[1])),
+    ]
+
+    frames = [recortar_con_margen(remover_fondo(crop)) for crop in crops]
+    maximo = (max(frame.size[0] for frame in frames), max(frame.size[1] for frame in frames))
+    frames = [normalizar_tamanio(frame, maximo) for frame in frames]
+
+    frame_izquierda = desplazar_lateral(frames[0], -10)
+    frame_centro = normalizar_tamanio(frames[0], maximo)
+    frame_derecha = desplazar_lateral(frames[1], 10)
+
+    for indice, frame in enumerate((frame_izquierda, frame_centro, frame_derecha), start=1):
+        escalar_para_juego(frame).save(SALIDA / f"cangrejo_metalico_{indice}.png")
+
+    crear_orbe().save(SALIDA / "proyectil_orbe_verde.png")
+
+
+def crear_orbe():
+    im = Image.new("RGBA", (48, 48), (0, 0, 0, 0))
+    pixeles = im.load()
+    centro = 24
+    for y in range(48):
+        for x in range(48):
+            dx = x - centro
+            dy = y - centro
+            d2 = dx * dx + dy * dy
+            if d2 <= 15 * 15:
+                pixeles[x, y] = (5, 10, 8, 255)
+            if d2 <= 11 * 11:
+                pixeles[x, y] = (8, 94, 38, 255)
+            if d2 <= 8 * 8:
+                pixeles[x, y] = (42, 234, 86, 255)
+            if (x - 21) * (x - 21) + (y - 20) * (y - 20) <= 4 * 4:
+                pixeles[x, y] = (168, 255, 175, 255)
+
+    for x in range(5, 43):
+        for y in range(22, 26):
+            if pixeles[x, y][3] == 0:
+                pixeles[x, y] = (38, 255, 94, 150)
+    for y in range(5, 43):
+        for x in range(22, 26):
+            if pixeles[x, y][3] == 0:
+                pixeles[x, y] = (38, 255, 94, 110)
+    return im
 
 
 if __name__ == "__main__":

@@ -88,6 +88,9 @@ int Juego::ejecutar()
     if (!cargarTexturaContabilizada(
             texturaCangrejoMetalicoFrame2_, "assets/cangrejo_metalico_2.png"))
         return -1;
+    if (!cargarTexturaContabilizada(
+            texturaCangrejoMetalicoFrame3_, "assets/cangrejo_metalico_3.png"))
+        return -1;
     if (!cargarTexturaContabilizada(texturaLaserJugador_, "assets/laser_jugador.png"))
         return -1;
     if (!cargarTexturaContabilizada(texturaLaserJugadorAzul_, "assets/laser_jugador_azul.png"))
@@ -1123,7 +1126,8 @@ void Juego::crearOleada(const OleadaEnemigos& oleada)
         {
             auto cangrejo = std::make_unique<CangrejoMetalico>(
                 texturaCangrejoMetalicoFrame1_,
-                texturaCangrejoMetalicoFrame2_);
+                texturaCangrejoMetalicoFrame2_,
+                texturaCangrejoMetalicoFrame3_);
             cangrejo->configurarMovimiento(
                 comportamiento.movimiento.amplitudOVelocidadHorizontal,
                 comportamiento.movimiento.velocidadVertical);

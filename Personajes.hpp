@@ -81,7 +81,7 @@ private:
     float y_ = -100.f;
     float velocidadHorizontal_ = 2.2f;
     float velocidadVertical_ = 2.5f;
-    float escala_ = 0.13f;
+    float escala_ = 0.4f;
     bool activo_ = false;
     int danio_ = 1;
     int vida_ = 2;
@@ -286,7 +286,10 @@ private:
 
 class CangrejoMetalico {
 public:
-    CangrejoMetalico(const sf::Texture& texturaFrame1, const sf::Texture& texturaFrame2);
+    CangrejoMetalico(
+        const sf::Texture& texturaFrame1,
+        const sf::Texture& texturaFrame2,
+        const sf::Texture& texturaFrame3);
     void activar(float posicionX, int danio, int vida, float frecuenciaDisparo);
     void configurarMovimiento(float velocidadHorizontal, float velocidadVertical);
     void actualizar();
@@ -316,5 +319,6 @@ private:
     sf::Clock relojDisparo_;
     const sf::Texture& texturaFrame1_;
     const sf::Texture& texturaFrame2_;
+    const sf::Texture& texturaFrame3_;
     sf::Sprite sprite_;
 };

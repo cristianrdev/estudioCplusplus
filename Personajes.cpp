@@ -986,9 +986,11 @@ void PescadoGigante::establecerPausa(bool pausado)
 
 CangrejoMetalico::CangrejoMetalico(
     const sf::Texture& texturaFrame1,
-    const sf::Texture& texturaFrame2)
+    const sf::Texture& texturaFrame2,
+    const sf::Texture& texturaFrame3)
     : texturaFrame1_(texturaFrame1),
       texturaFrame2_(texturaFrame2),
+      texturaFrame3_(texturaFrame3),
       sprite_(texturaFrame1_)
 {
     sprite_.setScale({escala_, escala_});
@@ -1116,7 +1118,12 @@ void CangrejoMetalico::actualizarAnimacion()
     if (relojAnimacion_.getElapsedTime().asSeconds() < 0.18f)
         return;
 
-    frame_ = (frame_ + 1) % 2;
-    sprite_.setTexture(frame_ == 0 ? texturaFrame1_ : texturaFrame2_, true);
+    frame_ = (frame_ + 1) % 3;
+    if (frame_ == 0)
+        sprite_.setTexture(texturaFrame1_, true);
+    else if (frame_ == 1)
+        sprite_.setTexture(texturaFrame2_, true);
+    else
+        sprite_.setTexture(texturaFrame3_, true);
     relojAnimacion_.restart();
 }
