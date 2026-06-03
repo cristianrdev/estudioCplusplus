@@ -1923,25 +1923,43 @@ void Juego::dibujarDebug()
 void Juego::dibujarMarcoJugable()
 {
     const sf::View vistaAnterior = window_.getView();
-    window_.setView(window_.getDefaultView());
+    window_.setView(vistaJuego_);
 
+    const float altoJugable = altoLogicoJuego
+        - recorteSuperiorPantallaJugable_
+        - recorteInferiorPantallaJugable_;
     const sf::FloatRect viewport = vistaJuego_.getViewport();
     const sf::Vector2u tamanioVentana = window_.getSize();
-    const sf::Vector2f posicion = {
-        std::round(viewport.position.x * tamanioVentana.x) + 1.f,
-        std::round(viewport.position.y * tamanioVentana.y) + 1.f
-    };
-    const sf::Vector2f tamanio = {
-        std::round(viewport.size.x * tamanioVentana.x) - 2.f,
-        std::round(viewport.size.y * tamanioVentana.y) - 2.f
-    };
+    const float pixelsPorUnidadX = viewport.size.x * tamanioVentana.x / vistaJuego_.getSize().x;
+    const float pixelsPorUnidadY = viewport.size.y * tamanioVentana.y / vistaJuego_.getSize().y;
+    const float grosorX = 2.f / pixelsPorUnidadX;
+    const float grosorY = 2.f / pixelsPorUnidadY;
 
-    sf::RectangleShape marco(tamanio);
-    marco.setPosition(posicion);
-    marco.setFillColor(sf::Color::Transparent);
-    marco.setOutlineColor(sf::Color::Red);
-    marco.setOutlineThickness(2.f);
-    window_.draw(marco);
+    sf::RectangleShape bordeSuperior({anchoLogicoJuego, grosorY});
+    bordeSuperior.setFillColor(sf::Color::Red);
+    bordeSuperior.setPosition({0.f, recorteSuperiorPantallaJugable_});
+    window_.draw(bordeSuperior);
+
+    sf::RectangleShape bordeInferior({anchoLogicoJuego, grosorY});
+    bordeInferior.setFillColor(sf::Color::Red);
+    bordeInferior.setPosition({
+        0.f,
+        recorteSuperiorPantallaJugable_ + altoJugable - grosorY
+    });
+    window_.draw(bordeInferior);
+
+    sf::RectangleShape bordeIzquierdo({grosorX, altoJugable});
+    bordeIzquierdo.setFillColor(sf::Color::Red);
+    bordeIzquierdo.setPosition({0.f, recorteSuperiorPantallaJugable_});
+    window_.draw(bordeIzquierdo);
+
+    sf::RectangleShape bordeDerecho({grosorX, altoJugable});
+    bordeDerecho.setFillColor(sf::Color::Red);
+    bordeDerecho.setPosition({
+        anchoLogicoJuego - grosorX,
+        recorteSuperiorPantallaJugable_
+    });
+    window_.draw(bordeDerecho);
 
     window_.setView(vistaAnterior);
 }
