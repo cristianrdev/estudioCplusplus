@@ -10,6 +10,7 @@ enum class ComportamientoEnemigo
     NaveDiagonalDerecha,
     NaveDiagonalIzquierda,
     MoluscoGiratorio,
+    MoluscoGiratorioIzquierda,
     MiniBossMolusco,
     PescadoGigante,
     CangrejoMetalico
