@@ -326,10 +326,7 @@ private:
 
 class TortugaGiratoria {
 public:
-    TortugaGiratoria(
-        const sf::Texture& texturaFrame1,
-        const sf::Texture& texturaFrame2,
-        const sf::Texture& texturaFrame3);
+    explicit TortugaGiratoria(const sf::Texture& textura);
     void activar(float posicionX, int danio, int vida, float frecuenciaDisparo);
     void configurarVelocidad(float velocidadVertical);
     void actualizar();
@@ -345,20 +342,13 @@ public:
     void establecerPausa(bool pausado);
 
 private:
-    void actualizarAnimacion();
-
     float velocidadVertical_ = 1.35f;
     float anguloDisparo_ = 0.f;
-    int frame_ = 0;
     bool activo_ = false;
     int danio_ = 2;
     int vida_ = 4;
     float frecuenciaDisparo_ = 1.35f;
 
-    sf::Clock relojAnimacion_;
     sf::Clock relojDisparo_;
-    const sf::Texture& texturaFrame1_;
-    const sf::Texture& texturaFrame2_;
-    const sf::Texture& texturaFrame3_;
     sf::Sprite sprite_;
 };

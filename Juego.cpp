@@ -92,13 +92,7 @@ int Juego::ejecutar()
             texturaCangrejoMetalicoFrame3_, "assets/cangrejo_metalico_3.png"))
         return -1;
     if (!cargarTexturaContabilizada(
-            texturaTortugaGiratoriaFrame1_, "assets/tortuga_giratoria_1.png"))
-        return -1;
-    if (!cargarTexturaContabilizada(
-            texturaTortugaGiratoriaFrame2_, "assets/tortuga_giratoria_2.png"))
-        return -1;
-    if (!cargarTexturaContabilizada(
-            texturaTortugaGiratoriaFrame3_, "assets/tortuga_giratoria_3.png"))
+            texturaTortugaGiratoria_, "assets/tortuga_giratoria_2.png"))
         return -1;
     if (!cargarTexturaContabilizada(texturaLaserJugador_, "assets/laser_jugador.png"))
         return -1;
@@ -144,7 +138,7 @@ int Juego::ejecutar()
         {TipoEnemigo::MiniBossMolusco, "assets/explosion_enemigo_alien.png"},
         {TipoEnemigo::PescadoGigante, "assets/explosion_enemigo_nave.png"},
         {TipoEnemigo::CangrejoMetalico, "assets/explosion_esbirro.png"},
-        {TipoEnemigo::TortugaGiratoria, "assets/explosion_esbirro.png"}})
+        {TipoEnemigo::TortugaGiratoria, "assets/explosion_tortuga.png"}})
     {
         if (!cargarTexturaContabilizada(texturasExplosionesEnemigos_[tipo], ruta))
             return -1;
@@ -1270,10 +1264,7 @@ void Juego::crearOleada(const OleadaEnemigos& oleada)
         }
         else if (oleada.tipo == TipoEnemigo::TortugaGiratoria)
         {
-            auto tortuga = std::make_unique<TortugaGiratoria>(
-                texturaTortugaGiratoriaFrame1_,
-                texturaTortugaGiratoriaFrame2_,
-                texturaTortugaGiratoriaFrame3_);
+            auto tortuga = std::make_unique<TortugaGiratoria>(texturaTortugaGiratoria_);
             tortuga->configurarVelocidad(comportamiento.movimiento.velocidadVertical);
             tortuga->activar(
                 posicionX,
@@ -1965,7 +1956,9 @@ void Juego::dibujarExplosionesEnemigos()
                 ? 0.22f
                 : explosion.tipo == TipoEnemigo::PescadoGigante
                     ? 0.16f
-                    : explosion.tipo == TipoEnemigo::Nave ? 0.075f : 0.055f;
+                    : explosion.tipo == TipoEnemigo::TortugaGiratoria
+                        ? 0.12f
+                        : explosion.tipo == TipoEnemigo::Nave ? 0.075f : 0.055f;
         const float escala = escalaBase * (0.65f + progreso * 0.7f);
 
         sf::Sprite sprite(texturasExplosionesEnemigos_.at(explosion.tipo));

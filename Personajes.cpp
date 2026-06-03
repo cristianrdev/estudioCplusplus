@@ -1154,19 +1154,10 @@ void CangrejoMetalico::actualizarAnimacion()
     relojAnimacion_.restart();
 }
 
-TortugaGiratoria::TortugaGiratoria(
-    const sf::Texture& texturaFrame1,
-    const sf::Texture& texturaFrame2,
-    const sf::Texture& texturaFrame3)
-    : texturaFrame1_(texturaFrame1),
-      texturaFrame2_(texturaFrame2),
-      texturaFrame3_(texturaFrame3),
-      sprite_(texturaFrame1_)
+TortugaGiratoria::TortugaGiratoria(const sf::Texture& textura)
+    : sprite_(textura)
 {
-    sprite_.setOrigin({
-        texturaFrame1_.getSize().x / 2.f,
-        texturaFrame1_.getSize().y / 2.f
-    });
+    sprite_.setOrigin({75.f, 78.f});
 }
 
 void TortugaGiratoria::activar(
@@ -1182,10 +1173,7 @@ void TortugaGiratoria::activar(
     vida_ = vida;
     frecuenciaDisparo_ = frecuenciaDisparo;
     anguloDisparo_ = 0.f;
-    frame_ = 0;
     activo_ = true;
-    sprite_.setTexture(texturaFrame1_, true);
-    relojAnimacion_.restart();
     relojDisparo_.restart();
 }
 
@@ -1199,7 +1187,6 @@ void TortugaGiratoria::actualizar()
     if (!activo_)
         return;
 
-    actualizarAnimacion();
     sprite_.rotate(sf::degrees(2.8f));
     sprite_.move({0.f, velocidadVertical_});
 
@@ -1257,11 +1244,7 @@ float TortugaGiratoria::consumirAnguloDisparo()
 
 sf::Vector2f TortugaGiratoria::obtenerOrigenDisparo() const
 {
-    const sf::FloatRect limites = sprite_.getGlobalBounds();
-    return {
-        limites.position.x + limites.size.x / 2.f,
-        limites.position.y + limites.size.y / 2.f
-    };
+    return sprite_.getPosition();
 }
 
 sf::FloatRect TortugaGiratoria::obtenerLimitesColision() const
@@ -1273,27 +1256,10 @@ void TortugaGiratoria::establecerPausa(bool pausado)
 {
     if (pausado)
     {
-        relojAnimacion_.stop();
         relojDisparo_.stop();
     }
     else
     {
-        relojAnimacion_.start();
         relojDisparo_.start();
     }
-}
-
-void TortugaGiratoria::actualizarAnimacion()
-{
-    if (relojAnimacion_.getElapsedTime().asSeconds() < 0.16f)
-        return;
-
-    frame_ = (frame_ + 1) % 3;
-    if (frame_ == 0)
-        sprite_.setTexture(texturaFrame1_, true);
-    else if (frame_ == 1)
-        sprite_.setTexture(texturaFrame2_, true);
-    else
-        sprite_.setTexture(texturaFrame3_, true);
-    relojAnimacion_.restart();
 }

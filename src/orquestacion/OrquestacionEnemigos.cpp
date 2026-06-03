@@ -5,7 +5,7 @@ const std::vector<OleadaEnemigos> &obtenerOleadasEnemigos()
     // tiempo, tipo, cantidad, danio, vida, frecuencia disparo,
     // x inicial, separacion x, comportamiento
     static const std::vector<OleadaEnemigos> oleadas = {
-
+        
         {4.0f, TipoEnemigo::MoluscoGiratorio, 1, 1, 2, 1.5f, 180.f, 0.f, ComportamientoEnemigo::MoluscoGiratorio},
         {4.3f, TipoEnemigo::MoluscoGiratorio, 1, 1, 2, 1.5f, 180.f, 0.f, ComportamientoEnemigo::MoluscoGiratorio},
         {4.6f, TipoEnemigo::MoluscoGiratorio, 1, 1, 2, 1.5f, 180.f, 0.f, ComportamientoEnemigo::MoluscoGiratorio},
@@ -21,8 +21,8 @@ const std::vector<OleadaEnemigos> &obtenerOleadasEnemigos()
         {12.2f, TipoEnemigo::MoluscoGiratorio, 1, 1, 2, 1.5f, 800.f, 0.f, ComportamientoEnemigo::MoluscoGiratorioIzquierda},
         {12.5f, TipoEnemigo::MoluscoGiratorio, 1, 1, 2, 1.5f, 800.f, 0.f, ComportamientoEnemigo::MoluscoGiratorioIzquierda},
         // tiempo, tipo,        cantidad, danio, vida, frecuencia disparo, x inicial, separacion x,
-        {17.0f, TipoEnemigo::Esbirro, 1, 1, 1, 0.8f, 500.f, 0.f, ComportamientoEnemigo::EsbirroNormal},  //      *     *
-        {13.3f, TipoEnemigo::Esbirro, 2, 1, 1, 0.8f, 400.f, 200.f, ComportamientoEnemigo::EsbirroNormal}, //     *       *
+        {17.0f, TipoEnemigo::Esbirro, 1, 1, 1, 0.8f, 400.f, 0.f, ComportamientoEnemigo::EsbirroNormal},  //      *     *
+        {13.3f, TipoEnemigo::Esbirro, 2, 1, 1, 0.8f, 300.f, 200.f, ComportamientoEnemigo::EsbirroNormal}, //     *       *
         // {2.f, TipoEnemigo::Esbirro, 2, 1, 1, 0.8f, 300.f, 400.f, ComportamientoEnemigo::EsbirroNormal},
         // {2.7f, TipoEnemigo::Esbirro, 2, 1, 1, 0.8f, 300.f, 400.f, ComportamientoEnemigo::EsbirroNormal},
         // {3.4f, TipoEnemigo::Esbirro, 2, 1, 1, 0.8f, 300.f, 400.f, ComportamientoEnemigo::EsbirroNormal},
@@ -48,14 +48,15 @@ const std::vector<OleadaEnemigos> &obtenerOleadasEnemigos()
         {33.6f, TipoEnemigo::Esbirro, 2, 1, 1, 0.8f, 300.f, 400.f, ComportamientoEnemigo::EsbirroNormal}, //    *         *
         {33.9f, TipoEnemigo::Esbirro, 2, 1, 1, 0.8f, 200.f, 600.f, ComportamientoEnemigo::EsbirroNormal}, //   *           *
         // {31.2f, TipoEnemigo::Esbirro, 2, 1, 1, 0.8f, 100.f, 800.f, ComportamientoEnemigo::EsbirroNormal}, //  *             *
-        {45.f, TipoEnemigo::Alien, 1, 2, 6, 1.8f, 500.f, 0.f, ComportamientoEnemigo::AlienNormal},
-        {54.f, TipoEnemigo::Alien, 1, 2, 6, 1.8f, 900.f, 0.f, ComportamientoEnemigo::AlienNormal},
-        {56.f, TipoEnemigo::Alien, 1, 2, 6, 1.8f, 400.f, 0.f, ComportamientoEnemigo::AlienNormal},
-        {58.f, TipoEnemigo::Alien, 1, 2, 6, 1.8f, 900.f, 0.f, ComportamientoEnemigo::AlienNormal},
-        {60.f, TipoEnemigo::Alien, 1, 2, 6, 1.8f, 400.f, 0.f, ComportamientoEnemigo::AlienNormal},
-        {64.f, TipoEnemigo::TortugaGiratoria, 1, 2, 4, 1.25f, 512.f, 0.f, ComportamientoEnemigo::TortugaGiratoria},
+        {45.f, TipoEnemigo::Alien, 1, 2, 20, 1.8f, 500.f, 0.f, ComportamientoEnemigo::AlienNormal},
+        {54.f, TipoEnemigo::Alien, 1, 2, 20, 1.8f, 900.f, 0.f, ComportamientoEnemigo::AlienNormal},
+        {56.f, TipoEnemigo::Alien, 1, 2, 20, 1.8f, 400.f, 0.f, ComportamientoEnemigo::AlienNormal},
+        {58.f, TipoEnemigo::Alien, 1, 2, 20, 1.8f, 900.f, 0.f, ComportamientoEnemigo::AlienNormal},
+        {59.f, TipoEnemigo::Alien, 1, 2, 20, 1.8f, 400.f, 0.f, ComportamientoEnemigo::AlienNormal},
 
 
+        {65.f, TipoEnemigo::TortugaGiratoria, 1, 2, 60, 1.25f, 512.f, 0.f, ComportamientoEnemigo::TortugaGiratoria},
+        {70.f, TipoEnemigo::TortugaGiratoria, 2, 2, 60, 1.25f, 512.f, 0.f, ComportamientoEnemigo::TortugaGiratoria},
 
 
 
@@ -73,9 +74,9 @@ const std::vector<OleadaEnemigos> &obtenerOleadasEnemigos()
 
 
         // {69.f, TipoEnemigo::Esbirro, 2, 1, 1, 1.8f, 100.f, 800.f, ComportamientoEnemigo::EsbirroNormal},
-        
-        
-     
+
+
+
         // {71.0f, TipoEnemigo::PescadoGigante, 1, 2, 20, 2.0f, 512.f, 0.f, ComportamientoEnemigo::PescadoGigante},
         // {75.0f, TipoEnemigo::PescadoGigante, 1, 2, 20, 2.0f, 200.f, 0.f, ComportamientoEnemigo::PescadoGigante},
         // {79.0f, TipoEnemigo::PescadoGigante, 1, 2, 20, 2.0f, 700.f, 0.f, ComportamientoEnemigo::PescadoGigante},

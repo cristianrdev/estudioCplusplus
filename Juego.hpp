@@ -233,9 +233,7 @@ private:
     sf::Texture texturaCangrejoMetalicoFrame1_;
     sf::Texture texturaCangrejoMetalicoFrame2_;
     sf::Texture texturaCangrejoMetalicoFrame3_;
-    sf::Texture texturaTortugaGiratoriaFrame1_;
-    sf::Texture texturaTortugaGiratoriaFrame2_;
-    sf::Texture texturaTortugaGiratoriaFrame3_;
+    sf::Texture texturaTortugaGiratoria_;
     sf::Vector2f tamanioLaserJugador_;
     sf::Vector2f tamanioLaserJugadorAzul_;
     std::vector<sf::Texture> texturasExplosionNave_;
