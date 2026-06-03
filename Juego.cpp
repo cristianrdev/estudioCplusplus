@@ -117,6 +117,9 @@ int Juego::ejecutar()
     if (!cargarTexturaContabilizada(texturaAtlasLagosFondo_, "assets/atlas_lagos_celestes.png"))
         return -1;
     if (!cargarTexturaContabilizada(
+            texturaAtlasRocasPlataforma_, "assets/atlas_rocas_plataforma.png"))
+        return -1;
+    if (!cargarTexturaContabilizada(
             texturaSectorTerrenoFondo_, "assets/sector_terreno_rocoso.png"))
         return -1;
     for (const auto& configuracion : obtenerConfiguracionesProyectiles())
@@ -1824,10 +1827,20 @@ void Juego::dibujarElementosFondo()
             continue;
 
         const bool esLago = esTipoLagoFondo(elemento.tipo);
-        sf::Sprite sprite(esLago ? texturaAtlasLagosFondo_ : texturaAtlasRocasFondo_);
+        const bool esRocaPlataforma = esTipoRocaPlataformaFondo(elemento.tipo);
+        const sf::Texture& textura = esLago
+            ? texturaAtlasLagosFondo_
+            : esRocaPlataforma
+                ? texturaAtlasRocasPlataforma_
+                : texturaAtlasRocasFondo_;
+        sf::Sprite sprite(textura);
         if (esLago)
         {
             sprite.setTextureRect(obtenerRectanguloLagoFondo(elemento.tipo));
+        }
+        else if (esRocaPlataforma)
+        {
+            sprite.setTextureRect(obtenerRectanguloRocaPlataformaFondo(elemento.tipo));
         }
         else
         {
@@ -2244,4 +2257,32 @@ bool Juego::esTipoLagoFondo(TipoElementoFondo tipo) const
     return tipo == TipoElementoFondo::LagoCeleste500
         || tipo == TipoElementoFondo::LagoCeleste300
         || tipo == TipoElementoFondo::LagoCeleste200;
+}
+
+sf::IntRect Juego::obtenerRectanguloRocaPlataformaFondo(TipoElementoFondo tipo) const
+{
+    switch (tipo)
+    {
+    case TipoElementoFondo::RocaPlataforma700:
+        return {{0, 0}, {700, 260}};
+    case TipoElementoFondo::RocaPlataforma300A:
+        return {{0, 260}, {300, 150}};
+    case TipoElementoFondo::RocaPlataforma300B:
+        return {{0, 410}, {300, 150}};
+    case TipoElementoFondo::RocaPlataforma150A:
+        return {{0, 560}, {150, 92}};
+    case TipoElementoFondo::RocaPlataforma150B:
+        return {{0, 652}, {150, 92}};
+    default:
+        return {{0, 0}, {0, 0}};
+    }
+}
+
+bool Juego::esTipoRocaPlataformaFondo(TipoElementoFondo tipo) const
+{
+    return tipo == TipoElementoFondo::RocaPlataforma700
+        || tipo == TipoElementoFondo::RocaPlataforma300A
+        || tipo == TipoElementoFondo::RocaPlataforma300B
+        || tipo == TipoElementoFondo::RocaPlataforma150A
+        || tipo == TipoElementoFondo::RocaPlataforma150B;
 }

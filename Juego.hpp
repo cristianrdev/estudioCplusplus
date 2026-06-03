@@ -178,7 +178,9 @@ private:
     sf::FloatRect obtenerLimitesPowerUp(const PowerUp& powerUp) const;
     sf::IntRect obtenerRectanguloTileFondo(TipoElementoFondo tipo) const;
     sf::IntRect obtenerRectanguloLagoFondo(TipoElementoFondo tipo) const;
+    sf::IntRect obtenerRectanguloRocaPlataformaFondo(TipoElementoFondo tipo) const;
     bool esTipoLagoFondo(TipoElementoFondo tipo) const;
+    bool esTipoRocaPlataformaFondo(TipoElementoFondo tipo) const;
     void dibujarProyectilEnemigo(const ProyectilEnemigo& proyectil);
     sf::FloatRect obtenerLimitesProyectilEnemigo(const ProyectilEnemigo& proyectil) const;
     const sf::Texture& obtenerTexturaProyectilEnemigo(TipoProyectilEnemigo tipo) const;
@@ -219,6 +221,7 @@ private:
     sf::Texture texturaPowerUpP_;
     sf::Texture texturaAtlasRocasFondo_;
     sf::Texture texturaAtlasLagosFondo_;
+    sf::Texture texturaAtlasRocasPlataforma_;
     sf::Texture texturaSectorTerrenoFondo_;
     sf::Texture texturaGameOver_;
     sf::Texture texturaEnemigo_;

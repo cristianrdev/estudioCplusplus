@@ -12,7 +12,7 @@ const std::vector<ConfiguracionProyectilEnemigo>& obtenerConfiguracionesProyecti
         {TipoProyectilEnemigo::PuntoEnergiaAmarillo, "assets/proyectil_esbirro.png", 0.16f, 1, true},
         {TipoProyectilEnemigo::EscamaMetalica, "assets/proyectil_escama.png", 0.065f, 1, true},
         {TipoProyectilEnemigo::OrbeVerde, "assets/proyectil_orbe_verde.png", 0.55f, 2, true},
-        {TipoProyectilEnemigo::OrbeRojoTortuga, "assets/proyectil_tortuga_rojo.png", 0.45f, 1, true},
+        {TipoProyectilEnemigo::OrbeRojoTortuga, "assets/proyectil_tortuga_rojo.png", 1.1f, 1, true},
     };
 
     return configuraciones;

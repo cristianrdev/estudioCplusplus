@@ -16,7 +16,12 @@ enum class TipoElementoFondo
     Roca10,
     LagoCeleste500,
     LagoCeleste300,
-    LagoCeleste200
+    LagoCeleste200,
+    RocaPlataforma700,
+    RocaPlataforma300A,
+    RocaPlataforma300B,
+    RocaPlataforma150A,
+    RocaPlataforma150B
 };
 
 enum class ComportamientoElementoFondo

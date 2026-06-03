@@ -4,6 +4,8 @@ const std::vector<OleadaEnemigos> &obtenerOleadasEnemigos()
 {
     // tiempo, tipo, cantidad, danio, vida, frecuencia disparo,
     // x inicial, separacion x, comportamiento
+    // Centro de pantalla jugable base: x = 512 px. Para centrar grupos:
+    // x inicial = 512 - (separacion x * (cantidad - 1) / 2).
     static const std::vector<OleadaEnemigos> oleadas = {
         
         {4.0f, TipoEnemigo::MoluscoGiratorio, 1, 1, 2, 1.5f, 180.f, 0.f, ComportamientoEnemigo::MoluscoGiratorio},
@@ -21,8 +23,8 @@ const std::vector<OleadaEnemigos> &obtenerOleadasEnemigos()
         {12.2f, TipoEnemigo::MoluscoGiratorio, 1, 1, 2, 1.5f, 800.f, 0.f, ComportamientoEnemigo::MoluscoGiratorioIzquierda},
         {12.5f, TipoEnemigo::MoluscoGiratorio, 1, 1, 2, 1.5f, 800.f, 0.f, ComportamientoEnemigo::MoluscoGiratorioIzquierda},
         // tiempo, tipo,        cantidad, danio, vida, frecuencia disparo, x inicial, separacion x,
-        {17.0f, TipoEnemigo::Esbirro, 1, 1, 1, 0.8f, 400.f, 0.f, ComportamientoEnemigo::EsbirroNormal},  //      *     *
-        {13.3f, TipoEnemigo::Esbirro, 2, 1, 1, 0.8f, 300.f, 200.f, ComportamientoEnemigo::EsbirroNormal}, //     *       *
+        // {13.3f, TipoEnemigo::Esbirro, 1, 1, 1, 0.8f, 512.f, 0.f, ComportamientoEnemigo::EsbirroNormal},  //      *     *
+        {17.3f, TipoEnemigo::Esbirro, 3, 1, 1, 0.8f, 462.f, 100.f, ComportamientoEnemigo::EsbirroNormal}, //     *       *
         // {2.f, TipoEnemigo::Esbirro, 2, 1, 1, 0.8f, 300.f, 400.f, ComportamientoEnemigo::EsbirroNormal},
         // {2.7f, TipoEnemigo::Esbirro, 2, 1, 1, 0.8f, 300.f, 400.f, ComportamientoEnemigo::EsbirroNormal},
         // {3.4f, TipoEnemigo::Esbirro, 2, 1, 1, 0.8f, 300.f, 400.f, ComportamientoEnemigo::EsbirroNormal},
@@ -55,8 +57,8 @@ const std::vector<OleadaEnemigos> &obtenerOleadasEnemigos()
         {59.f, TipoEnemigo::Alien, 1, 2, 20, 1.8f, 400.f, 0.f, ComportamientoEnemigo::AlienNormal},
 
 
-        {65.f, TipoEnemigo::TortugaGiratoria, 1, 2, 60, 1.25f, 512.f, 0.f, ComportamientoEnemigo::TortugaGiratoria},
-        {70.f, TipoEnemigo::TortugaGiratoria, 2, 2, 60, 1.25f, 512.f, 0.f, ComportamientoEnemigo::TortugaGiratoria},
+        {65.f, TipoEnemigo::TortugaGiratoria, 1, 2, 60, 0.8f, 512.f, 0.f, ComportamientoEnemigo::TortugaGiratoria},
+        {70.f, TipoEnemigo::TortugaGiratoria, 2, 2, 60, 0.8f, 312.f, 400.f, ComportamientoEnemigo::TortugaGiratoria},
 
 
 
