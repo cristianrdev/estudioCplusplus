@@ -203,6 +203,7 @@ void Juego::cambiarResolucion(unsigned int ancho, unsigned int alto)
 
 void Juego::configurarVista()
 {
+    resolucionVentana_ = window_.getSize();
     const float altoJugable = altoLogicoJuego
         - recorteSuperiorPantallaJugable_
         - recorteInferiorPantallaJugable_;
