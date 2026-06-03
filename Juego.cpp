@@ -111,6 +111,8 @@ int Juego::ejecutar()
         return -1;
     if (!cargarTexturaContabilizada(texturaAtlasRocasFondo_, "assets/atlas_rocas_fondo.png"))
         return -1;
+    if (!cargarTexturaContabilizada(texturaAtlasLagosFondo_, "assets/atlas_lagos_celestes.png"))
+        return -1;
     if (!cargarTexturaContabilizada(
             texturaSectorTerrenoFondo_, "assets/sector_terreno_rocoso.png"))
         return -1;
@@ -1642,9 +1644,17 @@ void Juego::dibujarElementosFondo()
         if (!elemento.activo)
             continue;
 
-        sf::Sprite sprite(texturaAtlasRocasFondo_);
-        sprite.setTextureRect(obtenerRectanguloTileFondo(elemento.tipo));
-        sprite.setScale({escalaElementosFondo_, escalaElementosFondo_});
+        const bool esLago = esTipoLagoFondo(elemento.tipo);
+        sf::Sprite sprite(esLago ? texturaAtlasLagosFondo_ : texturaAtlasRocasFondo_);
+        if (esLago)
+        {
+            sprite.setTextureRect(obtenerRectanguloLagoFondo(elemento.tipo));
+        }
+        else
+        {
+            sprite.setTextureRect(obtenerRectanguloTileFondo(elemento.tipo));
+            sprite.setScale({escalaElementosFondo_, escalaElementosFondo_});
+        }
         const sf::FloatRect limites = sprite.getGlobalBounds();
         sprite.setPosition({
             elemento.x - limites.size.x / 2.f,
@@ -2029,4 +2039,26 @@ sf::IntRect Juego::obtenerRectanguloTileFondo(TipoElementoFondo tipo) const
         {indice % columnas * anchoTile, indice / columnas * altoTile},
         {anchoTile, altoTile}
     };
+}
+
+sf::IntRect Juego::obtenerRectanguloLagoFondo(TipoElementoFondo tipo) const
+{
+    switch (tipo)
+    {
+    case TipoElementoFondo::LagoCeleste500:
+        return {{0, 0}, {500, 249}};
+    case TipoElementoFondo::LagoCeleste300:
+        return {{0, 249}, {300, 197}};
+    case TipoElementoFondo::LagoCeleste200:
+        return {{0, 446}, {200, 159}};
+    default:
+        return {{0, 0}, {0, 0}};
+    }
+}
+
+bool Juego::esTipoLagoFondo(TipoElementoFondo tipo) const
+{
+    return tipo == TipoElementoFondo::LagoCeleste500
+        || tipo == TipoElementoFondo::LagoCeleste300
+        || tipo == TipoElementoFondo::LagoCeleste200;
 }

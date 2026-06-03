@@ -4,10 +4,14 @@ const std::vector<AparicionElementoFondo> &obtenerAparicionesElementosFondo()
 {
     // tiempo, tipo, cantidad, x inicial, separacion x, velocidad y, comportamiento
     static const std::vector<AparicionElementoFondo> apariciones = {
+
         {40.5f, TipoElementoFondo::Roca01, 1, 120.f, 720.f, 1.5f, ComportamientoElementoFondo::RectoAbajo},
 
         {46.f, TipoElementoFondo::Roca06, 1, 900.f, 0.f, 1.5f, ComportamientoElementoFondo::RectoAbajo},
         {48.f, TipoElementoFondo::Roca02, 1, 400.f, 590.f, 1.5f, ComportamientoElementoFondo::RectoAbajo},
+        {58.0f, TipoElementoFondo::LagoCeleste500, 1, 512.f, 0.f, 1.5f, ComportamientoElementoFondo::RectoAbajo},
+        {63.0f, TipoElementoFondo::LagoCeleste300, 1, 280.f, 0.f, 1.5f, ComportamientoElementoFondo::RectoAbajo},
+        {68.0f, TipoElementoFondo::LagoCeleste200, 1, 760.f, 0.f, 1.5f, ComportamientoElementoFondo::RectoAbajo},
 
         // {40.f, TipoElementoFondo::Roca07, 1, 680.f, 0.f, 1.5f, ComportamientoElementoFondo::RectoAbajo},
         // {44.f, TipoElementoFondo::Roca03, 1, 310.f, 0.f, 1.5f, ComportamientoElementoFondo::RectoAbajo},
