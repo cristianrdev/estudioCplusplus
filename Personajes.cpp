@@ -59,20 +59,43 @@ int Nave::obtenerCantidadTexturasCargadas() const
 
 void Nave::actualizar()
 {
+    sf::Vector2f direccion{0.f, 0.f};
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left))
+        direccion.x -= 1.f;
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Right))
+        direccion.x += 1.f;
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up))
+        direccion.y -= 1.f;
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Down))
+        direccion.y += 1.f;
+
+    actualizar(direccion);
+}
+
+void Nave::actualizar(const sf::Vector2f& direccionMovimiento)
+{
     if (invulnerable_
         && relojInvulnerabilidad_.getElapsedTime().asSeconds() >= duracionInvulnerabilidad_)
     {
         invulnerable_ = false;
     }
 
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up))
+    sf::Vector2f direccion = direccionMovimiento;
+    const float magnitud = std::sqrt(direccion.x * direccion.x + direccion.y * direccion.y);
+    if (magnitud > 1.f)
     {
-        y_ -= velocidad_;
+        direccion.x /= magnitud;
+        direccion.y /= magnitud;
+    }
+
+    if (direccion.y < -0.05f)
+    {
+        y_ += direccion.y * velocidad_;
         largoFuego_ = 0.14f;
     }
-    else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Down))
+    else if (direccion.y > 0.05f)
     {
-        y_ += velocidad_;
+        y_ += direccion.y * velocidad_;
         largoFuego_ = 0.07f;
     }
     else
@@ -80,14 +103,17 @@ void Nave::actualizar()
         largoFuego_ = escalaFuego_;
     }
 
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left))
+    if (std::abs(direccion.y) <= 0.05f)
+        y_ += direccion.y * velocidad_;
+
+    if (direccion.x < -0.05f)
     {
-        x_ -= velocidad_;
+        x_ += direccion.x * velocidad_;
         spriteNave_.setTexture(texturaIzquierda_, true);
     }
-    else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Right))
+    else if (direccion.x > 0.05f)
     {
-        x_ += velocidad_;
+        x_ += direccion.x * velocidad_;
         spriteNave_.setTexture(texturaDerecha_, true);
     }
     else

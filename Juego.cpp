@@ -290,6 +290,92 @@ void Juego::registrarRendimientoFrame(float duracionMs)
               << std::flush;
 }
 
+sf::Vector2f Juego::obtenerDireccionJugador() const
+{
+    sf::Vector2f direccion{0.f, 0.f};
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left))
+        direccion.x -= 1.f;
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Right))
+        direccion.x += 1.f;
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up))
+        direccion.y -= 1.f;
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Down))
+        direccion.y += 1.f;
+
+    for (unsigned int id = 0; id < sf::Joystick::Count; ++id)
+    {
+        if (!sf::Joystick::isConnected(id))
+            continue;
+
+        direccion.x += obtenerEjeMando(id, sf::Joystick::Axis::X);
+        direccion.y += obtenerEjeMando(id, sf::Joystick::Axis::Y);
+
+        if (sf::Joystick::hasAxis(id, sf::Joystick::Axis::PovX))
+            direccion.x += obtenerEjeMando(id, sf::Joystick::Axis::PovX);
+        if (sf::Joystick::hasAxis(id, sf::Joystick::Axis::PovY))
+            direccion.y -= obtenerEjeMando(id, sf::Joystick::Axis::PovY);
+    }
+
+    const float magnitud = std::sqrt(direccion.x * direccion.x + direccion.y * direccion.y);
+    if (magnitud > 1.f)
+    {
+        direccion.x /= magnitud;
+        direccion.y /= magnitud;
+    }
+
+    return direccion;
+}
+
+bool Juego::botonDisparoPresionado() const
+{
+    return sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space)
+        || algunBotonMandoPresionado({0, 1, 2, 3, 4, 5});
+}
+
+bool Juego::algunBotonMandoPresionado(std::initializer_list<unsigned int> botones) const
+{
+    for (unsigned int id = 0; id < sf::Joystick::Count; ++id)
+    {
+        if (!sf::Joystick::isConnected(id))
+            continue;
+
+        const unsigned int cantidadBotones = sf::Joystick::getButtonCount(id);
+        for (const unsigned int boton : botones)
+        {
+            if (boton < cantidadBotones && sf::Joystick::isButtonPressed(id, boton))
+                return true;
+        }
+    }
+
+    return false;
+}
+
+float Juego::obtenerEjeMando(unsigned int joystickId, sf::Joystick::Axis eje) const
+{
+    if (!sf::Joystick::hasAxis(joystickId, eje))
+        return 0.f;
+
+    constexpr float zonaMuerta = 18.f;
+    const float valor = sf::Joystick::getAxisPosition(joystickId, eje);
+    if (std::abs(valor) < zonaMuerta)
+        return 0.f;
+
+    return std::clamp(valor / 100.f, -1.f, 1.f);
+}
+
+void Juego::procesarBotonesMando()
+{
+    const bool pausaPresionada = algunBotonMandoPresionado({7, 8, 9});
+    if (pausaPresionada && !pausaMandoPresionadaAnterior_ && !gameOver_)
+        alternarPausa();
+    pausaMandoPresionadaAnterior_ = pausaPresionada;
+
+    const bool reinicioPresionado = algunBotonMandoPresionado({0, 1, 2, 3, 7, 8, 9});
+    if (reinicioPresionado && !reinicioMandoPresionadoAnterior_ && gameOver_)
+        reiniciar();
+    reinicioMandoPresionadoAnterior_ = reinicioPresionado;
+}
+
 void Juego::procesarEventos()
 {
     while (const std::optional event = window_.pollEvent())
@@ -311,6 +397,8 @@ void Juego::procesarEventos()
                 reiniciar();
         }
     }
+
+    procesarBotonesMando();
 }
 
 void Juego::alternarPausa()
@@ -380,6 +468,8 @@ void Juego::reiniciar()
     esperandoGameOver_ = false;
     pausado_ = false;
     laserDobleActivo_ = false;
+    pausaMandoPresionadaAnterior_ = false;
+    reinicioMandoPresionadoAnterior_ = false;
     nave_.reiniciarEstado();
     relojDisparo_.restart();
     relojInicio_.restart();
@@ -455,7 +545,7 @@ void Juego::actualizar()
         return;
     }
 
-    nave_.actualizar();
+    nave_.actualizar(obtenerDireccionJugador());
     nave_.limitarAlArea(
         0.f,
         recorteSuperiorPantallaJugable_,
@@ -870,7 +960,7 @@ void Juego::crearFogonazoCanon(const sf::Vector2f& origen, bool laserAzul)
 
 void Juego::disparar()
 {
-    if (!sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space))
+    if (!botonDisparoPresionado())
         return;
     if (relojDisparo_.getElapsedTime().asSeconds() < cadenciaDisparo_)
         return;

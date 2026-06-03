@@ -10,6 +10,7 @@
 #include <SFML/Graphics.hpp>
 #include <cstddef>
 #include <cstdint>
+#include <initializer_list>
 #include <map>
 #include <memory>
 #include <vector>
@@ -113,6 +114,11 @@ private:
     void cambiarResolucion(unsigned int ancho, unsigned int alto);
     void configurarVista();
     void registrarRendimientoFrame(float duracionMs);
+    sf::Vector2f obtenerDireccionJugador() const;
+    bool botonDisparoPresionado() const;
+    bool algunBotonMandoPresionado(std::initializer_list<unsigned int> botones) const;
+    float obtenerEjeMando(unsigned int joystickId, sf::Joystick::Axis eje) const;
+    void procesarBotonesMando();
     void alternarPausa();
     void reiniciar();
     void iniciarExplosionNave();
@@ -246,6 +252,8 @@ private:
     bool esperandoGameOver_ = false;
     bool pausado_ = false;
     bool laserDobleActivo_ = false;
+    bool pausaMandoPresionadaAnterior_ = false;
+    bool reinicioMandoPresionadoAnterior_ = false;
     sf::Vector2f centroExplosionNave_;
     float fps_ = 0.f;
     float acumuladoMuestraFps_ = 0.f;
