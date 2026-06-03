@@ -1,5 +1,6 @@
 #include "Personajes.hpp"
 
+#include <algorithm>
 #include <cmath>
 
 namespace
@@ -95,6 +96,14 @@ void Nave::actualizar()
     }
 
     actualizarAnimacionFuego();
+    actualizarPosiciones();
+}
+
+void Nave::limitarAlArea(float izquierda, float arriba, float derecha, float abajo)
+{
+    const sf::FloatRect limites = spriteNave_.getGlobalBounds();
+    x_ = std::clamp(x_, izquierda, derecha - limites.size.x);
+    y_ = std::clamp(y_, arriba, abajo - limites.size.y);
     actualizarPosiciones();
 }
 

@@ -15,6 +15,7 @@ public:
     bool cargarTexturas();
     int obtenerCantidadTexturasCargadas() const;
     void actualizar();
+    void limitarAlArea(float izquierda, float arriba, float derecha, float abajo);
     void dibujar(sf::RenderWindow& window) const;
     sf::Vector2f obtenerOrigenDisparo() const;
     sf::Vector2f obtenerOrigenDisparoIzquierdo() const;

@@ -439,6 +439,11 @@ void Juego::actualizar()
     }
 
     nave_.actualizar();
+    nave_.limitarAlArea(
+        0.f,
+        recorteSuperiorPantallaJugable_,
+        anchoLogicoJuego,
+        altoLogicoJuego - recorteInferiorPantallaJugable_);
     actualizarEstrellasFondo();
     procesarAparicionesFondo();
     actualizarTerrenoFondo();
