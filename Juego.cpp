@@ -285,7 +285,9 @@ void Juego::procesarEventos()
         else if (event->is<sf::Event::KeyPressed>())
         {
             const auto codigo = event->getIf<sf::Event::KeyPressed>()->code;
-            if (codigo == sf::Keyboard::Key::Num1)
+            if (codigo == sf::Keyboard::Key::Escape)
+                window_.close();
+            else if (codigo == sf::Keyboard::Key::Num1)
                 cambiarResolucion(anchoVentana720p, altoVentana720p);
             else if (codigo == sf::Keyboard::Key::Num2)
                 cambiarResolucion(anchoVentana1080p, altoVentana1080p);
