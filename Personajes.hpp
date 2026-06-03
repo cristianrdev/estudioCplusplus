@@ -308,7 +308,7 @@ private:
 
     float velocidadHorizontal_ = 2.4f;
     float velocidadVertical_ = 1.5f;
-    float escala_ = 0.39f;
+    float escala_ = 0.585f;
     int frame_ = 0;
     bool activo_ = false;
     int danio_ = 1;
