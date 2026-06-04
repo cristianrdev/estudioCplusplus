@@ -12,12 +12,12 @@ const std::vector<AparicionElementoFondo> &obtenerAparicionesElementosFondo()
         {58.0f, TipoElementoFondo::LagoCeleste500, 1, 512.f, 0.f, 1.5f, ComportamientoElementoFondo::RectoAbajo},
         // {63.0f, TipoElementoFondo::LagoCeleste300, 1, 280.f, 0.f, 1.5f, ComportamientoElementoFondo::RectoAbajo},
         // {68.0f, TipoElementoFondo::LagoCeleste200, 1, 760.f, 0.f, 1.5f, ComportamientoElementoFondo::RectoAbajo},
-        {75.0f, TipoElementoFondo::RocaPlataforma700, 1, 512.f, 0.f, 1.5f, ComportamientoElementoFondo::RectoAbajo},
+        
         {77.0f, TipoElementoFondo::RocaPlataforma300A, 1, 190.f, 0.f, 1.5f, ComportamientoElementoFondo::RectoAbajo},
         {80.0f, TipoElementoFondo::RocaPlataforma300B, 1, 834.f, 0.f, 1.5f, ComportamientoElementoFondo::RectoAbajo},
         {82.0f, TipoElementoFondo::RocaPlataforma150A, 1, 95.f, 0.f, 1.5f, ComportamientoElementoFondo::RectoAbajo},
         {86.0f, TipoElementoFondo::RocaPlataforma150B, 1, 929.f, 0.f, 1.5f, ComportamientoElementoFondo::RectoAbajo},
-
+        {94.0f, TipoElementoFondo::RocaPlataforma700, 1, 512.f, 0.f, 1.5f, ComportamientoElementoFondo::RectoAbajo},
         // {40.f, TipoElementoFondo::Roca07, 1, 680.f, 0.f, 1.5f, ComportamientoElementoFondo::RectoAbajo},
         // {44.f, TipoElementoFondo::Roca03, 1, 310.f, 0.f, 1.5f, ComportamientoElementoFondo::RectoAbajo},
         // {48.f, TipoElementoFondo::Roca08, 2, 140.f, 730.f, 1.5f, ComportamientoElementoFondo::RectoAbajo},

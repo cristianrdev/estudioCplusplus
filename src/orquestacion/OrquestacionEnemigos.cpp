@@ -62,6 +62,10 @@ const std::vector<OleadaEnemigos> &obtenerOleadasEnemigos()
 
 
 
+        {80.0f, TipoEnemigo::PescadoGigante, 1, 2, 70, 1.0f, 512.f, 0.f, ComportamientoEnemigo::PescadoGigante},
+        {84.0f, TipoEnemigo::PescadoGigante, 1, 2, 70, 2.0f, 200.f, 0.f, ComportamientoEnemigo::PescadoGigante},
+        {88.0f, TipoEnemigo::PescadoGigante, 1, 2, 70, 1.0f, 700.f, 0.f, ComportamientoEnemigo::PescadoGigante},
+        {92.0f, TipoEnemigo::PescadoGigante, 1, 2, 70, 1.0f, 250.f, 0.f, ComportamientoEnemigo::PescadoGigante},
 
         // {32.0f, TipoEnemigo::CangrejoMetalico, 2, 1, 2, 1.7f, 260.f, 500.f, ComportamientoEnemigo::CangrejoMetalico},
         // {35.f, TipoEnemigo::Alien, 1, 2, 3, 1.8f, 500.f, 0.f, ComportamientoEnemigo::AlienNormal},
