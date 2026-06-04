@@ -2,7 +2,7 @@ from PIL import Image, ImageDraw
 import random
 
 
-ATLAS = "assets/atlas_rocas_plataforma.png"
+ATLAS = "assets/elementos_fondo/atlas_rocas_plataforma.png"
 
 ROCAS = [
     ("RocaPlataforma700", 700, 260, 0),

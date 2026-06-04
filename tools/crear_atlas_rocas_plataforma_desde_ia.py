@@ -6,7 +6,7 @@ ORIGEN = Path(
     r"C:\Users\luxo2\.codex\generated_images\019e85a2-b08d-7db1-8bfc-30ab60221be3"
     r"\ig_01f3f5c884327946016a20b73222d48191bae6823706517784.png"
 )
-DESTINO = Path("assets/atlas_rocas_plataforma.png")
+DESTINO = Path("assets/elementos_fondo/atlas_rocas_plataforma.png")
 
 SLOTS = [
     (0, 0, 700, 260),

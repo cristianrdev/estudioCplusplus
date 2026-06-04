@@ -11,8 +11,8 @@ LOGO_IA = Path(
     r"\ig_01f3f5c884327946016a20d27abafc8191846e8a1dee5176f6.png"
 )
 
-SALIDA_FONDO = Path("assets/pantalla_inicio.png")
-SALIDA_TITULO = Path("assets/titulo_retroid_x.png")
+SALIDA_FONDO = Path("assets/fondos/pantalla_inicio.png")
+SALIDA_TITULO = Path("assets/fondos/titulo_retroid_x.png")
 FUENTE = Path(r"C:\Windows\Fonts\consola.ttf")
 
 

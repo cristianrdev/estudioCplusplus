@@ -7,12 +7,12 @@ const std::vector<ConfiguracionProyectilEnemigo>& obtenerConfiguracionesProyecti
     // Agrega una fila y un valor al enum para registrar nuevos sprites de proyectiles.
     static const std::vector<ConfiguracionProyectilEnemigo> configuraciones = {
         // tipo, ruta, escala, danio, desaparece al impactar
-        {TipoProyectilEnemigo::LaserCeleste, "assets/proyectil_nave.png", 0.03f, 1, false},
-        {TipoProyectilEnemigo::BolaEnergiaPurpura, "assets/proyectil_alien.png", 0.075f, 2, true},
-        {TipoProyectilEnemigo::PuntoEnergiaAmarillo, "assets/proyectil_esbirro.png", 0.16f, 1, true},
-        {TipoProyectilEnemigo::EscamaMetalica, "assets/proyectil_escama.png", 0.065f, 1, true},
-        {TipoProyectilEnemigo::OrbeVerde, "assets/proyectil_orbe_verde.png", 0.55f, 2, true},
-        {TipoProyectilEnemigo::OrbeRojoTortuga, "assets/proyectil_tortuga_rojo.png", 1.1f, 1, true},
+        {TipoProyectilEnemigo::LaserCeleste, "assets/proyectiles/proyectil_nave.png", 0.03f, 1, false},
+        {TipoProyectilEnemigo::BolaEnergiaPurpura, "assets/proyectiles/proyectil_alien.png", 0.075f, 2, true},
+        {TipoProyectilEnemigo::PuntoEnergiaAmarillo, "assets/proyectiles/proyectil_esbirro.png", 0.16f, 1, true},
+        {TipoProyectilEnemigo::EscamaMetalica, "assets/proyectiles/proyectil_escama.png", 0.065f, 1, true},
+        {TipoProyectilEnemigo::OrbeVerde, "assets/proyectiles/proyectil_orbe_verde.png", 0.55f, 2, true},
+        {TipoProyectilEnemigo::OrbeRojoTortuga, "assets/proyectiles/proyectil_tortuga_rojo.png", 1.1f, 1, true},
     };
 
     return configuraciones;

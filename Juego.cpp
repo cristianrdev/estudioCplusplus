@@ -58,45 +58,45 @@ int Juego::ejecutar()
     if (!nave_.cargarTexturas())
         return -1;
     texturasCargadas_ += nave_.obtenerCantidadTexturasCargadas();
-    if (!cargarTexturaContabilizada(texturaEnemigo_, "assets/enemigo_contorno.png"))
+    if (!cargarTexturaContabilizada(texturaEnemigo_, "assets/enemigos/enemigo_contorno.png"))
         return -1;
     if (!cargarTexturaContabilizada(
-            texturaEnemigoAlienFrame1_, "assets/enemigo_alien_contorno.png"))
+            texturaEnemigoAlienFrame1_, "assets/enemigos/enemigo_alien_contorno.png"))
         return -1;
     if (!cargarTexturaContabilizada(
-            texturaEnemigoAlienFrame2_, "assets/enemigo_alien_2_contorno.png"))
+            texturaEnemigoAlienFrame2_, "assets/enemigos/enemigo_alien_2_contorno.png"))
         return -1;
-    if (!cargarTexturaContabilizada(texturaEsbirro_, "assets/esbirro_contorno.png"))
-        return -1;
-    if (!cargarTexturaContabilizada(
-            texturaMoluscoGiratorio_, "assets/molusco_giratorio_contorno.png"))
+    if (!cargarTexturaContabilizada(texturaEsbirro_, "assets/enemigos/esbirro_contorno.png"))
         return -1;
     if (!cargarTexturaContabilizada(
-            texturaMiniBossMoluscoFrame1_, "assets/miniboss_molusco_1_contorno.png"))
+            texturaMoluscoGiratorio_, "assets/enemigos/molusco_giratorio_contorno.png"))
         return -1;
     if (!cargarTexturaContabilizada(
-            texturaMiniBossMoluscoFrame2_, "assets/miniboss_molusco_2_contorno.png"))
+            texturaMiniBossMoluscoFrame1_, "assets/enemigos/miniboss_molusco_1_contorno.png"))
         return -1;
     if (!cargarTexturaContabilizada(
-            texturaMiniBossMoluscoFrame3_, "assets/miniboss_molusco_3_contorno.png"))
-        return -1;
-    if (!cargarTexturaContabilizada(texturaPescadoGigante_, "assets/pescado_gigante.png"))
+            texturaMiniBossMoluscoFrame2_, "assets/enemigos/miniboss_molusco_2_contorno.png"))
         return -1;
     if (!cargarTexturaContabilizada(
-            texturaCangrejoMetalicoFrame1_, "assets/cangrejo_metalico_1.png"))
+            texturaMiniBossMoluscoFrame3_, "assets/enemigos/miniboss_molusco_3_contorno.png"))
+        return -1;
+    if (!cargarTexturaContabilizada(texturaPescadoGigante_, "assets/enemigos/pescado_gigante.png"))
         return -1;
     if (!cargarTexturaContabilizada(
-            texturaCangrejoMetalicoFrame2_, "assets/cangrejo_metalico_2.png"))
+            texturaCangrejoMetalicoFrame1_, "assets/enemigos/cangrejo_metalico_1.png"))
         return -1;
     if (!cargarTexturaContabilizada(
-            texturaCangrejoMetalicoFrame3_, "assets/cangrejo_metalico_3.png"))
+            texturaCangrejoMetalicoFrame2_, "assets/enemigos/cangrejo_metalico_2.png"))
         return -1;
     if (!cargarTexturaContabilizada(
-            texturaTortugaGiratoria_, "assets/tortuga_giratoria_2.png"))
+            texturaCangrejoMetalicoFrame3_, "assets/enemigos/cangrejo_metalico_3.png"))
         return -1;
-    if (!cargarTexturaContabilizada(texturaLaserJugador_, "assets/laser_jugador.png"))
+    if (!cargarTexturaContabilizada(
+            texturaTortugaGiratoria_, "assets/enemigos/tortuga_giratoria_2.png"))
         return -1;
-    if (!cargarTexturaContabilizada(texturaLaserJugadorAzul_, "assets/laser_jugador_azul.png"))
+    if (!cargarTexturaContabilizada(texturaLaserJugador_, "assets/proyectiles/laser_jugador.png"))
+        return -1;
+    if (!cargarTexturaContabilizada(texturaLaserJugadorAzul_, "assets/proyectiles/laser_jugador_azul.png"))
         return -1;
     tamanioLaserJugador_ = {
         texturaLaserJugador_.getSize().x * escalaLaserJugador_,
@@ -106,25 +106,25 @@ int Juego::ejecutar()
         texturaLaserJugadorAzul_.getSize().x * escalaLaserJugadorAzul_,
         texturaLaserJugadorAzul_.getSize().y * escalaLaserJugadorAzul_
     };
-    if (!cargarTexturaContabilizada(texturaCapsulaItemFrame1_, "assets/capsula_item_1.png"))
+    if (!cargarTexturaContabilizada(texturaCapsulaItemFrame1_, "assets/items/capsula_item_1.png"))
         return -1;
-    if (!cargarTexturaContabilizada(texturaCapsulaItemFrame2_, "assets/capsula_item_2.png"))
+    if (!cargarTexturaContabilizada(texturaCapsulaItemFrame2_, "assets/items/capsula_item_2.png"))
         return -1;
-    if (!cargarTexturaContabilizada(texturaPowerUpP_, "assets/power_up_p.png"))
+    if (!cargarTexturaContabilizada(texturaPowerUpP_, "assets/items/power_up_p.png"))
         return -1;
-    if (!cargarTexturaContabilizada(texturaAtlasRocasFondo_, "assets/atlas_rocas_fondo.png"))
+    if (!cargarTexturaContabilizada(texturaAtlasRocasFondo_, "assets/elementos_fondo/atlas_rocas_fondo.png"))
         return -1;
-    if (!cargarTexturaContabilizada(texturaAtlasLagosFondo_, "assets/atlas_lagos_celestes.png"))
-        return -1;
-    if (!cargarTexturaContabilizada(
-            texturaAtlasRocasPlataforma_, "assets/atlas_rocas_plataforma.png"))
+    if (!cargarTexturaContabilizada(texturaAtlasLagosFondo_, "assets/elementos_fondo/atlas_lagos_celestes.png"))
         return -1;
     if (!cargarTexturaContabilizada(
-            texturaSectorTerrenoFondo_, "assets/sector_terreno_rocoso.png"))
+            texturaAtlasRocasPlataforma_, "assets/elementos_fondo/atlas_rocas_plataforma.png"))
         return -1;
-    if (!cargarTexturaContabilizada(texturaPantallaInicio_, "assets/pantalla_inicio.png"))
+    if (!cargarTexturaContabilizada(
+            texturaSectorTerrenoFondo_, "assets/fondos/sector_terreno_rocoso.png"))
         return -1;
-    if (!cargarTexturaContabilizada(texturaTituloRetroidX_, "assets/titulo_retroid_x.png"))
+    if (!cargarTexturaContabilizada(texturaPantallaInicio_, "assets/fondos/pantalla_inicio.png"))
+        return -1;
+    if (!cargarTexturaContabilizada(texturaTituloRetroidX_, "assets/fondos/titulo_retroid_x.png"))
         return -1;
     for (const auto& configuracion : obtenerConfiguracionesProyectiles())
     {
@@ -135,25 +135,25 @@ int Juego::ejecutar()
             return -1;
         }
     }
-    if (!cargarTexturaContabilizada(texturaGameOver_, "assets/game_over.png"))
+    if (!cargarTexturaContabilizada(texturaGameOver_, "assets/fondos/game_over.png"))
         return -1;
     for (const auto& [tipo, ruta] : std::initializer_list<std::pair<TipoEnemigo, const char*>>{
-        {TipoEnemigo::Nave, "assets/explosion_enemigo_nave.png"},
-        {TipoEnemigo::Alien, "assets/explosion_enemigo_alien.png"},
-        {TipoEnemigo::Esbirro, "assets/explosion_esbirro.png"},
-        {TipoEnemigo::MoluscoGiratorio, "assets/explosion_esbirro.png"},
-        {TipoEnemigo::MiniBossMolusco, "assets/explosion_enemigo_alien.png"},
-        {TipoEnemigo::PescadoGigante, "assets/explosion_enemigo_nave.png"},
-        {TipoEnemigo::CangrejoMetalico, "assets/explosion_esbirro.png"},
-        {TipoEnemigo::TortugaGiratoria, "assets/explosion_tortuga.png"}})
+        {TipoEnemigo::Nave, "assets/explosiones/explosion_enemigo_nave.png"},
+        {TipoEnemigo::Alien, "assets/explosiones/explosion_enemigo_alien.png"},
+        {TipoEnemigo::Esbirro, "assets/explosiones/explosion_esbirro.png"},
+        {TipoEnemigo::MoluscoGiratorio, "assets/explosiones/explosion_esbirro.png"},
+        {TipoEnemigo::MiniBossMolusco, "assets/explosiones/explosion_enemigo_alien.png"},
+        {TipoEnemigo::PescadoGigante, "assets/explosiones/explosion_enemigo_nave.png"},
+        {TipoEnemigo::CangrejoMetalico, "assets/explosiones/explosion_esbirro.png"},
+        {TipoEnemigo::TortugaGiratoria, "assets/explosiones/explosion_tortuga.png"}})
     {
         if (!cargarTexturaContabilizada(texturasExplosionesEnemigos_[tipo], ruta))
             return -1;
     }
     for (const char* ruta : {
-        "assets/explosion_nave_1.png",
-        "assets/explosion_nave_2.png",
-        "assets/explosion_nave_3.png"})
+        "assets/explosiones/explosion_nave_1.png",
+        "assets/explosiones/explosion_nave_2.png",
+        "assets/explosiones/explosion_nave_3.png"})
     {
         sf::Texture textura;
         if (!cargarTexturaContabilizada(textura, ruta))
@@ -161,8 +161,8 @@ int Juego::ejecutar()
         texturasExplosionNave_.push_back(std::move(textura));
     }
     for (const char* ruta : {
-        "assets/impacto_laser_1.png",
-        "assets/impacto_laser_2.png"})
+        "assets/explosiones/impacto_laser_1.png",
+        "assets/explosiones/impacto_laser_2.png"})
     {
         sf::Texture textura;
         if (!cargarTexturaContabilizada(textura, ruta))
