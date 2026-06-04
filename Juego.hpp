@@ -216,6 +216,7 @@ private:
     sf::Text textoDebug_{fuenteDebug_};
     sf::SoundBuffer bufferDisparoLaserNave_;
     std::optional<sf::Sound> sonidoDisparoLaserNave_;
+    sf::Music musicaStage1_;
     std::map<TipoProyectilEnemigo, sf::Texture> texturasProyectilesEnemigos_;
     std::map<TipoEnemigo, sf::Texture> texturasExplosionesEnemigos_;
     sf::Texture texturaLaserJugador_;
@@ -289,4 +290,6 @@ private:
     float umbralFrameLentoMs_ = 35.f;
     float recorteSuperiorPantallaJugable_ = 20.f;
     float recorteInferiorPantallaJugable_ = 50.f;
+    float volumenEfectosSonido_ = 75.f;
+    float volumenMusica_ = 35.f;
 };

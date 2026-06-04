@@ -170,7 +170,12 @@ int Juego::ejecutar()
     if (!bufferDisparoLaserNave_.loadFromFile("src/efectossonido/disparolaserNave.wav"))
         return -1;
     sonidoDisparoLaserNave_.emplace(bufferDisparoLaserNave_);
-    sonidoDisparoLaserNave_->setVolume(75.f);
+    sonidoDisparoLaserNave_->setVolume(volumenEfectosSonido_);
+    if (!musicaStage1_.openFromFile("src/musica/stage1.mp3"))
+        return -1;
+    musicaStage1_.setLooping(true);
+    musicaStage1_.setVolume(volumenMusica_);
+    musicaStage1_.play();
 
     textoDebug_.setCharacterSize(22);
     textoDebug_.setFillColor(sf::Color::White);
@@ -423,6 +428,7 @@ void Juego::alternarPausa()
         relojInicio_.stop();
         relojExplosionNave_.stop();
         relojEsperaGameOver_.stop();
+        musicaStage1_.pause();
     }
     else
     {
@@ -430,6 +436,7 @@ void Juego::alternarPausa()
         relojInicio_.start();
         relojExplosionNave_.start();
         relojEsperaGameOver_.start();
+        musicaStage1_.play();
     }
 
     nave_.establecerPausa(pausado_);
@@ -489,6 +496,8 @@ void Juego::reiniciar()
     relojDisparo_.restart();
     relojInicio_.restart();
     relojFrame_.restart();
+    musicaStage1_.setPlayingOffset(sf::Time::Zero);
+    musicaStage1_.play();
     fps_ = 0.f;
     acumuladoMuestraFps_ = 0.f;
     peorFrameMuestraMs_ = 0.f;
@@ -548,6 +557,7 @@ void Juego::actualizar()
         {
             esperandoGameOver_ = false;
             gameOver_ = true;
+            musicaStage1_.stop();
         }
         return;
     }
