@@ -8,11 +8,13 @@
 #include "Personajes.hpp"
 
 #include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp>
 #include <cstddef>
 #include <cstdint>
 #include <initializer_list>
 #include <map>
 #include <memory>
+#include <optional>
 #include <vector>
 
 struct Proyectil
@@ -212,6 +214,8 @@ private:
     sf::Clock relojFrame_;
     sf::Font fuenteDebug_;
     sf::Text textoDebug_{fuenteDebug_};
+    sf::SoundBuffer bufferDisparoLaserNave_;
+    std::optional<sf::Sound> sonidoDisparoLaserNave_;
     std::map<TipoProyectilEnemigo, sf::Texture> texturasProyectilesEnemigos_;
     std::map<TipoEnemigo, sf::Texture> texturasExplosionesEnemigos_;
     sf::Texture texturaLaserJugador_;

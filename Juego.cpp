@@ -167,6 +167,10 @@ int Juego::ejecutar()
     }
     if (!fuenteDebug_.openFromFile("C:/Windows/Fonts/consola.ttf"))
         return -1;
+    if (!bufferDisparoLaserNave_.loadFromFile("src/efectossonido/disparolaserNave.wav"))
+        return -1;
+    sonidoDisparoLaserNave_.emplace(bufferDisparoLaserNave_);
+    sonidoDisparoLaserNave_->setVolume(45.f);
 
     textoDebug_.setCharacterSize(22);
     textoDebug_.setFillColor(sf::Color::White);
@@ -1014,6 +1018,11 @@ void Juego::disparar()
         const sf::Vector2f origen = nave_.obtenerOrigenDisparo();
         proyectiles_.push_back({origen.x, origen.y, 1, false, true});
         crearFogonazoCanon(origen, false);
+    }
+    if (sonidoDisparoLaserNave_)
+    {
+        sonidoDisparoLaserNave_->stop();
+        sonidoDisparoLaserNave_->play();
     }
     relojDisparo_.restart();
 }
