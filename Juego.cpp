@@ -170,7 +170,7 @@ int Juego::ejecutar()
     if (!bufferDisparoLaserNave_.loadFromFile("src/efectossonido/disparolaserNave.wav"))
         return -1;
     sonidoDisparoLaserNave_.emplace(bufferDisparoLaserNave_);
-    sonidoDisparoLaserNave_->setVolume(45.f);
+    sonidoDisparoLaserNave_->setVolume(75.f);
 
     textoDebug_.setCharacterSize(22);
     textoDebug_.setFillColor(sf::Color::White);
