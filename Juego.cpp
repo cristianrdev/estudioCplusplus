@@ -122,6 +122,10 @@ int Juego::ejecutar()
     if (!cargarTexturaContabilizada(
             texturaSectorTerrenoFondo_, "assets/sector_terreno_rocoso.png"))
         return -1;
+    if (!cargarTexturaContabilizada(texturaPantallaInicio_, "assets/pantalla_inicio.png"))
+        return -1;
+    if (!cargarTexturaContabilizada(texturaTituloRetroidX_, "assets/titulo_retroid_x.png"))
+        return -1;
     for (const auto& configuracion : obtenerConfiguracionesProyectiles())
     {
         if (!cargarTexturaContabilizada(
@@ -171,11 +175,15 @@ int Juego::ejecutar()
         return -1;
     sonidoDisparoLaserNave_.emplace(bufferDisparoLaserNave_);
     sonidoDisparoLaserNave_->setVolume(volumenEfectosSonido_);
+    if (!musicaMenuInicial_.openFromFile("src/musica/menuinicial.mp3"))
+        return -1;
+    musicaMenuInicial_.setLooping(true);
+    musicaMenuInicial_.setVolume(volumenMusicaMenu_);
     if (!musicaStage1_.openFromFile("src/musica/stage1.mp3"))
         return -1;
     musicaStage1_.setLooping(true);
     musicaStage1_.setVolume(volumenMusica_);
-    musicaStage1_.play();
+    musicaMenuInicial_.play();
 
     textoDebug_.setCharacterSize(22);
     textoDebug_.setFillColor(sf::Color::White);
@@ -383,7 +391,7 @@ float Juego::obtenerEjeMando(unsigned int joystickId, sf::Joystick::Axis eje) co
 void Juego::procesarBotonesMando()
 {
     const bool pausaPresionada = algunBotonMandoPresionado({7, 8, 9});
-    if (pausaPresionada && !pausaMandoPresionadaAnterior_ && !gameOver_)
+    if (pausaPresionada && !pausaMandoPresionadaAnterior_ && !gameOver_ && !pantallaInicio_)
         alternarPausa();
     pausaMandoPresionadaAnterior_ = pausaPresionada;
 
@@ -408,7 +416,12 @@ void Juego::procesarEventos()
                 cambiarResolucion(anchoVentana720p, altoVentana720p);
             else if (codigo == sf::Keyboard::Key::Num2)
                 cambiarResolucion(anchoVentana1080p, altoVentana1080p);
-            else if (!gameOver_ && codigo == sf::Keyboard::Key::P)
+            else if (pantallaInicio_
+                && (codigo == sf::Keyboard::Key::Space || codigo == sf::Keyboard::Key::Enter))
+            {
+                iniciarJuego();
+            }
+            else if (!gameOver_ && !pantallaInicio_ && codigo == sf::Keyboard::Key::P)
                 alternarPausa();
             else if (gameOver_)
                 reiniciar();
@@ -416,6 +429,18 @@ void Juego::procesarEventos()
     }
 
     procesarBotonesMando();
+}
+
+void Juego::iniciarJuego()
+{
+    pantallaInicio_ = false;
+    pausado_ = false;
+    relojDisparo_.restart();
+    relojInicio_.restart();
+    relojFrame_.restart();
+    musicaMenuInicial_.stop();
+    musicaStage1_.setPlayingOffset(sf::Time::Zero);
+    musicaStage1_.play();
 }
 
 void Juego::alternarPausa()
@@ -428,7 +453,10 @@ void Juego::alternarPausa()
         relojInicio_.stop();
         relojExplosionNave_.stop();
         relojEsperaGameOver_.stop();
-        musicaStage1_.pause();
+        if (pantallaInicio_)
+            musicaMenuInicial_.pause();
+        else
+            musicaStage1_.pause();
     }
     else
     {
@@ -436,7 +464,10 @@ void Juego::alternarPausa()
         relojInicio_.start();
         relojExplosionNave_.start();
         relojEsperaGameOver_.start();
-        musicaStage1_.play();
+        if (pantallaInicio_)
+            musicaMenuInicial_.play();
+        else
+            musicaStage1_.play();
     }
 
     nave_.establecerPausa(pausado_);
@@ -486,6 +517,7 @@ void Juego::reiniciar()
     vidaNave_ = 3;
     frameExplosionNave_ = 0;
     gameOver_ = false;
+    pantallaInicio_ = false;
     naveExplotando_ = false;
     esperandoGameOver_ = false;
     pausado_ = false;
@@ -539,6 +571,8 @@ void Juego::actualizarExplosionNave()
 
 void Juego::actualizar()
 {
+    if (pantallaInicio_)
+        return;
     if (pausado_)
         return;
     if (gameOver_)
@@ -1763,6 +1797,13 @@ bool Juego::colisionaConNave(const sf::FloatRect& limites) const
 void Juego::dibujar()
 {
     window_.clear();
+    if (pantallaInicio_)
+    {
+        dibujarPantallaInicio();
+        dibujarMarcoJugable();
+        window_.display();
+        return;
+    }
     dibujarEstrellasFondo();
     dibujarTerrenoFondo();
     dibujarElementosFondo();
@@ -2035,6 +2076,26 @@ void Juego::dibujarGameOver()
     });
 
     window_.draw(sprite);
+}
+
+void Juego::dibujarPantallaInicio()
+{
+    const sf::View vistaAnterior = window_.getView();
+    window_.setView(vistaJuego_);
+
+    sf::Sprite fondo(texturaPantallaInicio_);
+    fondo.setPosition({0.f, recorteSuperiorPantallaJugable_});
+    window_.draw(fondo);
+
+    sf::Sprite titulo(texturaTituloRetroidX_);
+    const sf::FloatRect limites = titulo.getGlobalBounds();
+    titulo.setPosition({
+        (1024.f - limites.size.x) / 2.f,
+        recorteSuperiorPantallaJugable_ + 145.f
+    });
+    window_.draw(titulo);
+
+    window_.setView(vistaAnterior);
 }
 
 void Juego::dibujarProyectilesEnemigos()

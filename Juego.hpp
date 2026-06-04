@@ -122,6 +122,7 @@ private:
     float obtenerEjeMando(unsigned int joystickId, sf::Joystick::Axis eje) const;
     void procesarBotonesMando();
     void alternarPausa();
+    void iniciarJuego();
     void reiniciar();
     void iniciarExplosionNave();
     void actualizarExplosionNave();
@@ -170,6 +171,7 @@ private:
     void dibujarFogonazosCanones();
     void dibujarDebug();
     void dibujarMarcoJugable();
+    void dibujarPantallaInicio();
     void dibujarGameOver();
     void dibujarExplosionNave();
     void dibujarProyectil(const Proyectil& proyectil);
@@ -216,6 +218,7 @@ private:
     sf::Text textoDebug_{fuenteDebug_};
     sf::SoundBuffer bufferDisparoLaserNave_;
     std::optional<sf::Sound> sonidoDisparoLaserNave_;
+    sf::Music musicaMenuInicial_;
     sf::Music musicaStage1_;
     std::map<TipoProyectilEnemigo, sf::Texture> texturasProyectilesEnemigos_;
     std::map<TipoEnemigo, sf::Texture> texturasExplosionesEnemigos_;
@@ -228,6 +231,8 @@ private:
     sf::Texture texturaAtlasLagosFondo_;
     sf::Texture texturaAtlasRocasPlataforma_;
     sf::Texture texturaSectorTerrenoFondo_;
+    sf::Texture texturaPantallaInicio_;
+    sf::Texture texturaTituloRetroidX_;
     sf::Texture texturaGameOver_;
     sf::Texture texturaEnemigo_;
     sf::Texture texturaEnemigoAlienFrame1_;
@@ -258,6 +263,7 @@ private:
     int texturasCargadas_ = 0;
     int framesMuestraFps_ = 0;
     bool gameOver_ = false;
+    bool pantallaInicio_ = true;
     bool naveExplotando_ = false;
     bool esperandoGameOver_ = false;
     bool pausado_ = false;
@@ -292,4 +298,5 @@ private:
     float recorteInferiorPantallaJugable_ = 50.f;
     float volumenEfectosSonido_ = 75.f;
     float volumenMusica_ = 35.f;
+    float volumenMusicaMenu_ = 35.f;
 };
