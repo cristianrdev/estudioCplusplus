@@ -17,7 +17,7 @@ const std::vector<AparicionElementoFondo> &obtenerAparicionesElementosFondo()
         {80.0f, TipoElementoFondo::RocaPlataforma300B, 1, 834.f, 0.f, 1.5f, ComportamientoElementoFondo::RectoAbajo},
         {82.0f, TipoElementoFondo::RocaPlataforma150A, 1, 95.f, 0.f, 1.5f, ComportamientoElementoFondo::RectoAbajo},
         {86.0f, TipoElementoFondo::RocaPlataforma150B, 1, 929.f, 0.f, 1.5f, ComportamientoElementoFondo::RectoAbajo},
-        {94.0f, TipoElementoFondo::RocaPlataforma700, 1, 512.f, 0.f, 1.5f, ComportamientoElementoFondo::RectoAbajo},
+        {98.0f, TipoElementoFondo::RocaPlataforma700, 1, 512.f, 0.f, 1.5f, ComportamientoElementoFondo::RectoAbajo},
         // {40.f, TipoElementoFondo::Roca07, 1, 680.f, 0.f, 1.5f, ComportamientoElementoFondo::RectoAbajo},
         // {44.f, TipoElementoFondo::Roca03, 1, 310.f, 0.f, 1.5f, ComportamientoElementoFondo::RectoAbajo},
         // {48.f, TipoElementoFondo::Roca08, 2, 140.f, 730.f, 1.5f, ComportamientoElementoFondo::RectoAbajo},

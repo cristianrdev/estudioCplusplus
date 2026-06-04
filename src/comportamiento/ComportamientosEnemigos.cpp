@@ -19,7 +19,7 @@ const ConfiguracionComportamientoEnemigo& obtenerComportamientoEnemigo(
         {"MoluscoGiratorioIzquierda", {-2.24f, 2.8f, 0.f}, {}},
         {"MiniBossMolusco", {0.f, 2.4f, 0.f}, {200.f, 10.f, 3.2f}},
         {"PescadoGigante", {0.f, 1.2f, 0.f}, {}},
-        {"CangrejoMetalico", {2.4f, 1.5f, 0.f}, {}},
+        {"CangrejoMetalico", {270.f, 1.5f, 0.035f}, {}},
         {"TortugaGiratoria", {0.f, 1.35f, 0.f}, {}},
     };
 

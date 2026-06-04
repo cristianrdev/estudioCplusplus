@@ -1034,6 +1034,8 @@ void CangrejoMetalico::activar(
 {
     const float mitadAlto = sprite_.getGlobalBounds().size.y / 2.f;
     sprite_.setPosition({posicionX, -mitadAlto});
+    posicionXInicial_ = posicionX;
+    fase_ = 0.f;
     danio_ = danio;
     vida_ = vida;
     frecuenciaDisparo_ = frecuenciaDisparo;
@@ -1045,11 +1047,13 @@ void CangrejoMetalico::activar(
 }
 
 void CangrejoMetalico::configurarMovimiento(
-    float velocidadHorizontal,
-    float velocidadVertical)
+    float amplitud,
+    float velocidadVertical,
+    float velocidadOscilacion)
 {
-    velocidadHorizontal_ = velocidadHorizontal;
+    amplitud_ = amplitud;
     velocidadVertical_ = velocidadVertical;
+    velocidadOscilacion_ = velocidadOscilacion;
 }
 
 void CangrejoMetalico::actualizar()
@@ -1058,15 +1062,12 @@ void CangrejoMetalico::actualizar()
         return;
 
     actualizarAnimacion();
-    sprite_.move({velocidadHorizontal_, velocidadVertical_});
-
-    const float mitadAncho = sprite_.getGlobalBounds().size.x / 2.f;
-    const float x = sprite_.getPosition().x;
-    if (x < mitadAncho || x > 1024.f - mitadAncho)
-    {
-        velocidadHorizontal_ = -velocidadHorizontal_;
-        sprite_.move({velocidadHorizontal_ * 2.f, 0.f});
-    }
+    fase_ += velocidadOscilacion_;
+    sprite_.move({0.f, velocidadVertical_});
+    sprite_.setPosition({
+        posicionXInicial_ + std::sin(fase_) * amplitud_,
+        sprite_.getPosition().y
+    });
 
     if (sprite_.getGlobalBounds().position.y > 1080.f)
         activo_ = false;

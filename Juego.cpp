@@ -1310,7 +1310,8 @@ void Juego::crearOleada(const OleadaEnemigos& oleada)
                 texturaCangrejoMetalicoFrame3_);
             cangrejo->configurarMovimiento(
                 comportamiento.movimiento.amplitudOVelocidadHorizontal,
-                comportamiento.movimiento.velocidadVertical);
+                comportamiento.movimiento.velocidadVertical,
+                comportamiento.movimiento.velocidadOscilacion);
             cangrejo->activar(
                 posicionX,
                 std::clamp(oleada.danio, 1, 3),

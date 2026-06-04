@@ -292,7 +292,10 @@ public:
         const sf::Texture& texturaFrame2,
         const sf::Texture& texturaFrame3);
     void activar(float posicionX, int danio, int vida, float frecuenciaDisparo);
-    void configurarMovimiento(float velocidadHorizontal, float velocidadVertical);
+    void configurarMovimiento(
+        float amplitud,
+        float velocidadVertical,
+        float velocidadOscilacion);
     void actualizar();
     void dibujar(sf::RenderWindow& window) const;
     bool estaActivo() const;
@@ -307,8 +310,11 @@ public:
 private:
     void actualizarAnimacion();
 
-    float velocidadHorizontal_ = 2.4f;
+    float posicionXInicial_ = 0.f;
+    float fase_ = 0.f;
+    float amplitud_ = 350.f;
     float velocidadVertical_ = 1.5f;
+    float velocidadOscilacion_ = 0.035f;
     float escala_ = 0.585f;
     int frame_ = 0;
     bool activo_ = false;
