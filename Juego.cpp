@@ -144,7 +144,7 @@ int Juego::ejecutar()
         {TipoEnemigo::MoluscoGiratorio, "assets/explosiones/explosion_esbirro.png"},
         {TipoEnemigo::MiniBossMolusco, "assets/explosiones/explosion_enemigo_alien.png"},
         {TipoEnemigo::PescadoGigante, "assets/explosiones/explosion_enemigo_nave.png"},
-        {TipoEnemigo::CangrejoMetalico, "assets/explosiones/explosion_esbirro.png"},
+        {TipoEnemigo::CangrejoMetalico, "assets/explosiones/explosion_cangrejo_metalico.png"},
         {TipoEnemigo::TortugaGiratoria, "assets/explosiones/explosion_tortuga.png"}})
     {
         if (!cargarTexturaContabilizada(texturasExplosionesEnemigos_[tipo], ruta))
@@ -2032,7 +2032,9 @@ void Juego::dibujarExplosionesEnemigos()
                     ? 0.16f
                     : explosion.tipo == TipoEnemigo::TortugaGiratoria
                         ? 0.12f
-                        : explosion.tipo == TipoEnemigo::Nave ? 0.075f : 0.055f;
+                        : explosion.tipo == TipoEnemigo::CangrejoMetalico
+                            ? 0.12f
+                            : explosion.tipo == TipoEnemigo::Nave ? 0.075f : 0.055f;
         const float escala = escalaBase * (0.65f + progreso * 0.7f);
 
         sf::Sprite sprite(texturasExplosionesEnemigos_.at(explosion.tipo));
